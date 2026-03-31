@@ -505,7 +505,7 @@ export default function ExplorerMap() {
           {/* Track line */}
           {trackPoints.length > 1 && (
             <Polyline
-              positions={trackPoints.map((p) => [p.lat, p.lng])}
+              positions={trackPoints.map((p) => [p.lat, p.lng] as L.LatLngTuple)}
               color="#E53935"
               weight={3}
             />
