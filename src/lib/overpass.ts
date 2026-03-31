@@ -1,6 +1,10 @@
 import { POI, POICategory } from './types';
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const OVERPASS_URLS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+];
 
 const CATEGORY_QUERIES: Record<POICategory, string> = {
   museum: 'node["tourism"="museum"]',
