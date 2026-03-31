@@ -1,6 +1,10 @@
 import { POI, POICategory } from './types';
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const OVERPASS_URLS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter',
+];
 
 const CATEGORY_QUERIES: Record<POICategory, string> = {
   museum: 'node["tourism"="museum"]',
@@ -34,16 +38,26 @@ export async function fetchPOIs(
     out center 80;
   `;
 
-  try {
-    const res = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
+  for (const url of OVERPASS_URLS) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        body: `data=${encodeURIComponent(query)}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
 
-    if (!res.ok) throw new Error('Overpass API error');
+      if (!res.ok) {
+        console.warn(`Overpass endpoint ${url} returned ${res.status}, trying next...`);
+        continue;
+      }
 
-    const data = await res.json();
+      const text = await res.text();
+      if (text.includes('<html') || text.includes('Error')) {
+        console.warn(`Overpass endpoint ${url} returned HTML error, trying next...`);
+        continue;
+      }
+
+      const data = JSON.parse(text);
 
     return data.elements
       .filter((el: any) => {
@@ -66,10 +80,14 @@ export async function fetchPOIs(
           rating: el.tags?.stars ? parseInt(el.tags.stars) : undefined,
         } as POI;
       });
-  } catch (err) {
-    console.error('Error fetching POIs:', err);
-    return [];
+    } catch (err) {
+      console.warn(`Overpass endpoint ${url} failed:`, err);
+      continue;
+    }
   }
+
+  console.error('All Overpass endpoints failed');
+  return [];
 }
 
 function detectCategory(tags: Record<string, string>, active: POICategory[]): POICategory {

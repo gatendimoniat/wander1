@@ -46,6 +46,19 @@ function MapEvents({ onBoundsChange }: { onBoundsChange: (bounds: any) => void }
       });
     },
   });
+
+  // Load POIs on initial mount
+  useEffect(() => {
+    const b = map.getBounds();
+    onBoundsChange({
+      south: b.getSouth(),
+      west: b.getWest(),
+      north: b.getNorth(),
+      east: b.getEast(),
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return null;
 }
 
