@@ -495,7 +495,7 @@ export default function ExplorerMap() {
           {/* Route line */}
           {routePoints.length > 1 && (
             <Polyline
-              positions={routePoints.map((p) => [p.lat, p.lng])}
+              positions={routePoints.map((p) => [p.lat, p.lng] as L.LatLngTuple)}
               color="hsl(152, 45%, 48%)"
               weight={3}
               dashArray="8 4"
