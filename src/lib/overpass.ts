@@ -80,10 +80,14 @@ export async function fetchPOIs(
           rating: el.tags?.stars ? parseInt(el.tags.stars) : undefined,
         } as POI;
       });
-  } catch (err) {
-    console.error('Error fetching POIs:', err);
-    return [];
+    } catch (err) {
+      console.warn(`Overpass endpoint ${url} failed:`, err);
+      continue;
+    }
   }
+
+  console.error('All Overpass endpoints failed');
+  return [];
 }
 
 function detectCategory(tags: Record<string, string>, active: POICategory[]): POICategory {
