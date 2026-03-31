@@ -38,16 +38,26 @@ export async function fetchPOIs(
     out center 80;
   `;
 
-  try {
-    const res = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      body: `data=${encodeURIComponent(query)}`,
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    });
+  for (const url of OVERPASS_URLS) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        body: `data=${encodeURIComponent(query)}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
 
-    if (!res.ok) throw new Error('Overpass API error');
+      if (!res.ok) {
+        console.warn(`Overpass endpoint ${url} returned ${res.status}, trying next...`);
+        continue;
+      }
 
-    const data = await res.json();
+      const text = await res.text();
+      if (text.includes('<html') || text.includes('Error')) {
+        console.warn(`Overpass endpoint ${url} returned HTML error, trying next...`);
+        continue;
+      }
+
+      const data = JSON.parse(text);
 
     return data.elements
       .filter((el: any) => {
