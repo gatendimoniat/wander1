@@ -490,8 +490,9 @@ export default function ExplorerMap() {
       <div className="flex-1 relative">
         <MapContainer center={[40.4168, -3.7038]} zoom={6} className="h-full w-full" zoomControl={false}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={tileLayer}
+            attribution={TILE_LAYERS[tileLayer].attribution}
+            url={TILE_LAYERS[tileLayer].url}
           />
           <MapEvents onBoundsChange={handleBoundsChange} />
           {flyToCenter && <FlyTo center={flyToCenter} />}
