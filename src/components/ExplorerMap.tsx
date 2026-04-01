@@ -5,7 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { POI, POICategory, CATEGORY_CONFIG, SavedRoute, RecordedTrack, TrackPoint } from '@/lib/types';
 import { fetchPOIs, searchLocation } from '@/lib/overpass';
 import { saveRoute, getSavedRoutes, deleteRoute, saveTrack, getSavedTracks, deleteTrack } from '@/lib/storage';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, Download } from 'lucide-react';
+import { routeToGPX, trackToGPX, downloadGPX } from '@/lib/gpx';
 
 // Fix leaflet marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -70,6 +71,14 @@ function FlyTo({ center }: { center: [number, number] }) {
   return null;
 }
 
+const TILE_LAYERS = {
+  osm: { name: 'Mapa', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
+  topo: { name: 'Topo', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>' },
+  satellite: { name: 'Satélite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attribution: '&copy; Esri' },
+} as const;
+
+type TileLayerKey = keyof typeof TILE_LAYERS;
+
 export default function ExplorerMap() {
   const [pois, setPois] = useState<POI[]>([]);
   const [activeCategories, setActiveCategories] = useState<POICategory[]>(['museum', 'castle', 'cathedral', 'tourist', 'viewpoint', 'peak']);
@@ -79,6 +88,7 @@ export default function ExplorerMap() {
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track'>('categories');
+  const [tileLayer, setTileLayer] = useState<TileLayerKey>('osm');
 
   // Route building
   const [routePoints, setRoutePoints] = useState<POI[]>([]);
@@ -369,6 +379,9 @@ export default function ExplorerMap() {
                   <div key={route.id} className="bg-sidebar-accent p-3 rounded-lg">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{route.name}</span>
+                      <button onClick={() => downloadGPX(routeToGPX(route), route.name)} className="text-sidebar-primary hover:opacity-70" title="Descargar GPX">
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
                       <button onClick={() => handleDeleteRoute(route.id)} className="text-destructive hover:opacity-70">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -386,6 +399,9 @@ export default function ExplorerMap() {
                   <div key={track.id} className="bg-sidebar-accent p-3 rounded-lg">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{track.name}</span>
+                      <button onClick={() => downloadGPX(trackToGPX(track), track.name)} className="text-sidebar-primary hover:opacity-70" title="Descargar GPX">
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
                       <button onClick={() => handleDeleteTrack(track.id)} className="text-destructive hover:opacity-70">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
@@ -480,8 +496,9 @@ export default function ExplorerMap() {
       <div className="flex-1 relative">
         <MapContainer center={[40.4168, -3.7038]} zoom={6} className="h-full w-full" zoomControl={false}>
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={tileLayer}
+            attribution={TILE_LAYERS[tileLayer].attribution}
+            url={TILE_LAYERS[tileLayer].url}
           />
           <MapEvents onBoundsChange={handleBoundsChange} />
           {flyToCenter && <FlyTo center={flyToCenter} />}
@@ -524,6 +541,19 @@ export default function ExplorerMap() {
             />
           )}
         </MapContainer>
+
+        {/* Layer Switcher */}
+        <div className="absolute bottom-4 right-4 z-[1000] flex gap-1 bg-sidebar/90 backdrop-blur-sm rounded-lg p-1 shadow-lg">
+          {(Object.entries(TILE_LAYERS) as [TileLayerKey, typeof TILE_LAYERS[TileLayerKey]][]).map(([key, layer]) => (
+            <button
+              key={key}
+              onClick={() => setTileLayer(key)}
+              className={`px-3 py-1.5 text-xs rounded-md font-medium transition ${tileLayer === key ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
+            >
+              {layer.name}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
