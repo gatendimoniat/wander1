@@ -71,6 +71,14 @@ function FlyTo({ center }: { center: [number, number] }) {
   return null;
 }
 
+const TILE_LAYERS = {
+  osm: { name: 'Mapa', url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
+  topo: { name: 'Topo', url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>' },
+  satellite: { name: 'Satélite', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attribution: '&copy; Esri' },
+} as const;
+
+type TileLayerKey = keyof typeof TILE_LAYERS;
+
 export default function ExplorerMap() {
   const [pois, setPois] = useState<POI[]>([]);
   const [activeCategories, setActiveCategories] = useState<POICategory[]>(['museum', 'castle', 'cathedral', 'tourist', 'viewpoint', 'peak']);
@@ -80,6 +88,7 @@ export default function ExplorerMap() {
   const [loading, setLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track'>('categories');
+  const [tileLayer, setTileLayer] = useState<TileLayerKey>('osm');
 
   // Route building
   const [routePoints, setRoutePoints] = useState<POI[]>([]);
