@@ -5,7 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import { POI, POICategory, CATEGORY_CONFIG, SavedRoute, RecordedTrack, TrackPoint } from '@/lib/types';
 import { fetchPOIs, searchLocation } from '@/lib/overpass';
 import { saveRoute, getSavedRoutes, deleteRoute, saveTrack, getSavedTracks, deleteTrack } from '@/lib/storage';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, Download } from 'lucide-react';
+import { routeToGPX, trackToGPX, downloadGPX } from '@/lib/gpx';
 
 // Fix leaflet marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
