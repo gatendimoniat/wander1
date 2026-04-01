@@ -534,7 +534,19 @@ export default function ExplorerMap() {
               weight={3}
             />
           )}
-        </MapContainer>
+
+        {/* Layer Switcher */}
+        <div className="absolute bottom-4 right-4 z-[1000] flex gap-1 bg-sidebar/90 backdrop-blur-sm rounded-lg p-1 shadow-lg">
+          {(Object.entries(TILE_LAYERS) as [TileLayerKey, typeof TILE_LAYERS[TileLayerKey]][]).map(([key, layer]) => (
+            <button
+              key={key}
+              onClick={() => setTileLayer(key)}
+              className={`px-3 py-1.5 text-xs rounded-md font-medium transition ${tileLayer === key ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
+            >
+              {layer.name}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
