@@ -399,6 +399,9 @@ export default function ExplorerMap() {
                   <div key={track.id} className="bg-sidebar-accent p-3 rounded-lg">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{track.name}</span>
+                      <button onClick={() => downloadGPX(trackToGPX(track), track.name)} className="text-sidebar-primary hover:opacity-70" title="Descargar GPX">
+                        <Download className="w-3.5 h-3.5" />
+                      </button>
                       <button onClick={() => handleDeleteTrack(track.id)} className="text-destructive hover:opacity-70">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
