@@ -534,6 +534,7 @@ export default function ExplorerMap() {
               weight={3}
             />
           )}
+        </MapContainer>
 
         {/* Layer Switcher */}
         <div className="absolute bottom-4 right-4 z-[1000] flex gap-1 bg-sidebar/90 backdrop-blur-sm rounded-lg p-1 shadow-lg">
