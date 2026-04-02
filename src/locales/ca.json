@@ -1,0 +1,112 @@
+{
+  "app": {
+    "title": "ExploraMap",
+    "subtitle": "Descobreix els millors llocs"
+  },
+  "search": {
+    "placeholder": "Cercar adreça, ciutat, lloc..."
+  },
+  "tabs": {
+    "filters": "Filtres",
+    "route": "Ruta",
+    "saved": "Desat",
+    "track": "Track"
+  },
+  "categories": {
+    "title": "Selecciona categories per explorar",
+    "loading": "Carregant llocs...",
+    "found": "llocs trobats",
+    "museum": "Museus",
+    "castle": "Castells",
+    "church": "Esglésies i Catedrals",
+    "monument": "Monuments",
+    "restaurant": "Restaurants",
+    "lake": "Llacs",
+    "peak": "Cims",
+    "viewpoint": "Miradors",
+    "hiking": "Senderisme",
+    "bridge": "Ponts",
+    "tourist": "Llocs d'Interès",
+    "beach": "Platges",
+    "service": "Serveis",
+    "shop": "Botigues",
+    "park": "Parcs",
+    "heritage": "Patrimoni",
+    "city": "Pobles i Ciutats"
+  },
+  "route": {
+    "hint": "Fes clic a \"+\" als marcadors del mapa per afegir a la teva ruta",
+    "namePlaceholder": "Nom de la ruta...",
+    "save": "Desar ruta",
+    "points": "punts",
+    "empty": "Afegeix llocs des del mapa",
+    "add": "Afegir a ruta"
+  },
+  "saved": {
+    "routes": "Rutes desades",
+    "tracks": "Tracks gravats",
+    "stops": "parades",
+    "empty": "Sense dades desades encara",
+    "distance": "Distància",
+    "elevationGain": "Desnivell +",
+    "elevationLoss": "Desnivell -",
+    "maxAltitude": "Alt. màx",
+    "minAltitude": "mín",
+    "difficulty": "Dificultat",
+    "easy": "Fàcil",
+    "moderate": "Moderada",
+    "hard": "Difícil",
+    "expert": "Expert"
+  },
+  "track": {
+    "hint": "Grava un track GPS del teu recorregut",
+    "start": "Iniciar gravació",
+    "stop": "Aturar gravació",
+    "recording": "Gravant...",
+    "points": "punts",
+    "namePlaceholder": "Nom del track...",
+    "save": "Desar track",
+    "noGeolocation": "El teu navegador no suporta geolocalització",
+    "confirmClear": "Esborrar el track actual i començar un de nou?",
+    "gpsError": "Error de GPS",
+    "gpsDenied": "Permís de ubicació denegat",
+    "gpsUnavailable": "Ubicació no disponible",
+    "gpsTimeout": "Temps d'espera de GPS esgotat"
+  },
+  "mock": {
+    "usingMock": "Usant dades mock — clic per dades reals",
+    "usingLive": "Usant dades reals — clic per dades mock"
+  },
+  "toast": {
+    "routeSaved": "Ruta desada",
+    "routeDeleted": "Ruta eliminada",
+    "trackSaved": "Track desat",
+    "trackDeleted": "Track eliminat",
+    "apiSlow": "API lenta, esperant...",
+    "apiError": "Error d'API, usant dades locals"
+  },
+  "api": {
+    "slow": "API lenta, esperant...",
+    "error": "API sobrecarregada, usant dades locals"
+  },
+  "popup": {
+    "address": "Adreça",
+    "web": "Web",
+    "phone": "Telèfon",
+    "hours": "Horari",
+    "reviews": "valoracions",
+    "description": "Descripció",
+    "population": "Població"
+  },
+  "filters": {
+    "minRating": "Valoració mínima",
+    "reviewCount": "Nº de valoracions",
+    "all": "Totes"
+  },
+  "language": {
+    "es": "Castellano",
+    "ca": "Català",
+    "en": "English",
+    "change": "Canviar idioma"
+  }
+}

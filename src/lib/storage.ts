@@ -4,8 +4,14 @@ const ROUTES_KEY = 'explorer-routes';
 const TRACKS_KEY = 'explorer-tracks';
 
 export function getSavedRoutes(): SavedRoute[] {
-  const data = localStorage.getItem(ROUTES_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(ROUTES_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    console.warn('Failed to parse saved routes, resetting');
+    localStorage.removeItem(ROUTES_KEY);
+    return [];
+  }
 }
 
 export function saveRoute(route: SavedRoute) {
@@ -20,8 +26,14 @@ export function deleteRoute(id: string) {
 }
 
 export function getSavedTracks(): RecordedTrack[] {
-  const data = localStorage.getItem(TRACKS_KEY);
-  return data ? JSON.parse(data) : [];
+  try {
+    const data = localStorage.getItem(TRACKS_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    console.warn('Failed to parse saved tracks, resetting');
+    localStorage.removeItem(TRACKS_KEY);
+    return [];
+  }
 }
 
 export function saveTrack(track: RecordedTrack) {

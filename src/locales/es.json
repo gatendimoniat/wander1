@@ -1,0 +1,112 @@
+{
+  "app": {
+    "title": "ExploraMap",
+    "subtitle": "Descubre los mejores lugares"
+  },
+  "search": {
+    "placeholder": "Buscar dirección, ciudad, lugar..."
+  },
+  "tabs": {
+    "filters": "Filtros",
+    "route": "Ruta",
+    "saved": "Guardado",
+    "track": "Track"
+  },
+  "categories": {
+    "title": "Selecciona categorías para explorar",
+    "loading": "Cargando lugares...",
+    "found": "lugares encontrados",
+    "museum": "Museos",
+    "castle": "Castillos",
+    "church": "Iglesias y Catedrales",
+    "monument": "Monumentos",
+    "restaurant": "Restaurantes",
+    "lake": "Lagos",
+    "peak": "Picos",
+    "viewpoint": "Miradores",
+    "hiking": "Senderismo",
+    "bridge": "Puentes",
+    "tourist": "Sitios de Interés",
+    "beach": "Playas",
+    "service": "Servicios",
+    "shop": "Tiendas",
+    "park": "Parques",
+    "heritage": "Patrimonio",
+    "city": "Pueblos y Ciudades"
+  },
+  "route": {
+    "hint": "Haz clic en \"+\" en los marcadores del mapa para añadir a tu ruta",
+    "namePlaceholder": "Nombre de la ruta...",
+    "save": "Guardar ruta",
+    "points": "puntos",
+    "empty": "Añade lugares desde el mapa",
+    "add": "Añadir a ruta"
+  },
+  "saved": {
+    "routes": "Rutas guardadas",
+    "tracks": "Tracks grabados",
+    "stops": "paradas",
+    "empty": "Sin datos guardados aún",
+    "distance": "Distancia",
+    "elevationGain": "Desnivel +",
+    "elevationLoss": "Desnivel -",
+    "maxAltitude": "Alt. máx",
+    "minAltitude": "mín",
+    "difficulty": "Dificultad",
+    "easy": "Fácil",
+    "moderate": "Moderada",
+    "hard": "Difícil",
+    "expert": "Experta"
+  },
+  "track": {
+    "hint": "Graba un track GPS de tu recorrido",
+    "start": "Iniciar grabación",
+    "stop": "Detener grabación",
+    "recording": "Grabando...",
+    "points": "puntos",
+    "namePlaceholder": "Nombre del track...",
+    "save": "Guardar track",
+    "noGeolocation": "Tu navegador no soporta geolocalización",
+    "confirmClear": "¿Borrar el track actual y empezar uno nuevo?",
+    "gpsError": "Error de GPS",
+    "gpsDenied": "Permiso de ubicación denegado",
+    "gpsUnavailable": "Ubicación no disponible",
+    "gpsTimeout": "Tiempo de espera de GPS agotado"
+  },
+  "mock": {
+    "usingMock": "Usando datos mock — clic para datos reales",
+    "usingLive": "Usando datos reales — clic para datos mock"
+  },
+  "toast": {
+    "routeSaved": "Ruta guardada",
+    "routeDeleted": "Ruta eliminada",
+    "trackSaved": "Track guardado",
+    "trackDeleted": "Track eliminado",
+    "apiSlow": "API lenta, espera...",
+    "apiError": "Error de API, usando datos locales"
+  },
+  "api": {
+    "slow": "API lenta, esperando...",
+    "error": "API sobrecargada, usando datos locales"
+  },
+  "popup": {
+    "address": "Dirección",
+    "web": "Web",
+    "phone": "Teléfono",
+    "hours": "Horario",
+    "reviews": "valoraciones",
+    "description": "Descripción",
+    "population": "Población"
+  },
+  "filters": {
+    "minRating": "Valoración mínima",
+    "reviewCount": "Nº de valoraciones",
+    "all": "Todas"
+  },
+  "language": {
+    "es": "Castellano",
+    "ca": "Català",
+    "en": "English",
+    "change": "Cambiar idioma"
+  }
+}

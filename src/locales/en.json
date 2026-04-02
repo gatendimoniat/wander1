@@ -1,0 +1,112 @@
+{
+  "app": {
+    "title": "ExploraMap",
+    "subtitle": "Discover the best places"
+  },
+  "search": {
+    "placeholder": "Search address, city, place..."
+  },
+  "tabs": {
+    "filters": "Filters",
+    "route": "Route",
+    "saved": "Saved",
+    "track": "Track"
+  },
+  "categories": {
+    "title": "Select categories to explore",
+    "loading": "Loading places...",
+    "found": "places found",
+    "museum": "Museums",
+    "castle": "Castles",
+    "church": "Churches & Cathedrals",
+    "monument": "Monuments",
+    "restaurant": "Restaurants",
+    "lake": "Lakes",
+    "peak": "Peaks",
+    "viewpoint": "Viewpoints",
+    "hiking": "Hiking",
+    "bridge": "Bridges",
+    "tourist": "Points of Interest",
+    "beach": "Beaches",
+    "service": "Services",
+    "shop": "Shops",
+    "park": "Parks",
+    "heritage": "Heritage",
+    "city": "Towns & Cities"
+  },
+  "route": {
+    "hint": "Click on \"+\" in map markers to add to your route",
+    "namePlaceholder": "Route name...",
+    "save": "Save route",
+    "points": "points",
+    "empty": "Add places from the map",
+    "add": "Add to route"
+  },
+  "saved": {
+    "routes": "Saved routes",
+    "tracks": "Recorded tracks",
+    "stops": "stops",
+    "empty": "No saved data yet",
+    "distance": "Distance",
+    "elevationGain": "Elevation +",
+    "elevationLoss": "Elevation -",
+    "maxAltitude": "Max altitude",
+    "minAltitude": "min",
+    "difficulty": "Difficulty",
+    "easy": "Easy",
+    "moderate": "Moderate",
+    "hard": "Hard",
+    "expert": "Expert"
+  },
+  "track": {
+    "hint": "Record a GPS track of your route",
+    "start": "Start recording",
+    "stop": "Stop recording",
+    "recording": "Recording...",
+    "points": "points",
+    "namePlaceholder": "Track name...",
+    "save": "Save track",
+    "noGeolocation": "Your browser does not support geolocation",
+    "confirmClear": "Delete current track and start a new one?",
+    "gpsError": "GPS error",
+    "gpsDenied": "Location permission denied",
+    "gpsUnavailable": "Location unavailable",
+    "gpsTimeout": "GPS timeout"
+  },
+  "popup": {
+    "address": "Address",
+    "web": "Web",
+    "phone": "Phone",
+    "hours": "Hours",
+    "reviews": "reviews",
+    "description": "Description",
+    "population": "Population"
+  },
+  "filters": {
+    "minRating": "Minimum rating",
+    "reviewCount": "Nº of reviews",
+    "all": "All"
+  },
+  "language": {
+    "es": "Castellano",
+    "ca": "Català",
+    "en": "English",
+    "change": "Change language"
+  },
+  "mock": {
+    "usingMock": "Using mock data — click for real data",
+    "usingLive": "Using real data — click for mock data"
+  },
+  "toast": {
+    "routeSaved": "Route saved",
+    "routeDeleted": "Route deleted",
+    "trackSaved": "Track saved",
+    "trackDeleted": "Track deleted",
+    "apiSlow": "API slow, waiting...",
+    "apiError": "API error, using local data"
+  },
+  "api": {
+    "slow": "API slow, waiting...",
+    "error": "API overloaded, using local data"
+  }
+}
