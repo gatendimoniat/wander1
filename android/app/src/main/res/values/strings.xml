@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ExploraWander</string>
+    <string name="title_activity_main">ExploraWander</string>
+    <string name="package_name">com.explorawander.app</string>
+    <string name="custom_url_scheme">com.explorawander.app</string>
+</resources>

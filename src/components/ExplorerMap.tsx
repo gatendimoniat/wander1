@@ -3,15 +3,12 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
-import { POI, POICategory, CATEGORY_CONFIG, SavedRoute, RecordedTrack, TrackPoint, Bounds } from '@/lib/types';
-import { MOCK_SAVED_ROUTES, MOCK_SAVED_TRACKS } from '@/lib/poiDatabase';
-import { loadPOIsFromOverpass } from '@/lib/overpassLoader';
-import { saveRoute, getSavedRoutes, deleteRoute, saveTrack, getSavedTracks, deleteTrack } from '@/lib/storage';
-import { exportRouteToJSON, exportRouteToGPX, exportTrackToJSON, exportTrackToGPX, exportAllToJSON, importRouteFromJSON, importTrackFromJSON, importTrackFromGPX, downloadFile } from '@/lib/exportImport';
-import { decodeFromShareable, encodeRouteToShareable, encodeTrackToShareable, getShareableUrl, getQRCodeUrl } from '@/lib/shareUtils';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Filter, Star, MessageSquare, Sun, Moon, Map, Satellite, Crosshair, Share2, Download } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Sun, Moon, Map, Satellite, Crosshair, Share2, Download } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { supabase } from '@/lib/supabase';
 import WikipediaInfo from './WikipediaInfo';
 import LanguageSelector from './LanguageSelector';
+import Auth from './Auth';
 import { toast } from 'sonner';
 
 type MapLayer = 'standard' | 'satellite' | 'topo' | 'cycle';
@@ -46,7 +43,7 @@ const MAP_LAYERS: Record<MapLayer, MapLayerConfig> = {
 };
 
 // Fix leaflet marker icons
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
+delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -84,15 +81,6 @@ const userLocationIcon = L.divIcon({
 function MapEvents({ onBoundsChange }: { onBoundsChange: (bounds: Bounds, zoom: number) => void }) {
   const map = useMapEvents({
     moveend: () => {
-      const b = map.getBounds();
-      onBoundsChange({
-        south: b.getSouth(),
-        west: b.getWest(),
-        north: b.getNorth(),
-        east: b.getEast(),
-      }, map.getZoom());
-    },
-    zoomend: () => {
       const b = map.getBounds();
       onBoundsChange({
         south: b.getSouth(),
@@ -172,6 +160,7 @@ function UserLocationMarker({ onLocationUpdate }: { onLocationUpdate: (latlng: [
 
 export default function ExplorerMap() {
   const { t, i18n } = useTranslation();
+  const isMobile = useIsMobile();
   const [allPois, setAllPois] = useState<POI[]>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
   const [activeCategories, setActiveCategories] = useState<POICategory[]>([]);
@@ -181,13 +170,30 @@ export default function ExplorerMap() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [flyToCenter, setFlyToCenter] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
+  const touchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const touchMoveRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchMoveRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+
+  const handleTouchEnd = () => {
+    const dx = touchMoveRef.current.x - touchStartRef.current.x;
+    const dy = touchMoveRef.current.y - touchStartRef.current.y;
+    if (!isMobile) return;
+    if (sidebarOpen && dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+      setSidebarOpen(false);
+    } else if (!sidebarOpen && dx > 80 && Math.abs(dx) > Math.abs(dy)) {
+      setSidebarOpen(true);
+    }
+  };
   const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track'>('categories');
   const [tileLayer, setTileLayer] = useState<MapLayer>('standard');
-  const [minRating, setMinRating] = useState<number>(0);
-  const [reviewRange, setReviewRange] = useState<'all' | 'lt100' | '100to1000' | 'gt1000'>('all');
-  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
-  const filterMenuRef = useRef<HTMLDivElement>(null);
   const [mapLayer, setMapLayer] = useState<MapLayer>('standard');
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const layerMenuRef = useRef<HTMLDivElement>(null);
@@ -195,27 +201,87 @@ export default function ExplorerMap() {
   const [fitBoundsTo, setFitBoundsTo] = useState<L.LatLngBoundsExpression | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeLoading, setRouteLoading] = useState(false);
-  const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : false);
+  const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true);
+  const currentZoomRef = useRef<number>(13);
   const [currentZoom, setCurrentZoom] = useState(13);
+  const lastLoadedBoundsRef = useRef<Bounds | null>(null);
+
+  const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  };
+
+  const calculateTrackStats = (points: TrackPoint[]) => {
+    let distance = 0;
+    let elevGain = 0;
+    let elevLoss = 0;
+    let maxAlt = -Infinity;
+    let minAlt = Infinity;
+
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1];
+      const curr = points[i];
+      distance += haversine(prev.lat, prev.lng, curr.lat, curr.lng);
+      if (curr.altitude !== undefined && prev.altitude !== undefined) {
+        const diff = curr.altitude - prev.altitude;
+        if (diff > 0) elevGain += diff;
+        else elevLoss += Math.abs(diff);
+      }
+      if (curr.altitude !== undefined) {
+        maxAlt = Math.max(maxAlt, curr.altitude);
+        minAlt = Math.min(minAlt, curr.altitude);
+      }
+    }
+
+    const difficulty: RecordedTrack['difficulty'] =
+      elevGain > 1000 ? 'expert' : elevGain > 500 ? 'hard' : elevGain > 200 ? 'moderate' : 'easy';
+
+    return { 
+      distance: Math.round(distance * 100) / 100, 
+      elevationGain: Math.round(elevGain), 
+      elevationLoss: Math.round(elevLoss), 
+      maxAltitude: maxAlt === -Infinity ? 0 : Math.round(maxAlt), 
+      minAltitude: minAlt === Infinity ? 0 : Math.round(minAlt), 
+      difficulty 
+    };
+  };
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (filterMenuRef.current && !filterMenuRef.current.contains(e.target as Node)) {
-        setFilterMenuOpen(false);
-      }
-    };
     const handleLayerClickOutside = (e: MouseEvent) => {
       if (layerMenuRef.current && !layerMenuRef.current.contains(e.target as Node)) {
         setLayerMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('mousedown', handleLayerClickOutside);
+
+    // Initial auth check and listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      refreshData();
+    });
+
+    refreshData();
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('mousedown', handleLayerClickOutside);
+      subscription.unsubscribe();
     };
   }, []);
+
+  const refreshData = async () => {
+    try {
+      const [routes, tracks] = await Promise.all([
+        getSavedRoutes(),
+        getSavedTracks()
+      ]);
+      setSavedRoutes([...MOCK_SAVED_ROUTES, ...routes]);
+      setSavedTracks([...MOCK_SAVED_TRACKS, ...tracks]);
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  };
 
   useEffect(() => {
     setDbLoaded(true);
@@ -228,31 +294,45 @@ export default function ExplorerMap() {
     if (shareParam) {
       const decoded = decodeFromShareable(shareParam);
       if (decoded) {
-        if (decoded.type === 'route') {
-          saveRoute(decoded.data);
-          setSavedRoutes(getSavedRoutes());
-          toast.success('Ruta importada!', { description: decoded.data.name });
-          handleViewRoute(decoded.data);
-        } else if (decoded.type === 'track') {
-          saveTrack(decoded.data);
-          setSavedTracks(getSavedTracks());
-          toast.success('Track importat!', { description: decoded.data.name });
-          handleViewTrack(decoded.data);
-        }
-        window.history.replaceState({}, '', window.location.pathname);
+        (async () => {
+          const confirmed = window.confirm(
+            decoded.type === 'route'
+              ? `Vols importar la ruta "${decoded.data.name}"?`
+              : `Vols importar el track "${decoded.data.name}"?`
+          );
+          if (!confirmed) {
+            window.history.replaceState({}, '', window.location.pathname);
+            return;
+          }
+          if (decoded.type === 'route') {
+            await saveRoute(decoded.data);
+            await refreshData();
+            toast.success('Ruta importada!', { description: decoded.data.name });
+            handleViewRoute(decoded.data);
+          } else if (decoded.type === 'track') {
+            await saveTrack(decoded.data);
+            await refreshData();
+            toast.success('Track importat!', { description: decoded.data.name });
+            handleViewTrack(decoded.data);
+          }
+          window.history.replaceState({}, '', window.location.pathname);
+        })();
       }
     }
   }, []);
 
   const [routePoints, setRoutePoints] = useState<POI[]>([]);
-  const [savedRoutes, setSavedRoutes] = useState<SavedRoute[]>(() => [...MOCK_SAVED_ROUTES, ...getSavedRoutes()]);
+  const [savedRoutes, setSavedRoutes] = useState<SavedRoute[]>(MOCK_SAVED_ROUTES);
   const [routeName, setRouteName] = useState('');
 
   const [isRecording, setIsRecording] = useState(false);
   const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([]);
-  const [savedTracks, setSavedTracks] = useState<RecordedTrack[]>(() => [...MOCK_SAVED_TRACKS, ...getSavedTracks()]);
+  const [savedTracks, setSavedTracks] = useState<RecordedTrack[]>(MOCK_SAVED_TRACKS);
   const [trackName, setTrackName] = useState('');
   const watchIdRef = useRef<number | null>(null);
+  const recordingTrackRef = useRef<TrackPoint[]>([]);
+  const lastRecordedTimeRef = useRef<number>(0);
+  const RECORDING_INTERVAL = 10000;
 
   const boundsRef = useRef<Bounds | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -300,43 +380,29 @@ export default function ExplorerMap() {
 
     // Zoom dynamic filtering: Progressive Disclosure (Relaxed if a category is active)
     const isCategoryFiltering = activeCategories.length > 0;
+    const zoom = currentZoomRef.current;
     
     if (!isCategoryFiltering) {
-      if (currentZoom < 10) {
+      if (zoom < 10) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 550);
       } 
-      else if (currentZoom < 12) {
+      else if (zoom < 12) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 400);
       }
-      else if (currentZoom < 14) {
+      else if (zoom < 14) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 150);
       }
     } else {
       // If filtering by category, still apply a small relevance filter to avoid noise
-      if (currentZoom < 12) {
+      if (zoom < 12) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 100);
       }
       filtered = filtered.filter(poi => activeCategories.includes(poi.category));
     }
 
     // Limit the number of POIs based on zoom to avoid clutter
-    const maxPois = currentZoom >= 15 ? 300 : currentZoom >= 13 ? 150 : currentZoom >= 11 ? 60 : 30;
+    const maxPois = zoom >= 15 ? 300 : zoom >= 13 ? 150 : zoom >= 11 ? 60 : 30;
     filtered = filtered.slice(0, maxPois);
-    // UI Filter: Minimum Rating (Stars)
-    if (minRating > 0) {
-      filtered = filtered.filter(poi => (poi.rating || 0) >= minRating);
-    }
-    
-    // UI Filter: Review Range (Importance proxy)
-    if (reviewRange !== 'all') {
-      filtered = filtered.filter(poi => {
-        const imp = poi.importance || 0;
-        if (reviewRange === 'lt100') return imp < 100;
-        if (reviewRange === '100to1000') return imp >= 100 && imp < 500;
-        if (reviewRange === 'gt1000') return imp >= 500;
-        return true;
-      });
-    }
     
     if (showBestOnly) {
       filtered = filtered.filter(poi => poi.isBest);
@@ -347,13 +413,26 @@ export default function ExplorerMap() {
     }
     
     return filtered.slice(0, 500);
-  }, [allPois, activeCategories, showBestOnly, currentZoom, minRating, reviewRange]);
+  }, [allPois, activeCategories, showBestOnly]);
 
   const handleBoundsChange = useCallback((bounds: Bounds, zoom: number = 10) => {
-    boundsRef.current = bounds;
+    currentZoomRef.current = zoom;
     setCurrentZoom(zoom);
+    
+    const boundsChanged = !lastLoadedBoundsRef.current ||
+      Math.abs(bounds.south - lastLoadedBoundsRef.current.south) > 0.01 ||
+      Math.abs(bounds.west - lastLoadedBoundsRef.current.west) > 0.01 ||
+      Math.abs(bounds.north - lastLoadedBoundsRef.current.north) > 0.01 ||
+      Math.abs(bounds.east - lastLoadedBoundsRef.current.east) > 0.01;
+    
+    if (!boundsChanged) return;
+    
+    boundsRef.current = bounds;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => loadPOIs(bounds, zoom), 800);
+    debounceRef.current = setTimeout(() => {
+      lastLoadedBoundsRef.current = bounds;
+      loadPOIs(bounds, zoom);
+    }, 600);
   }, [loadPOIs]);
 
   const handleSearch = async () => {
@@ -408,16 +487,17 @@ export default function ExplorerMap() {
     setRoutePoints((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleSaveRoute = () => {
+  const handleSaveRoute = async () => {
     if (routePoints.length < 2 || !routeName.trim()) return;
-    const route: SavedRoute = {
+    const newRoute = {
       id: crypto.randomUUID(),
       name: routeName,
-      points: routePoints,
+      points: [...routePoints],
       createdAt: new Date().toISOString(),
     };
-    saveRoute(route);
-    setSavedRoutes(getSavedRoutes());
+    await saveRoute(newRoute);
+    await refreshData();
+
     setRoutePoints([]);
     setRouteName('');
     toast.success(t('toast.routeSaved') || 'Ruta guardada', {
@@ -425,10 +505,10 @@ export default function ExplorerMap() {
     });
   };
 
-  const handleDeleteRoute = (id: string) => {
-    deleteRoute(id);
-    setSavedRoutes(getSavedRoutes());
-    toast.info(t('toast.routeDeleted') || 'Ruta eliminada');
+  const handleDeleteRoute = async (id: string) => {
+    await deleteRoute(id);
+    await refreshData();
+    toast.success('Ruta esborrada');
   };
 
   const handleViewRoute = (route: SavedRoute) => {
@@ -529,7 +609,7 @@ export default function ExplorerMap() {
   };
 
   // Track recording
-  const startRecording = () => {
+  const startRecording = async () => {
     if (!navigator.geolocation) {
       alert(t('track.noGeolocation'));
       return;
@@ -540,90 +620,59 @@ export default function ExplorerMap() {
       }
     }
     setTrackPoints([]);
+    recordingTrackRef.current = [];
+    lastRecordedTimeRef.current = 0;
     setIsRecording(true);
     setGpsError(null);
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const point: TrackPoint = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          altitude: pos.coords.altitude ?? undefined,
-          timestamp: pos.timestamp,
-        };
+
+    await backgroundTrackService.start(
+      (point) => {
+        recordingTrackRef.current.push(point);
         setTrackPoints((prev) => [...prev, point]);
         setGpsError(null);
       },
-      (err) => {
-        console.error('GPS error:', err);
-        let errorMsg = t('track.gpsError');
-        if (err.code === 1) errorMsg = t('track.gpsDenied');
-        else if (err.code === 2) errorMsg = t('track.gpsUnavailable');
-        else if (err.code === 3) errorMsg = t('track.gpsTimeout');
-        setGpsError(errorMsg);
-      },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+      (error) => {
+        console.error('GPS error:', error);
+        setGpsError(error);
+      }
     );
   };
 
   const stopRecording = () => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
+    backgroundTrackService.stop();
     setIsRecording(false);
   };
 
-  const calculateTrackStats = (points: TrackPoint[]) => {
-    let distance = 0;
-    let elevGain = 0;
-    let elevLoss = 0;
-    let maxAlt = -Infinity;
-    let minAlt = Infinity;
+  const handleSaveTrack = async () => {
+    if (recordingTrackRef.current.length < 2 || !trackName.trim()) return;
+    
+    const stats = calculateTrackStats(recordingTrackRef.current);
 
-    for (let i = 1; i < points.length; i++) {
-      const prev = points[i - 1];
-      const curr = points[i];
-      distance += haversine(prev.lat, prev.lng, curr.lat, curr.lng);
-      if (curr.altitude !== undefined && prev.altitude !== undefined) {
-        const diff = curr.altitude - prev.altitude;
-        if (diff > 0) elevGain += diff;
-        else elevLoss += Math.abs(diff);
-      }
-      if (curr.altitude !== undefined) {
-        maxAlt = Math.max(maxAlt, curr.altitude);
-        minAlt = Math.min(minAlt, curr.altitude);
-      }
-    }
-
-    const difficulty: RecordedTrack['difficulty'] =
-      elevGain > 1000 ? 'expert' : elevGain > 500 ? 'hard' : elevGain > 200 ? 'moderate' : 'easy';
-
-    return { distance: Math.round(distance * 100) / 100, elevationGain: Math.round(elevGain), elevationLoss: Math.round(elevLoss), maxAltitude: maxAlt === -Infinity ? 0 : Math.round(maxAlt), minAltitude: minAlt === Infinity ? 0 : Math.round(minAlt), difficulty };
-  };
-
-  const handleSaveTrack = () => {
-    if (trackPoints.length < 2 || !trackName.trim()) return;
-    const stats = calculateTrackStats(trackPoints);
-    const track: RecordedTrack = {
+    const newTrack: RecordedTrack = {
       id: crypto.randomUUID(),
-      name: trackName,
-      positions: trackPoints,
-      ...stats,
+      name: trackName || `Track ${new Date().toLocaleDateString()}`,
+      positions: Array.from(recordingTrackRef.current),
+      distance: stats.distance,
+      elevationGain: stats.elevationGain,
+      elevationLoss: stats.elevationLoss,
+      maxAltitude: stats.maxAltitude,
+      minAltitude: stats.minAltitude,
+      difficulty: stats.difficulty,
       createdAt: new Date().toISOString(),
     };
-    saveTrack(track);
-    setSavedTracks(getSavedTracks());
+    await saveTrack(newTrack);
+    await refreshData();
     setTrackPoints([]);
     setTrackName('');
     toast.success(t('toast.trackSaved') || 'Track guardado', {
-      description: `${trackName} - ${stats.distance} km`,
+      description: `${trackName} - ${newTrack.distance} km`,
     });
   };
 
-  const handleDeleteTrack = (id: string) => {
-    deleteTrack(id);
-    setSavedTracks(getSavedTracks());
-    toast.info(t('toast.trackDeleted') || 'Track eliminado');
+  const handleDeleteTrack = async (id: string) => {
+    await deleteTrack(id);
+    await refreshData();
+    toast.success('Track esborrat');
   };
 
   const handleExportRoute = (route: SavedRoute, format: 'json' | 'gpx' = 'json') => {
@@ -646,9 +695,9 @@ export default function ExplorerMap() {
     toast.success('Track exportat');
   };
 
-  const handleExportAll = () => {
-    const routes = getSavedRoutes();
-    const tracks = getSavedTracks();
+  const handleExportAll = async () => {
+    const routes = await getSavedRoutes();
+    const tracks = await getSavedTracks();
     downloadFile(exportAllToJSON(routes, tracks), 'exploramap_backup.json', 'application/json');
     toast.success('Còpia de seguretat exportada');
   };
@@ -661,59 +710,99 @@ export default function ExplorerMap() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
       
-      const text = await file.text();
-      const filename = file.name.toLowerCase();
-      
-      if (filename.endsWith('.gpx')) {
-        const track = importTrackFromGPX(text);
-        if (track) {
-          saveTrack(track);
-          setSavedTracks(getSavedTracks());
-          toast.success('Track importat');
-        } else {
-          toast.error('Error en importar GPX');
-        }
-      } else {
-        const route = importRouteFromJSON(text);
-        if (route) {
-          saveRoute(route);
-          setSavedRoutes(getSavedRoutes());
-          toast.success('Ruta importada');
-          return;
-        }
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const text = e.target?.result as string;
+        const filename = file.name.toLowerCase();
         
-        const track = importTrackFromJSON(text);
-        if (track) {
-          saveTrack(track);
-          setSavedTracks(getSavedTracks());
-          toast.success('Track importat');
+        if (filename.endsWith('.gpx')) {
+          const track = importTrackFromGPX(text);
+          if (track) {
+            await saveTrack(track);
+            await refreshData();
+            toast.success('Track importat');
+          } else {
+            toast.error('Error en importar GPX');
+          }
         } else {
-          toast.error('Error en importar fitxer');
+          const route = importRouteFromJSON(text);
+          if (route) {
+            await saveRoute(route);
+            await refreshData();
+            toast.success('Ruta importada');
+            return;
+          }
+          
+          const track = importTrackFromJSON(text);
+          if (track) {
+            await saveTrack(track);
+            await refreshData();
+            toast.success('Track importat');
+          } else {
+            toast.error('Error en importar fitxer');
+          }
         }
-      }
+      };
+      reader.readAsText(file);
     };
     input.click();
   };
 
   return (
     <div className="h-screen w-screen flex overflow-hidden">
+      {/* Mobile backdrop overlay */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-[1000] bg-black/40" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <div className={`relative z-[1000] flex transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'}`}>
-        <div className={`h-full bg-sidebar text-sidebar-foreground flex flex-col overflow-hidden ${sidebarOpen ? 'w-80' : 'w-0'}`}>
+      <div className={`${
+        isMobile 
+          ? `fixed inset-x-0 bottom-0 z-[1001] transition-transform duration-300 ${sidebarOpen ? 'translate-y-0' : 'translate-y-full'}` 
+          : `relative z-[1000] transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'}`
+      }`}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchMove={isMobile ? handleTouchMove : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
+        <div className={`bg-sidebar text-sidebar-foreground flex flex-col overflow-hidden transition-all duration-300 ${
+          isMobile 
+            ? 'w-full max-h-[70vh] rounded-t-2xl shadow-2xl' 
+            : sidebarOpen ? 'w-80 h-screen' : 'w-0'
+        }`}>
+          {/* Mobile drag handle */}
+          {isMobile && (
+            <div className="flex justify-center py-2 bg-sidebar-border/20 shrink-0">
+              <div className="w-10 h-1 bg-sidebar-foreground/30 rounded-full" />
+            </div>
+          )}
           {/* Header */}
-          <div className="p-4 border-b border-sidebar-border">
-            <h1 className="font-display text-xl font-bold text-sidebar-primary flex items-center gap-2">
-              <MapPin className="w-5 h-5" />
-              {t('app.title')}
-            </h1>
-            <p className="text-xs text-sidebar-foreground/60 mt-1">{t('app.subtitle')}</p>
+          <div className={`border-b border-sidebar-border shrink-0 ${isMobile ? 'p-3' : 'p-4'}`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-sidebar-primary" />
+                <h1 className="font-display text-lg font-bold text-sidebar-primary">{t('app.title')}</h1>
+              </div>
+              {isMobile && (
+                <button 
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-2 rounded-lg hover:bg-sidebar-accent min-w-[40px] min-h-[40px] flex items-center justify-center"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+            {!isMobile && <p className="text-xs text-sidebar-foreground/60 mt-1">{t('app.subtitle')}</p>}
           </div>
 
           {/* Search */}
-          <div className="p-3 border-b border-sidebar-border">
+          <div className={`border-b border-sidebar-border shrink-0 ${isMobile ? 'p-2' : 'p-3'}`}>
             <div className="flex gap-2">
               <input
-                className="flex-1 bg-sidebar-accent text-sidebar-foreground text-sm rounded-lg px-3 py-2 placeholder:text-sidebar-foreground/40 outline-none focus:ring-1 focus:ring-sidebar-primary"
+                className="flex-1 bg-sidebar-accent text-sidebar-foreground text-sm rounded-lg px-3 py-2 placeholder:text-sidebar-foreground/40 outline-none focus:ring-1 focus:ring-sidebar-foreground/50"
                 placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -722,7 +811,7 @@ export default function ExplorerMap() {
               <button 
                 onClick={handleSearch} 
                 disabled={searchLoading}
-                className="bg-sidebar-primary text-sidebar-primary-foreground p-2 rounded-lg hover:opacity-90 transition disabled:opacity-50"
+                className="bg-sidebar-primary text-sidebar-primary-foreground p-2 rounded-lg hover:opacity-90 transition disabled:opacity-50 min-w-[40px] min-h-[40px] flex items-center justify-center"
               >
                 {searchLoading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -732,11 +821,11 @@ export default function ExplorerMap() {
               </button>
             </div>
             {searchResults.length > 0 && (
-              <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+              <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
                 {searchResults.map((r, i) => (
                   <button
                     key={i}
-                    className="w-full text-left text-xs p-2 rounded bg-sidebar-accent hover:bg-sidebar-accent/80 transition"
+                    className="w-full text-left text-xs p-2 rounded bg-sidebar-accent hover:bg-sidebar-accent/80 transition min-h-[40px]"
                     onClick={() => {
                       setFlyToCenter([r.lat, r.lng]);
                       setSearchResults([]);
@@ -761,8 +850,8 @@ export default function ExplorerMap() {
             )}
           </div>
 
-          {/* Language Selector & Filters & Mock Toggle */}
-          <div className="px-3 py-2 border-b border-sidebar-border flex items-center justify-between gap-2">
+          {/* Language Selector & Filters */}
+          <div className={`border-b border-sidebar-border shrink-0 flex items-center justify-between gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
             <div className="flex items-center gap-2">
               <LanguageSelector />
               <button
@@ -774,7 +863,7 @@ export default function ExplorerMap() {
                   localStorage.setItem('exploramap-theme', newTheme);
                   window.dispatchEvent(new Event('themechange'));
                 }}
-                className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition text-sidebar-foreground/40 hover:text-sidebar-foreground/60"
+                className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition text-sidebar-foreground/40 hover:text-sidebar-foreground/60 min-h-[36px]"
                 title={isDark ? 'Mode clar' : 'Mode fosc'}
               >
                 {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
@@ -783,7 +872,7 @@ export default function ExplorerMap() {
             <div className="relative flex items-center gap-1.5" ref={layerMenuRef}>
               <button
                 onClick={() => setLayerMenuOpen(!layerMenuOpen)}
-                className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition ${layerMenuOpen ? 'bg-green-500/20 text-green-400' : 'text-sidebar-foreground/40 hover:text-sidebar-foreground/60'}`}
+                className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition min-h-[36px] ${layerMenuOpen ? 'bg-green-500/20 text-green-400' : 'text-sidebar-foreground/40 hover:text-sidebar-foreground/60'}`}
                 title="Capas de mapa"
               >
                 <Map className="w-3.5 h-3.5" />
@@ -797,7 +886,7 @@ export default function ExplorerMap() {
                         setMapLayer(key);
                         setLayerMenuOpen(false);
                       }}
-                      className={`w-full text-left text-xs px-2 py-1.5 rounded flex items-center gap-2 transition ${mapLayer === key ? 'bg-green-500/20 text-green-400 font-medium' : 'hover:bg-sidebar-accent'}`}
+                      className={`w-full text-left text-xs px-2 py-1.5 rounded flex items-center gap-2 transition min-h-[36px] ${mapLayer === key ? 'bg-green-500/20 text-green-400 font-medium' : 'hover:bg-sidebar-accent'}`}
                     >
                       {key === 'satellite' ? <Satellite className="w-3 h-3" /> : key === 'topo' ? <Map className="w-3 h-3" /> : key === 'cycle' ? <Navigation className="w-3 h-3" /> : <Map className="w-3 h-3" />}
                       {config.name}
@@ -806,64 +895,23 @@ export default function ExplorerMap() {
                 </div>
               )}
             </div>
-            <div className="relative flex items-center gap-1.5" ref={filterMenuRef}>
-              <button
-                onClick={() => setFilterMenuOpen(!filterMenuOpen)}
-                className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition ${filterMenuOpen ? 'bg-blue-500/20 text-blue-400' : 'text-sidebar-foreground/40 hover:text-sidebar-foreground/60'}`}
-                title="Filtros"
-              >
-                <Filter className="w-3.5 h-3.5" />
-              </button>
-
-              {filterMenuOpen && (
-                <div className="absolute top-full right-0 mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg p-3 w-56 bg-sidebar text-sidebar-foreground">
-                  <p className="text-xs font-semibold mb-2 flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-yellow-400" />
-                    {t('filters.minRating') || 'Valoración mínima'}
-                  </p>
-                  <div className="space-y-1 mb-3">
-                    {([
-                      { value: 0, label: t('filters.all') || 'Todas' },
-                      { value: 3, label: '★★★+' },
-                      { value: 4, label: '★★★★+' },
-                      { value: 5, label: '★★★★★' },
-                    ] as const).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setMinRating(opt.value)}
-                        className={`w-full text-left text-xs px-2 py-1 rounded transition ${minRating === opt.value ? 'bg-blue-500/20 text-blue-400 font-medium' : 'hover:bg-sidebar-accent'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-xs font-semibold mb-2 flex items-center gap-1.5">
-                    <MessageSquare className="w-3.5 h-3.5 text-green-400" />
-                    {t('filters.reviewCount') || 'Nº de valoraciones'}
-                  </p>
-                  <div className="space-y-1">
-                    {([
-                      { value: 'all' as const, label: t('filters.all') || 'Todas' },
-                      { value: 'lt100' as const, label: '< 100' },
-                      { value: '100to1000' as const, label: '100 – 1.000' },
-                      { value: 'gt1000' as const, label: '> 1.000' },
-                    ]).map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setReviewRange(opt.value)}
-                        className={`w-full text-left text-xs px-2 py-1 rounded transition ${reviewRange === opt.value ? 'bg-green-500/20 text-green-400 font-medium' : 'hover:bg-sidebar-accent'}`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <button
+              onClick={() => {
+                const b = boundsRef.current;
+                if (!b) return;
+                const url = `https://es.wikiloc.com/rutas?bbox=${b.west},${b.south},${b.east},${b.north}`;
+                window.open(url, '_blank');
+              }}
+              className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition min-h-[36px] text-sidebar-foreground/40 hover:text-sidebar-foreground/60 hover:bg-sidebar-accent"
+              title="Veure rutes a Wikiloc"
+            >
+              <Map className="w-3.5 h-3.5" />
+              Wikiloc
+            </button>
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-sidebar-border">
+          <div className="flex border-b border-sidebar-border shrink-0">
             {([
               { key: 'categories', icon: Layers, label: 'filters' },
               { key: 'route', icon: Route, label: 'route' },
@@ -873,7 +921,7 @@ export default function ExplorerMap() {
               <button
                 key={key}
                 onClick={() => setSidebarTab(key)}
-                className={`flex-1 py-2.5 text-xs flex flex-col items-center gap-1 transition ${sidebarTab === key ? 'text-sidebar-primary border-b-2 border-sidebar-primary' : 'text-sidebar-foreground/50 hover:text-sidebar-foreground/80'}`}
+                className={`flex-1 py-2 text-xs flex flex-col items-center gap-1 transition min-h-[44px] ${sidebarTab === key ? 'text-sidebar-primary border-b-2 border-sidebar-primary' : 'text-sidebar-foreground/50 hover:text-sidebar-foreground/80'}`}
               >
                 <Icon className="w-4 h-4" />
                 {t(`tabs.${label}`)}
@@ -881,39 +929,41 @@ export default function ExplorerMap() {
             ))}
           </div>
 
-          {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-3">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-4">
+            {/* Auth Section always at the top of scrolling area */}
+            <Auth />
             {sidebarTab === 'categories' && (
               <div className="space-y-3">
                 <button
                   onClick={() => setShowBestOnly(!showBestOnly)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl text-sm font-medium transition shadow-sm ${showBestOnly ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-400 border-2 border-yellow-500/50' : 'bg-sidebar-accent text-sidebar-foreground border-2 border-transparent hover:border-yellow-500/30'}`}
+                  className={`w-full flex items-center gap-2 p-2.5 rounded-xl text-sm font-medium transition shadow-sm ${showBestOnly ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-400 border-2 border-yellow-500/50' : 'bg-sidebar-accent text-sidebar-foreground border-2 border-transparent hover:border-yellow-500/30'}`}
                 >
-                  <span className="text-2xl">🏆</span>
+                  <span className="text-xl">🏆</span>
                   <span className="flex-1 text-left font-semibold">{showBestOnly ? 'Mostrant millors llocs' : 'Tots els llocs'}</span>
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${showBestOnly ? 'bg-yellow-500 text-black' : 'bg-sidebar-border'}`}>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center ${showBestOnly ? 'bg-yellow-500 text-black' : 'bg-sidebar-border'}`}>
                     {showBestOnly ? '✓' : ''}
                   </div>
                 </button>
                 
                 <div className="border-t border-sidebar-border pt-3">
-                  <p className="text-xs text-sidebar-foreground/50 mb-3 font-medium">CATEGORIES</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <p className="text-xs text-sidebar-foreground/50 mb-2 font-medium">CATEGORIES</p>
+                  <div className="grid grid-cols-4 gap-1.5">
                     {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).map(([key, config]) => {
                       const isActive = activeCategories.includes(key);
                       return (
                         <button
                           key={key}
                           onClick={() => toggleCategory(key)}
-                          className={`flex flex-col items-center justify-center p-3 rounded-xl text-xs transition-all ${isActive ? 'bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 shadow-md border-2' : 'bg-sidebar-accent/30 hover:bg-sidebar-accent/50 text-sidebar-foreground/50'}`}
+                          className={`flex flex-col items-center justify-center p-2 rounded-lg text-xs transition-all ${isActive ? 'bg-gradient-to-b from-sidebar-accent to-sidebar-accent/80 shadow-md border' : 'bg-sidebar-accent/30 hover:bg-sidebar-accent/50 text-sidebar-foreground/50'}`}
                           style={isActive ? { borderColor: config.color } : {}}
                         >
-                          <span className={`text-2xl mb-1 transition-transform ${isActive ? 'scale-110' : 'scale-100'}`}>{config.emoji}</span>
-                          <span className={`text-center leading-tight ${isActive ? 'text-sidebar-foreground font-medium' : ''}`}>
+                          <span className={`text-xl mb-0.5 transition-transform ${isActive ? 'scale-110' : 'scale-100'}`}>{config.emoji}</span>
+                          <span className={`text-center leading-tight text-[10px] ${isActive ? 'text-sidebar-foreground font-medium' : ''}`}>
                             {t(`categories.${key}`).split(' ')[0]}
                           </span>
                           <div 
-                            className={`w-2 h-2 rounded-full mt-1 transition-all ${isActive ? 'scale-100' : 'scale-0'}`}
+                            className={`w-1.5 h-1.5 rounded-full mt-0.5 transition-all ${isActive ? 'scale-100' : 'scale-0'}`}
                             style={{ backgroundColor: config.color }}
                           />
                         </button>
@@ -1145,14 +1195,28 @@ export default function ExplorerMap() {
         </div>
       </div>
 
-      {/* Toggle */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="absolute top-4 z-[1001] bg-sidebar text-sidebar-foreground p-2 rounded-r-lg shadow-lg hover:bg-sidebar-accent transition"
-        style={{ left: sidebarOpen ? '320px' : '0' }}
-      >
-        {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-      </button>
+      {/* Toggle Button - Desktop: side-positioned, Mobile: bottom-center floating */}
+      {!isMobile && (
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="absolute top-4 z-[1001] bg-sidebar text-sidebar-foreground p-2 rounded-r-lg shadow-lg hover:bg-sidebar-accent transition"
+          style={{ left: sidebarOpen ? '320px' : '0' }}
+        >
+          {sidebarOpen ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </button>
+      )}
+      {isMobile && (
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className={`absolute z-[1002] bg-sidebar text-sidebar-foreground p-3 rounded-full shadow-xl hover:bg-sidebar-accent transition-all ${
+            sidebarOpen 
+              ? 'bottom-[86vh] left-1/2 -translate-x-1/2' 
+              : 'bottom-4 left-1/2 -translate-x-1/2'
+          }`}
+        >
+          {sidebarOpen ? <ChevronLeft className="w-5 h-5 rotate-90" /> : <ChevronRight className="w-5 h-5 rotate-90" />}
+        </button>
+      )}
 
       {/* User location button */}
       <button
@@ -1167,18 +1231,27 @@ export default function ExplorerMap() {
             );
           }
         }}
-        className={`absolute top-4 right-4 z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
+        className={`absolute z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
+          isMobile 
+            ? 'top-4 right-14' 
+            : 'top-4 right-4'
+        } ${
           userLocation 
             ? 'bg-blue-500 text-white hover:bg-blue-600' 
             : 'bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent'
         }`}
         title="Mi ubicación"
       >
-        <Navigation className="w-5 h-5" />
+        <Crosshair className="w-5 h-5" />
       </button>
 
       {/* Map */}
-      <div className="flex-1 relative">
+      <div 
+        className="flex-1 relative"
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchMove={isMobile ? handleTouchMove : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
         <MapContainer center={[41.3874, 2.1686]} zoom={13} className="h-full w-full" zoomControl={false}>
           {Object.entries(MAP_LAYERS).map(([key, config]) => (
             key === mapLayer && (
@@ -1197,12 +1270,13 @@ export default function ExplorerMap() {
             </Marker>
           )}
 
-          {filteredPois.map((poi) => (
+           {filteredPois.map((poi) => (
             <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi.category)}>
-              <Popup>
+              <Popup maxWidth={isMobile ? 280 : 380} className={isMobile ? 'mobile-popup' : ''}>
                 <div style={{ 
-                  minWidth: '320px', 
-                  maxWidth: '380px',
+                  minWidth: isMobile ? 'calc(100vw - 40px)' : '320px', 
+                  maxWidth: isMobile ? 'calc(100vw - 40px)' : '380px',
+                  width: isMobile ? 'calc(100vw - 40px)' : 'auto',
                   fontFamily: 'system-ui, -apple-system, sans-serif',
                   background: 'white',
                   borderRadius: '16px',
@@ -1370,7 +1444,7 @@ export default function ExplorerMap() {
                     </div>
                     
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
-                      {poi.phone && (
+                      {poi.phone && /^[\d+\-() ]+$/.test(poi.phone) && (
                         <a href={`tel:${poi.phone}`} style={{ 
                           display: 'flex', 
                           alignItems: 'center', 
@@ -1383,7 +1457,7 @@ export default function ExplorerMap() {
                           <span>{poi.phone}</span>
                         </a>
                       )}
-                      {poi.website && (
+                      {poi.website && poi.website.startsWith('http') && (
                         <a href={poi.website} target="_blank" rel="noreferrer" style={{ 
                           display: 'flex', 
                           alignItems: 'center', 
@@ -1506,18 +1580,6 @@ export default function ExplorerMap() {
           )}
         </MapContainer>
 
-        {/* Layer Switcher */}
-        <div className="absolute bottom-4 right-4 z-[1000] flex gap-1 bg-sidebar/90 backdrop-blur-sm rounded-lg p-1 shadow-lg">
-          {Object.entries(MAP_LAYERS).map(([key, config]) => (
-            <button
-              key={key}
-              onClick={() => setMapLayer(key as MapLayer)}
-              className={`px-3 py-1.5 text-xs rounded-md font-medium transition ${mapLayer === key ? 'bg-sidebar-primary text-sidebar-primary-foreground' : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'}`}
-            >
-              {config.name}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* Share Modal */}

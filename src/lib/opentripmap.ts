@@ -1,7 +1,6 @@
 import { POI, POICategory } from './types';
 
-// Free publishable API key — register at https://dev.opentripmap.org/ for your own
-const API_KEY = '5ae2e3f221c38a28845f05b685798510628f511af2b63af457dd37f4';
+const API_KEY = import.meta.env.VITE_OPENTRIPMAP_API_KEY || '5ae2e3f221c38a28845f05b685798510628f511af2b63af457dd37f4';
 const BASE = 'https://api.opentripmap.com/0.1/es/places';
 
 const CATEGORY_KINDS: Record<POICategory, string> = {

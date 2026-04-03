@@ -19,13 +19,16 @@ function getCategory(tags: Record<string, string>): POICategory | null {
   if (tags.place === 'city' || tags.place === 'town' || tags.place === 'village') return 'city';
   if (tags.tourism === 'museum') return 'museum';
   if (tags.historic === 'castle' || tags.historic === 'fortress') return 'castle';
-  if (tags.historic === 'church' || tags.historic === 'cathedral' || tags.historic === 'chapel' || tags.historic === 'abbey' || tags.amenity === 'place_of_worship') return 'church';
+  if (tags.historic === 'church' || tags.historic === 'cathedral' || tags.historic === 'chapel' || tags.historic === 'abbey' || tags.amenity === 'place_of_worship' || tags.building === 'church') return 'church';
   if (tags.historic === 'monument' || tags.historic === 'memorial' || tags.historic === 'ruins') return 'monument';
   if (tags.tourism === 'restaurant' || tags.amenity === 'restaurant' || tags.amenity === 'cafe' || tags.amenity === 'bar') return 'restaurant';
   if (tags.natural === 'beach') return 'beach';
   if (tags.natural === 'peak' || tags.natural === 'mountain') return 'peak';
   if (tags.natural === 'lake' || tags.natural === 'water' || tags.natural === 'spring') return 'lake';
   if (tags.tourism === 'viewpoint') return 'viewpoint';
+  if (tags.tourism === 'alpine_hut' || (tags.amenity === 'shelter' && tags.shelter_type === 'basic_hut')) return 'shelter';
+  if (tags.natural === 'spring') return 'fountain';
+  if (tags.amenity === 'townhall') return 'townhall';
   if (tags.tourism === 'attraction' || tags.tourism === 'artwork') return 'tourist';
   if (tags.tourism) return 'tourist';
   if (tags.historic) return 'monument';
@@ -71,7 +74,12 @@ function calculateImportance(tags: Record<string, string>): { importance: number
     if (tags. Michelin === 'yes' || tags.guide_michelin) score += 500; // Si hi és, és top
   }
   
-  // 5. POBLACIÓ (Per mantenir ciutats com a referència)
+  // 5. ESPECIALS (Ajuntaments i Fonts: Score moderat per demanar zoom)
+  if (tags.amenity === 'townhall') score += 250;
+  if (tags.natural === 'spring') score += 250;
+  if (tags.tourism === 'alpine_hut') score += 400; // Refugis més visibles
+
+  // 6. POBLACIÓ (Per mantenir ciutats com a referència)
   if (tags.population) {
     const pop = parseInt(tags.population, 10);
     if (!isNaN(pop)) {
@@ -103,7 +111,7 @@ export async function loadPOIsFromOverpass(bounds: Bounds): Promise<POI[]> {
   const n = north.toFixed(4);
   const e = east.toFixed(4);
 
-  const query = `[out:json][timeout:25];(nwr["unesco"="yes"](${s},${w},${n},${e});nwr["heritage"](${s},${w},${n},${e});nwr["historic"~"archaeological_site|city_wall|castle|monastery|cathedral"](${s},${w},${n},${e});node["tourism"~"museum|viewpoint|attraction"](${s},${w},${n},${e});node["place"~"city|town|village"](${s},${w},${n},${e});node["natural"~"peak|volcano|beach"](${s},${w},${n},${e});node["amenity"~"restaurant|cafe"](${s},${w},${n},${e}););out center;`;
+  const query = `[out:json][timeout:25];(nwr["unesco"="yes"](${s},${w},${n},${e});nwr["heritage"](${s},${w},${n},${e});nwr["historic"~"archaeological_site|city_wall|castle|monastery|cathedral"](${s},${w},${n},${e});node["amenity"="place_of_worship"](${s},${w},${n},${e});node["building"="church"](${s},${w},${n},${e});nwr["tourism"="alpine_hut"](${s},${w},${n},${e});node["natural"="spring"](${s},${w},${n},${e});nwr["amenity"="townhall"](${s},${w},${n},${e});node["tourism"~"museum|viewpoint|attraction"](${s},${w},${n},${e});node["place"~"city|town|village"](${s},${w},${n},${e});node["natural"~"peak|volcano|beach"](${s},${w},${n},${e});node["amenity"~"restaurant|cafe"](${s},${w},${n},${e}););out center;`;
 
   for (const endpoint of OVERPASS_ENDPOINTS) {
     try {

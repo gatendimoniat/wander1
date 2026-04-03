@@ -60,3 +60,35 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  line-height: 1;
+}
+
+.leaflet-popup-tip-container {
+  margin-top: -1px;
+}
+
+@media (max-width: 768px) {
+  .leaflet-popup-content-wrapper {
+    width: calc(100vw - 32px) !important;
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 8px;
+  }
+
+  .leaflet-popup-content {
+    width: 100% !important;
+  }
+
+  .leaflet-popup-tip {
+    left: 50% !important;
+    transform: translateX(-50%);
+  }
+}

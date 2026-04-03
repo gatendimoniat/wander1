@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <PWAInstallPrompt />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

@@ -1,229 +1,240 @@
-# 🗺️ ExploraMap — Roadmap
+# 🗺️ ExploraWander — Roadmap
 
-> Aplicación web de exploración y planificación de rutas con mapas interactivos, POIs, grabación GPS y gestión de tracks.
+> Aplicació web d'exploració i planificació de rutes amb mapes interactius, POIs, gravació GPS i gestió de tracks.
 
 ---
 
-## 📊 Estado Actual
+## 📊 Estat Actual (v1.0.0 - Abril 2026)
 
-| Área | Estado |
+| Àrea | Estat |
 |------|--------|
 | **Frontend** | ✅ React 18 + TypeScript + Vite + Tailwind + shadcn/ui |
-| **Mapas** | ✅ Leaflet + react-leaflet + OpenStreetMap |
-| **POIs** | ✅ Overpass API (10 categorías: museos, castillos, catedrales, restaurantes, lagos, picos, miradores, senderismo, puentes, turístico) |
-| **Rutas** | ✅ Construcción manual + Ejemplos Mock (Modernista/Gótica) |
-| **Tracks** | ✅ Grabación GPS + Ejemplos Mock (Montserrat/Banyoles) |
-| **Búsqueda** | ✅ Nominatim para buscar ubicaciones reales |
-| **Persistencia** | ✅ LocalStorage (rutas y tracks) |
-| **Testing** | ⚠️ Vitest + Playwright configurados, sin tests reales |
-| **i18n** | ✅ Castellano y Catalán implementados |
-| **Datos Híbridos** | ✅ Rutas/Tracks de ejemplo (Mock) + llocs (POIs) 100% reals |
-| **Repo GitHub** | ❌ No publicado |
-| **Backend** | ❌ No implementado |
+| **Mapes** | ✅ Leaflet + react-leaflet + OpenStreetMap |
+| **POIs** | ✅ Overpass API + Wikipedia + UNESCO + Info enriquida |
+| **Rutes** | ✅ Construcció manual + OSRM + Import/Export (GPX/JSON) |
+| **Tracks** | ✅ Gravació GPS (cada 10s) + Background + Import/Export (GPX/JSON) |
+| **Búsqueda** | ✅ Nominatim per cercar ubicacions |
+| **i18n** | ✅ Castellà, Català i Anglès |
+| **Responsive** | ✅ Disseny mòbil complet (bottom sheet + overlay) |
+| **Capas mapa** | ✅ Estàndard, Satèl·lit, Topogràfic, Ciclisme |
+| **Compartir** | ✅ QR + enllaços dinàmics |
+| **Auth** | ✅ Login/Registre amb Supabase (pendent verificació email) |
+| **Backend** | ✅ Schema SQL creat (pendent executar a Supabase) |
+| **PWA/Offline** | ✅ Service Worker + Cache de tiles + Funcionament offline |
+| **Testing** | ⚠️ Configurats, sense tests reals |
 
 ---
 
-## 🎯 Fase 0 — Fundamentos (Prioritario)
+## ✅ Fase 0 — Fonaments (Completat)
 
-### 🌍 Internacionalización (i18n)
-- [x] Configurar librería de i18n (i18next o react-intl)
-- [x] Crear ficheros de traducción: `es.json`, `ca.json` y `en.json`
-- [x] Selector de idioma en la UI (sidebar)
-- [x] Persistir preferencia de idioma en localStorage
-- [x] Traducir toda la UI: sidebar, botones, popups, toasts, labels
+### 🌍 Internacionalització (i18n)
+- [x] Configurar i18next
+- [x] Fitxers: `es.json`, `ca.json`, `en.json`
+- [x] Selector d'idioma a la UI
+- [x] Persistència idioma a localStorage
+- [x] UI completa traduïda
 
-### 🧪 Datos de Prueba (Híbrido)
-- [x] Rutes guardades mock (Barcelona Modernista i Gòtica)
-- [x] Tracks gravats mock (Montserrat i Banyoles)
-- [x] **Llocs Reals**: 100% Integració amb Overpass i Wikipedia (no hi ha POIs mock)
-- [x] Layer de dades: Interfície neta que combina dades de prova i dades locals de l'usuari
+### 🧪 Dades Híbrides
+- [x] Rutes mock (Barcelona Modernista i Gòtica)
+- [x] Tracks mock (Montserrat i Banyoles)
+- [x] POIs 100% reals (Overpass + Wikipedia)
+- [x] Sistema de multi-mirrors per Overpass (4 servidors)
 
 ---
 
-## 🚀 Fase 1 — MVP Estable
+## ✅ Fase 1 — MVP Estable (Completat)
 
-### Mejoras del Mapa
-- [x] Routing real con OSRM/GraphHopper
-- [x] Capas de mapa alternativas (satélite, topográfico, ciclable)
-- [x] Geolocalización del usuario con marcador en tiempo real
-- [x] Zoom adaptativo al cargar rutas/tracks guardados
+### Millores del Mapa
+- [x] Routing real amb OSRM
+- [x] Capes alternatives (satèl·lit, topogràfic, ciclable)
+- [x] Geolocalització amb marcador en temps real
+- [x] Zoom adaptatiu en carregar rutes/tracks
 
-### POIs y Búsqueda
-- [ ] Ampliar categorías de POIs (restaurantes, gasolineras, hoteles, farmacias, áreas de descanso)
-- [ ] Búsqueda de POIs por nombre (no solo por bounds)
-- [ ] Filtrado por distancia al usuario
-- [ ] Información enriquecida de POIs (horarios, teléfono, reseñas)
+### POIs i Búsqueda
+- [x] Categories completes amb emojis
+- [x] Ranking de qualitat (Wikipedia, UNESCO, patrimoni)
+- [x] Descobriment progressiu per Zoom
+- [x] Sistema anti-429 (multi-mirrors)
+- [x] Info enriquida (horaris, telèfon, web, adreça)
+- [x] Filtres per valoració i nº de ressenyes
+- [ ] Búsqueda de POIs per nom
+- [ ] Filtrat per distància a l'usuari
 
 ### UX/UI
-- [ ] Diseño responsive completo (móvil/tablet)
-- [x] Modo claro/oscuro (next-themes ya está instalado)
-- [ ] Indicador visual de progreso en tracks grabados
-- [x] Toasts de confirmación en acciones (guardar/borrar rutas y tracks)
+- [x] Mode clar/fosc
+- [x] **Disseny responsive complet (mòbil/tablet)**
+- [x] Toasts de confirmació
+- [x] Bottom sheet al mòbil
+- [x] Touch targets optimitzats (min 40px)
+- [x] Icones de categories més petits
+- [ ] Indicador visual de progrés en tracks gravats
 
-### Datos y Persistencia
-- [ ] Exportar rutas a GPX/KML
-- [ ] Importar rutas desde GPX/KML
-- [ ] Exportar tracks a GPX
-- [ ] Backup/restore de datos desde archivo JSON
+### Dades i Persistència
+- [x] Exportar rutes a GPX/JSON
+- [x] Importar rutes des de GPX/JSON
+- [x] Exportar tracks a GPX/JSON
+- [x] Backup/restore complet JSON
+- [x] Compartir rutes/tracks amb QR i enllaços
+
+### Gravació de Tracks
+- [x] Throttle a 10 segons entre punts (arxius més lleugers)
+- [x] Background geolocation per a gravació amb pantalla apagada
+- [x] Foreground service notification (Android)
+- [ ] Indicador visual de progrés en tracks gravats
 
 ---
 
-## ☁️ Fase 2 — Supabase (Backend as a Service)
+## ☁️ Fase 2 — Supabase (Backend)
 
-### Configuración
-- [ ] Crear proyecto en Supabase
-- [ ] Configurar variables de entorno (`.env`)
-- [ ] Instalar `@supabase/supabase-js`
-- [ ] Configurar cliente Supabase en `src/lib/supabase.ts`
+### Configuració
+- [x] Projecte Supabase creat
+- [x] Variables d'entorn configurades
+- [x] Client Supabase amb auto-refresh i persistència
+- [x] **Schema SQL creat (`routes`, `tracks`)** — fitxer `supabase-schema.sql`
+- [x] **RLS (Row Level Security) configurat** — al schema SQL
+- [ ] **Executar SQL a Supabase** — copiar/enganxar `supabase-schema.sql` al SQL Editor
 
-### Base de Datos
-- [ ] Tabla `users` (perfil de usuario)
-- [ ] Tabla `routes` (rutas guardadas con PostGIS)
-- [ ] Tabla `tracks` (tracks grabados con PostGIS)
-- [ ] Tabla `shared_routes` (rutas compartidas públicamente)
-- [ ] Políticas RLS (Row Level Security) para privacidad
-
-### Autenticación
-- [ ] Auth con email/password
+### Autenticació
+- [x] Login amb email/password
+- [x] Registre amb verificació email
+- [x] Gestió de sessió (auto-refresh)
+- [x] Detecció d'errors (email no verificat, credencials invàlides)
+- [x] Reenviament d'email de confirmació
+- [ ] **Desactivar verificació email per a desenvolupament (opcional)**
 - [ ] Auth social (Google, GitHub)
-- [ ] Protección de rutas privadas
-- [ ] Gestión de sesión y refresh tokens
+- [ ] Recuperació de contrasenya
+- [ ] Perfil d'usuari (nom, avatar, preferències)
 
-### Funciones Sociales
-- [ ] Compartir rutas públicas con enlace
-- [ ] Explorar rutas de otros usuarios
-- [ ] Valoraciones y comentarios en rutas
-- [ ] Perfiles de usuario con estadísticas
+### Emmagatzematge
+- [x] Fallback a localStorage quan no hi ha sessió
+- [ ] **Verificar que les taules existeixen i funcionen**
+- [ ] Sincronització automàtica localStorage → Supabase al fer login
+- [ ] Indicador visual d'estat de sincronització
 
-### Funciones Avanzadas
-- [ ] Planificación de rutas multi-día con etapas
-- [ ] Integración con datos meteorológicos (OpenWeatherMap)
-- [ ] Estimación de tiempo y dificultad de rutas planificadas
-- [ ] Puntos de interés a lo largo de una ruta (no solo cercanos)
-
----
-
-## 📱 Fase 3 — Mobile y Offline
-
-### PWA
-- [ ] Service Worker para funcionamiento offline
-- [ ] Caché de tiles de mapa
-- [ ] Instalación como app nativa
-- [ ] Notificaciones push (alertas meteorológicas, recordatorios)
-
-### Optimización
-- [ ] Virtualización de marcadores para muchos POIs
-- [ ] Clustering de marcadores (leaflet.markercluster)
-- [ ] Lazy loading de componentes pesados
-- [ ] Code splitting por rutas
-
-### Accesibilidad
-- [ ] Navegación por teclado completa
-- [ ] ARIA labels en todos los componentes interactivos
-- [ ] Contraste de colores WCAG AA
-- [ ] Soporte para lectores de pantalla
+### Funcions Socials
+- [ ] Compartir rutes públiques amb enllaç
+- [ ] Explorar rutes d'altres usuaris
+- [ ] Valoracions i comentaris
+- [ ] Perfils públics amb estadístiques
 
 ---
 
-## 🔬 Fase 4 — Testing y Calidad
+## 📱 Fase 3 — Mobile i Offline
+
+### App Nativa Android
+- [x] Capacitor 8 integrat
+- [x] Permisos GPS configurats
+- [x] Keystore de signatura
+- [x] Background geolocation plugin instal·lat
+- [x] Permisos foreground service i background location
+- [ ] Generar APK distribuïble
+- [ ] Provar en dispositiu real
+
+### PWA & Offline
+- [x] Service Worker amb workbox (generateSW)
+- [x] Cache de tiles de mapa (OSM, Esri, OpenTopoMap)
+- [x] Instal·lació com a PWA (manifest + install prompt)
+- [x] Funcionament offline bàsic (app shell + assets)
+- [x] Cache d'APIs (Nominatim, Wikipedia, Overpass, OSRM, Supabase)
+- [ ] Notificacions push
+
+### Optimització Mòbil
+- [x] Sidebar responsive amb bottom sheet
+- [x] Touch targets optimitzats
+- [ ] Virtualització de marcadors per molts POIs
+- [ ] Clustering de marcadors (leaflet.markercluster)
+- [ ] Gestos tàctils (swipe per tancar sidebar)
+- [ ] Pull-to-refresh
+
+### Accessibilitat
+- [ ] Navegació per teclat completa
+- [ ] ARIA labels en components interactius
+- [ ] Contrast de colors WCAG AA
+
+---
+
+## 🔬 Fase 4 — Testing i Qualitat
 
 ### Testing
-- [ ] Tests unitarios de utilidades (haversine, cálculos de track)
-- [ ] Tests de componentes con Testing Library
-- [ ] Tests E2E con Playwright (flujos completos de usuario)
-- [ ] Cobertura de tests > 80%
+- [ ] Tests unitaris (haversine, càlculs de track)
+- [ ] Tests de components amb Testing Library
+- [ ] Tests E2E amb Playwright
+- [ ] Cobertura > 80%
 
-### CI/CD con GitHub
-- [ ] GitHub Actions para lint + typecheck en cada PR
-- [ ] GitHub Actions para ejecutar tests automáticamente
-- [ ] Deploy automático a Vercel/Netlify en push a `main`
-- [ ] Preview deployments en cada PR
+### CI/CD
+- [ ] GitHub Actions: lint + typecheck
+- [ ] GitHub Actions: tests automàtics
+- [ ] Deploy automàtic a Vercel/Netlify
+- [ ] Preview deployments per PR
 
 ---
 
-## 📋 Control de Versiones — GitHub
+## 📋 Control de Versions
 
-### Estructura de Ramas
+### Estructura de Branques
 ```
-main          → Código en producción
-develop       → Integración de features
-feature/*     → Nuevas funcionalidades
-fix/*         → Correcciones de bugs
-release/*     → Preparación de versiones
+main          → Codi en producció
+develop       → Integració de features
+feature/*     → Noves funcionalitats
+fix/*         → Correccions de bugs
 ```
 
-### Buenas Prácticas
-- [ ] Commits atómicos y descriptivos (Convencional Commits)
-- [ ] Pull Requests con descripción y screenshots
-- [ ] Code review antes de mergear a `develop`
-- [ ] Tags semánticos para releases (`v0.1.0`, `v1.0.0`)
-- [ ] `.gitignore` completo (node_modules, .env, etc.)
-- [ ] `README.md` con instrucciones de desarrollo
-- [ ] `CHANGELOG.md` para historial de cambios
+### Bones Pràctiques
+- [x] Commits descriptius
+- [x] `.gitignore` configurat
+- [x] Publicat a GitHub (`salma1256/explore-wander`)
+- [ ] Commits atòmics (Conventional Commits)
+- [ ] Tags semàntics (`v0.9.0`, `v1.0.0`)
+- [ ] `CHANGELOG.md`
 
 ---
 
-## 🎯 Futuro (Ideas a Largo Plazo)
+## 🎯 Futur (Idees a Llarg Termini)
 
-- [ ] Integración con Strava/Garmin Connect para importar actividades
-- [ ] Rutas generadas por IA según preferencias del usuario
-- [ ] Modo aventura con retos y logros
-- [ ] Integración con reservas (hoteles, restaurantes, actividades)
-- [ ] Mapas colaborativos editables por comunidades
-- [ ] API pública para desarrolladores
-- [ ] Edge Functions de Supabase para lógica serverless
+- [ ] Integració amb Strava/Garmin Connect
+- [ ] Rutes generades per IA segons preferències
+- [ ] Mode aventura amb reptes i assoliments
+- [ ] Integració amb reserves (hotels, restaurants)
+- [ ] Mapes col·laboratius
+- [ ] API pública per a desenvolupadors
+- [ ] Edge Functions de Supabase
 
 ---
 
-## 📝 Notas Técnicas
+## 📝 Notes Tècniques
 
-### Stack Tecnológico
+### Stack Tecnològic
 ```
 Frontend:       React 18 + TypeScript + Vite + Tailwind + shadcn/ui
-Mapas:          Leaflet + react-leaflet + OpenStreetMap
-Estado:         @tanstack/react-query + Zustand/Context
-Backend/DB:     Supabase (PostgreSQL + PostGIS + Auth + Storage)
+Mapes:          Leaflet + react-leaflet + OpenStreetMap
+Estat:          @tanstack/react-query
+Backend/DB:     Supabase (PostgreSQL + Auth + Storage)
 i18n:           i18next + react-i18next
-Testing:        Vitest + Playwright + Testing Library
-CI/CD:          GitHub Actions
-Deploy:         Vercel / Netlify
+Mobile:         Capacitor 8 (Android)
+Testing:        Vitest + Playwright
 ```
 
-### Nuevas Dependencias Necesarias
+### Dependències Instal·lades
 ```
-i18next, react-i18next       → Internacionalización (Fase 0)
-@supabase/supabase-js        → Supabase client (Fase 2)
-leaflet.markercluster        → Clustering de marcadores (Fase 3)
-```
-
-### Estructura de Archivos (proyectada)
-```
-src/
-├── components/
-│   ├── ExplorerMap.tsx       → Componente principal del mapa
-│   ├── NavLink.tsx
-│   ├── ui/                   → shadcn/ui components
-│   └── LanguageSelector.tsx  → ⭐ Selector de idioma (Fase 0)
-├── hooks/
-│   ├── use-mobile.tsx
-│   ├── use-toast.ts
-│   └── useTranslation.ts     → ⭐ Hook de traducción (Fase 0)
-├── lib/
-│   ├── overpass.ts           → Integración con Overpass API
-│   ├── storage.ts            → Persistencia en LocalStorage
-│   ├── mock.ts               → ⭐ Datos mock (Fase 0)
-│   ├── supabase.ts           → ⭐ Cliente Supabase (Fase 2)
-│   ├── types.ts              → Tipos TypeScript
-│   └── utils.ts              → Utilidades
-├── locales/
-│   ├── es.json               → ⭐ Traducciones Castellano (Fase 0)
-│   └── ca.json               → ⭐ Traducciones Catalán (Fase 0)
-├── pages/
-│   ├── Index.tsx
-│   └── NotFound.tsx
-└── App.tsx
+@supabase/supabase-js              → Client Supabase ✅
+@capacitor/core, @capacitor/cli, @capacitor/android → App Nativa ✅
+@capacitor-community/background-geolocation → Background GPS ✅
+i18next, react-i18next             → Internacionalització ✅
+leaflet.markercluster              → Clustering (pendent)
+vite-plugin-pwa, workbox-window    → PWA/Offline ✅
 ```
 
 ---
 
-*Última actualización: Abril 2026*
+## ⚠️ Tasques Pendents Prioritàries
+
+1. **Executar SQL a Supabase** — copiar `supabase-schema.sql` al SQL Editor de Supabase
+2. **Verificar/actualitzar credencials Supabase** — les actuals poden ser invàlides
+3. **Configurar email de confirmació** a Supabase (o desactivar per a dev)
+4. **Generar APK Android** — provar background geolocation en dispositiu real
+5. **Clustering de marcadors** — necessari per zones amb molts POIs
+6. **Gestos mòbil** — swipe per tancar bottom sheet
+
+---
+
+*Última actualització: Abril 2026 (v1.0.0 - Background & PWA Edition)*
