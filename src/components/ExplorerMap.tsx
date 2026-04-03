@@ -3,9 +3,15 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Sun, Moon, Map, Satellite, Crosshair, Share2, Download } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map, Satellite, Crosshair, Share2, Download } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/lib/supabase';
+import { MOCK_SAVED_ROUTES, MOCK_SAVED_TRACKS } from '@/lib/poiDatabase';
+import { CATEGORY_CONFIG } from '@/lib/types';
+import type { POI, POICategory, SavedRoute, RecordedTrack, TrackPoint, Bounds } from '@/lib/types';
+import { loadPOIsFromOverpass } from '@/lib/overpassLoader';
+import { getSavedRoutes, getSavedTracks, saveRoute, deleteRoute, saveTrack, deleteTrack } from '@/lib/storage';
+import { exportRouteToGPX, exportRouteToJSON, exportTrackToGPX, exportTrackToJSON, exportAllToJSON, importTrackFromGPX, importRouteFromJSON, downloadFile } from '@/lib/exportImport';
 import WikipediaInfo from './WikipediaInfo';
 import LanguageSelector from './LanguageSelector';
 import Auth from './Auth';
@@ -201,7 +207,6 @@ export default function ExplorerMap() {
   const [fitBoundsTo, setFitBoundsTo] = useState<L.LatLngBoundsExpression | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeLoading, setRouteLoading] = useState(false);
-  const [isDark, setIsDark] = useState(() => typeof document !== 'undefined' ? document.documentElement.classList.contains('dark') : true);
   const currentZoomRef = useRef<number>(13);
   const [currentZoom, setCurrentZoom] = useState(13);
   const lastLoadedBoundsRef = useRef<Bounds | null>(null);
@@ -362,12 +367,24 @@ export default function ExplorerMap() {
     
     setLoading(true);
     loadPOIsFromOverpass(bounds).then((fetchedPois) => {
-      setAllPois(fetchedPois);
+      if (fetchedPois.length > 0) {
+        setAllPois((prev) => {
+          if (prev.length === fetchedPois.length && prev.length > 0) {
+            const sameIds = new Set(prev.map(p => p.id));
+            const newIds = new Set(fetchedPois.map(p => p.id));
+            if (sameIds.size === newIds.size && [...sameIds].every(id => newIds.has(id))) {
+              return prev;
+            }
+          }
+          return fetchedPois;
+        });
+      }
       setLoading(false);
     }).catch((err) => {
       console.error('Error loading POIs:', err);
-      toast.error('Error carregant llocs');
-      setAllPois([]);
+      if (allPois.length === 0) {
+        toast.error('Error carregant llocs');
+      }
       setLoading(false);
     });
   }, []);
@@ -375,10 +392,8 @@ export default function ExplorerMap() {
   const filteredPois = useMemo(() => {
     if (allPois.length === 0) return [];
     
-    // Start with all POIs and sort them by importance
     let filtered: POI[] = [...allPois].sort((a, b) => (b.importance || 0) - (a.importance || 0));
 
-    // Zoom dynamic filtering: Progressive Disclosure (Relaxed if a category is active)
     const isCategoryFiltering = activeCategories.length > 0;
     const zoom = currentZoomRef.current;
     
@@ -393,14 +408,12 @@ export default function ExplorerMap() {
         filtered = filtered.filter(poi => (poi.importance || 0) > 150);
       }
     } else {
-      // If filtering by category, still apply a small relevance filter to avoid noise
       if (zoom < 12) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 100);
       }
       filtered = filtered.filter(poi => activeCategories.includes(poi.category));
     }
 
-    // Limit the number of POIs based on zoom to avoid clutter
     const maxPois = zoom >= 15 ? 300 : zoom >= 13 ? 150 : zoom >= 11 ? 60 : 30;
     filtered = filtered.slice(0, maxPois);
     
@@ -419,11 +432,12 @@ export default function ExplorerMap() {
     currentZoomRef.current = zoom;
     setCurrentZoom(zoom);
     
-    const boundsChanged = !lastLoadedBoundsRef.current ||
-      Math.abs(bounds.south - lastLoadedBoundsRef.current.south) > 0.01 ||
-      Math.abs(bounds.west - lastLoadedBoundsRef.current.west) > 0.01 ||
-      Math.abs(bounds.north - lastLoadedBoundsRef.current.north) > 0.01 ||
-      Math.abs(bounds.east - lastLoadedBoundsRef.current.east) > 0.01;
+    const b = lastLoadedBoundsRef.current;
+    const boundsChanged = !b ||
+      Math.abs(bounds.south - b.south) > 0.02 ||
+      Math.abs(bounds.west - b.west) > 0.02 ||
+      Math.abs(bounds.north - b.north) > 0.02 ||
+      Math.abs(bounds.east - b.east) > 0.02;
     
     if (!boundsChanged) return;
     
@@ -432,7 +446,7 @@ export default function ExplorerMap() {
     debounceRef.current = setTimeout(() => {
       lastLoadedBoundsRef.current = bounds;
       loadPOIs(bounds, zoom);
-    }, 600);
+    }, 1000);
   }, [loadPOIs]);
 
   const handleSearch = async () => {
@@ -850,25 +864,9 @@ export default function ExplorerMap() {
             )}
           </div>
 
-          {/* Language Selector & Filters */}
+          {/* Language Selector & Controls */}
           <div className={`border-b border-sidebar-border shrink-0 flex items-center justify-between gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
-            <div className="flex items-center gap-2">
-              <LanguageSelector />
-              <button
-                onClick={() => {
-                  const newTheme = isDark ? 'light' : 'dark';
-                  setIsDark(!isDark);
-                  document.documentElement.classList.remove('dark', 'light');
-                  document.documentElement.classList.add(newTheme);
-                  localStorage.setItem('exploramap-theme', newTheme);
-                  window.dispatchEvent(new Event('themechange'));
-                }}
-                className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition text-sidebar-foreground/40 hover:text-sidebar-foreground/60 min-h-[36px]"
-                title={isDark ? 'Mode clar' : 'Mode fosc'}
-              >
-                {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-              </button>
-            </div>
+            <LanguageSelector />
             <div className="relative flex items-center gap-1.5" ref={layerMenuRef}>
               <button
                 onClick={() => setLayerMenuOpen(!layerMenuOpen)}

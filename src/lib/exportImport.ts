@@ -171,7 +171,7 @@ function calculateDistance(positions: TrackPoint[]): number {
   return Math.round(distance * 100) / 100;
 }
 
-function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
@@ -186,23 +186,25 @@ function toRad(deg: number): number {
   return deg * (Math.PI / 180);
 }
 
-function calculateTrackStats(positions: TrackPoint[]) {
+export function calculateTrackStats(positions: TrackPoint[]) {
   let elevGain = 0;
   let elevLoss = 0;
   let maxAlt = -Infinity;
   let minAlt = Infinity;
 
-  for (let i = 1; i < positions.length; i++) {
-    const prev = positions[i - 1];
+  for (let i = 0; i < positions.length; i++) {
     const curr = positions[i];
-    if (curr.altitude !== undefined && prev.altitude !== undefined) {
-      const diff = curr.altitude - prev.altitude;
-      if (diff > 0) elevGain += diff;
-      else elevLoss += Math.abs(diff);
+    if (curr.altitude !== undefined) {
+      maxAlt = Math.max(maxAlt, curr.altitude);
+      minAlt = Math.min(minAlt, curr.altitude);
     }
-    if (positions[i].altitude !== undefined) {
-      maxAlt = Math.max(maxAlt, positions[i].altitude!);
-      minAlt = Math.min(minAlt, positions[i].altitude!);
+    if (i > 0) {
+      const prev = positions[i - 1];
+      if (curr.altitude !== undefined && prev.altitude !== undefined) {
+        const diff = curr.altitude - prev.altitude;
+        if (diff > 0) elevGain += diff;
+        else elevLoss += Math.abs(diff);
+      }
     }
   }
 
