@@ -192,9 +192,7 @@ export default function ExplorerMap() {
     const dx = touchMoveRef.current.x - touchStartRef.current.x;
     const dy = touchMoveRef.current.y - touchStartRef.current.y;
     if (!isMobile) return;
-    if (sidebarOpen && dy > 80 && Math.abs(dy) > Math.abs(dx)) {
-      setSidebarOpen(false);
-    } else if (!sidebarOpen && dx > 80 && Math.abs(dx) > Math.abs(dy)) {
+    if (!sidebarOpen && dx > 80 && Math.abs(dx) > Math.abs(dy)) {
       setSidebarOpen(true);
     }
   };
@@ -777,11 +775,7 @@ export default function ExplorerMap() {
         isMobile 
           ? `fixed inset-x-0 bottom-0 z-[1001] transition-transform duration-300 ${sidebarOpen ? 'translate-y-0' : 'translate-y-full'}` 
           : `relative z-[1000] transition-all duration-300 ${sidebarOpen ? 'w-80' : 'w-0'}`
-      }`}
-        onTouchStart={isMobile ? handleTouchStart : undefined}
-        onTouchMove={isMobile ? handleTouchMove : undefined}
-        onTouchEnd={isMobile ? handleTouchEnd : undefined}
-      >
+      }`}>
         <div className={`bg-sidebar text-sidebar-foreground flex flex-col overflow-hidden transition-all duration-300 ${
           isMobile 
             ? 'w-full max-h-[70vh] rounded-t-2xl shadow-2xl' 
