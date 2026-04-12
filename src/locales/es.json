@@ -34,7 +34,13 @@
     "shop": "Tiendas",
     "park": "Parques",
     "heritage": "Patrimonio",
-    "city": "Pueblos y Ciudades"
+    "city": "Pueblos y Ciudades",
+    "sports_centre": "Pabellones y Polideportivos",
+    "parking": "Aparcamientos Gratuitos",
+    "cemetery": "Cementerios",
+    "caravansite": "Autocaravanas (Servicios)",
+    "caravan_park": "Autocaravanas (Sin servicios)",
+    "waterfall": "Gorgs y saltos de agua"
   },
   "route": {
     "hint": "Haz clic en \"+\" en los marcadores del mapa para añadir a tu ruta",

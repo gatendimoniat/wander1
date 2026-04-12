@@ -1,6 +1,6 @@
 import { TrackPoint } from '@/lib/types';
 
-const RECORDING_INTERVAL = 10000;
+const RECORDING_INTERVAL = 5000;
 
 export class BackgroundTrackService {
   private isRecording = false;
@@ -46,17 +46,18 @@ export class BackgroundTrackService {
     plugin.configure({
       interval: RECORDING_INTERVAL / 1000,
       fastestInterval: 5000,
-      activitiesInterval: 10000,
+      activitiesInterval: 5000,
       stopOnTerminate: false,
-      startOnBoot: false,
+      startOnBoot: true,
       debug: false,
       startForeground: true,
       notificationTitle: 'ExploraWander',
       notificationText: 'Gravant track...',
-      locationProvider: 0,
-      desiredAccuracy: 100,
+      locationProvider: 1,
+      desiredAccuracy: 0,
       stationaryRadius: 0,
       distanceFilter: 0,
+      wakeLock: true,
       notificationIconColor: '#1a2332',
       notificationIconLarge: '',
       notificationIconSmall: '',

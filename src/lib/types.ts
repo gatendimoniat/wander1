@@ -37,14 +37,17 @@ export type POICategory =
   | 'lake'
   | 'peak'
   | 'viewpoint'
-  | 'bridge'
   | 'tourist'
-  | 'beach'
   | 'heritage'
   | 'city'
   | 'shelter'
-  | 'fountain'
-  | 'townhall';
+  | 'townhall'
+  | 'sports_centre'
+  | 'parking'
+  | 'cemetery'
+  | 'caravansite'
+  | 'caravan_park'
+  | 'waterfall';
 
 export interface SavedRoute {
   id: string;
@@ -82,12 +85,15 @@ export const CATEGORY_CONFIG: Record<POICategory, { label: string; icon: string;
   lake: { label: 'Lagos', icon: 'Waves', color: '#1E88E5', emoji: '🏞️' },
   peak: { label: 'Cims', icon: 'Mountain', color: '#4CAF50', emoji: '⛰️' },
   viewpoint: { label: 'Miradors', icon: 'Eye', color: '#FF9800', emoji: '👁️' },
-  bridge: { label: 'Ponts', icon: 'BrickWall', color: '#795548', emoji: '🌉' },
   tourist: { label: 'Sitios de Interés', icon: 'Camera', color: '#00BCD4', emoji: '⭐' },
-  beach: { label: 'Playas', icon: 'Umbrella', color: '#00BCD4', emoji: '🏖️' },
   heritage: { label: 'Patrimonio de la Humanidad', icon: 'ScrollText', color: '#B45309', emoji: '📜' },
   city: { label: 'Pobles i Ciutats', icon: 'Building2', color: '#3F51B5', emoji: '🏘️' },
   shelter: { label: 'Refugis', icon: 'Home', color: '#2E7D32', emoji: '🏡' },
-  fountain: { label: 'Fonts Naturals', icon: 'Droplets', color: '#03A9F4', emoji: '⛲' },
   townhall: { label: 'Ajuntaments', icon: 'Building', color: '#607D8B', emoji: '🏛️' },
+  sports_centre: { label: 'Pavellons i Poliesportius', icon: 'Activity', color: '#EC4899', emoji: '🏟️' },
+  parking: { label: 'Parkings Gratuïts', icon: 'Parking', color: '#10B981', emoji: '🅿️' },
+  cemetery: { label: 'Cementiris', icon: 'Cross', color: '#6B7280', emoji: '🪦' },
+  caravansite: { label: 'Àrees d\'autocaravanes', icon: 'Car', color: '#F59E0B', emoji: '🚐' },
+  caravan_park: { label: 'Càmpings', icon: 'Car', color: '#84CC16', emoji: '🏕️' },
+  waterfall: { label: 'Gorgs i salts d\'aigua', icon: 'Droplets', color: '#06B6D4', emoji: '💧' },
 };

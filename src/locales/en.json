@@ -34,7 +34,13 @@
     "shop": "Shops",
     "park": "Parks",
     "heritage": "Heritage",
-    "city": "Towns & Cities"
+    "city": "Towns & Cities",
+    "sports_centre": "Sports Centres",
+    "parking": "Free Parking",
+    "cemetery": "Cemeteries",
+    "caravansite": "Caravan Sites (Services)",
+    "caravan_park": "Caravan Parking (No Services)",
+    "waterfall": "Waterfalls & Gorges"
   },
   "route": {
     "hint": "Click on \"+\" in map markers to add to your route",

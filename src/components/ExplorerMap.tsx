@@ -3,13 +3,14 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map, Satellite, Crosshair, Share2, Download } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map as MapIcon, Satellite, Crosshair, Share2, Download, Eye, EyeOff } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/lib/supabase';
 import { MOCK_SAVED_ROUTES, MOCK_SAVED_TRACKS } from '@/lib/poiDatabase';
 import { CATEGORY_CONFIG } from '@/lib/types';
 import type { POI, POICategory, SavedRoute, RecordedTrack, TrackPoint, Bounds } from '@/lib/types';
-import { loadPOIsFromOverpass } from '@/lib/overpassLoader';
+import { loadPOIsFromOverpass, clearCache } from '@/lib/overpassLoader';
+import { loadPOIsFromGpxFeed } from '@/lib/gpxLoader';
 import { getSavedRoutes, getSavedTracks, saveRoute, deleteRoute, saveTrack, deleteTrack } from '@/lib/storage';
 import { exportRouteToGPX, exportRouteToJSON, exportTrackToGPX, exportTrackToJSON, exportAllToJSON, importTrackFromGPX, importRouteFromJSON, downloadFile } from '@/lib/exportImport';
 import WikipediaInfo from './WikipediaInfo';
@@ -56,11 +57,15 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
-function createCategoryIcon(category: POICategory) {
+function createCategoryIcon(poi: POI) {
+  const category = poi.category;
   const config = CATEGORY_CONFIG[category] || { color: '#888888', emoji: '📍' };
+  let color = config.color;
+  let emoji = config.emoji;
+  
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background:${config.color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid white;">${config.emoji}</div>`,
+    html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid white;">${emoji}</div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
   });
@@ -170,7 +175,8 @@ export default function ExplorerMap() {
   const [allPois, setAllPois] = useState<POI[]>([]);
   const [dbLoaded, setDbLoaded] = useState(false);
   const [activeCategories, setActiveCategories] = useState<POICategory[]>([]);
-  const [showBestOnly, setShowBestOnly] = useState(true);
+  const [showBestOnly, setShowBestOnly] = useState(false);
+  const [showMarkers, setShowMarkers] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ lat: number; lng: number; name: string; display: string }[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -341,6 +347,16 @@ export default function ExplorerMap() {
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [shareModal, setShareModal] = useState<{ type: 'route' | 'track'; name: string; url: string; qrUrl: string } | null>(null);
+  const forceReloadRef = useRef<number>(0);
+
+  const forceReloadPOIs = useCallback(() => {
+    forceReloadRef.current += 1;
+    const b = boundsRef.current;
+    if (b && showMarkers) {
+      lastLoadedBoundsRef.current = null;
+      loadPOIs(b, currentZoomRef.current);
+    }
+  }, [showMarkers]);
 
   useEffect(() => {
     if (routePoints.length >= 2) {
@@ -364,18 +380,21 @@ export default function ExplorerMap() {
     if (bounds.south >= bounds.north || bounds.west >= bounds.east) return;
     
     setLoading(true);
-    loadPOIsFromOverpass(bounds).then((fetchedPois) => {
-      if (fetchedPois.length > 0) {
-        setAllPois((prev) => {
-          if (prev.length === fetchedPois.length && prev.length > 0) {
-            const sameIds = new Set(prev.map(p => p.id));
-            const newIds = new Set(fetchedPois.map(p => p.id));
-            if (sameIds.size === newIds.size && [...sameIds].every(id => newIds.has(id))) {
-              return prev;
-            }
+    
+    Promise.all([
+      loadPOIsFromOverpass(bounds),
+      loadPOIsFromGpxFeed(bounds)
+    ]).then(([overpassPois, gpxPois]) => {
+      const allFetchedPois = [...overpassPois, ...gpxPois];
+      
+      if (allFetchedPois.length > 0) {
+        const uniqueMap = new Map();
+        allFetchedPois.forEach(poi => {
+          if (!uniqueMap.has(poi.id)) {
+            uniqueMap.set(poi.id, poi);
           }
-          return fetchedPois;
         });
+        setAllPois(Array.from(uniqueMap.values()));
       }
       setLoading(false);
     }).catch((err) => {
@@ -385,7 +404,7 @@ export default function ExplorerMap() {
       }
       setLoading(false);
     });
-  }, []);
+  }, [forceReloadRef.current]);
 
   const filteredPois = useMemo(() => {
     if (allPois.length === 0) return [];
@@ -397,30 +416,26 @@ export default function ExplorerMap() {
     
     if (!isCategoryFiltering) {
       if (zoom < 10) {
-        filtered = filtered.filter(poi => (poi.importance || 0) > 550);
+        filtered = filtered.filter(poi => (poi.importance || 0) > 150);
       } 
       else if (zoom < 12) {
-        filtered = filtered.filter(poi => (poi.importance || 0) > 400);
+        filtered = filtered.filter(poi => (poi.importance || 0) > 80);
       }
       else if (zoom < 14) {
-        filtered = filtered.filter(poi => (poi.importance || 0) > 150);
+        filtered = filtered.filter(poi => (poi.importance || 0) > 30);
       }
     } else {
       if (zoom < 12) {
-        filtered = filtered.filter(poi => (poi.importance || 0) > 100);
+        filtered = filtered.filter(poi => (poi.importance || 0) > 20);
       }
       filtered = filtered.filter(poi => activeCategories.includes(poi.category));
     }
 
-    const maxPois = zoom >= 15 ? 300 : zoom >= 13 ? 150 : zoom >= 11 ? 60 : 30;
+    const maxPois = zoom >= 15 ? 500 : zoom >= 13 ? 300 : zoom >= 11 ? 150 : 80;
     filtered = filtered.slice(0, maxPois);
     
     if (showBestOnly) {
       filtered = filtered.filter(poi => poi.isBest);
-    }
-    
-    if (activeCategories.length === 0 && !showBestOnly) {
-      filtered = [];
     }
     
     return filtered.slice(0, 500);
@@ -867,7 +882,7 @@ export default function ExplorerMap() {
                 className={`flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition min-h-[36px] ${layerMenuOpen ? 'bg-green-500/20 text-green-400' : 'text-sidebar-foreground/40 hover:text-sidebar-foreground/60'}`}
                 title="Capas de mapa"
               >
-                <Map className="w-3.5 h-3.5" />
+                <MapIcon className="w-3.5 h-3.5" />
               </button>
               {layerMenuOpen && (
                 <div className="absolute top-full right-0 mt-1 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 w-40 bg-sidebar text-sidebar-foreground">
@@ -897,7 +912,7 @@ export default function ExplorerMap() {
               className="flex items-center gap-1.5 text-xs px-2 py-1.5 rounded transition min-h-[36px] text-sidebar-foreground/40 hover:text-sidebar-foreground/60 hover:bg-sidebar-accent"
               title="Veure rutes a Wikiloc"
             >
-              <Map className="w-3.5 h-3.5" />
+              <MapIcon className="w-3.5 h-3.5" />
               Wikiloc
             </button>
           </div>
@@ -1054,7 +1069,7 @@ export default function ExplorerMap() {
                           <Navigation2 className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleViewRoute(route)} className="text-sidebar-primary hover:opacity-70 p-1" title="Veure al mapa">
-                          <Map className="w-3.5 h-3.5" />
+                          <MapIcon className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleDeleteRoute(route.id)} className="text-destructive hover:opacity-70 p-1">
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1098,7 +1113,7 @@ export default function ExplorerMap() {
                           <Navigation2 className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleViewTrack(track)} className="text-sidebar-primary hover:opacity-70 p-1" title="Veure al mapa">
-                          <Map className="w-3.5 h-3.5" />
+                          <MapIcon className="w-3.5 h-3.5" />
                         </button>
                         <button onClick={() => handleDeleteTrack(track.id)} className="text-destructive hover:opacity-70 p-1">
                           <Trash2 className="w-3.5 h-3.5" />
@@ -1225,8 +1240,8 @@ export default function ExplorerMap() {
         }}
         className={`absolute z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
           isMobile 
-            ? 'top-4 right-14' 
-            : 'top-4 right-4'
+            ? 'top-4 left-4' 
+            : 'top-4 left-4'
         } ${
           userLocation 
             ? 'bg-blue-500 text-white hover:bg-blue-600' 
@@ -1236,6 +1251,79 @@ export default function ExplorerMap() {
       >
         <Crosshair className="w-5 h-5" />
       </button>
+
+      {/* Show/Hide markers button */}
+      <button
+        onClick={() => {
+          const willShow = !showMarkers;
+          setShowMarkers(willShow);
+          if (willShow) {
+            clearCache();
+            setAllPois([]);
+            lastLoadedBoundsRef.current = null;
+            const b = boundsRef.current;
+            if (b) {
+              loadPOIs(b, currentZoomRef.current);
+            }
+          }
+        }}
+        className={`absolute z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
+          isMobile 
+            ? 'top-4 left-14' 
+            : 'top-4 left-14'
+        } ${
+          showMarkers 
+            ? 'bg-green-500 text-white hover:bg-green-600' 
+            : 'bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent'
+        }`}
+        title={showMarkers ? 'Ocultar marcadors' : 'Mostrar marcadors'}
+      >
+        {showMarkers ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+      </button>
+
+      {/* Category buttons - Left side */}
+      <div className="absolute z-[1001] left-2 bottom-2 flex flex-col gap-1">
+        {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(0, 10).map(([key, config]) => {
+          const isActive = activeCategories.includes(key);
+          return (
+            <button
+              key={key}
+              onClick={() => toggleCategory(key)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+              style={{ backgroundColor: config.color }}
+              title={t(`categories.${key}`)}
+            >
+              <span className="text-lg">{config.emoji}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Category buttons - Right side */}
+      <div className="absolute z-[1001] right-2 bottom-2 flex flex-col gap-1">
+        {/* Best places button */}
+        <button
+          onClick={() => setShowBestOnly(!showBestOnly)}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${showBestOnly ? 'ring-4 ring-yellow-400 scale-110 bg-gradient-to-br from-yellow-400 to-amber-500' : 'opacity-60 hover:opacity-100 hover:scale-105 bg-gradient-to-br from-yellow-300 to-yellow-500'}`}
+          title={showBestOnly ? 'Mostrant millors llocs' : 'Tots els llocs'}
+        >
+          <span className="text-lg">🏆</span>
+        </button>
+        {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(10).map(([key, config]) => {
+          const isActive = activeCategories.includes(key);
+          return (
+            <button
+              key={key}
+              onClick={() => toggleCategory(key)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+              style={{ backgroundColor: config.color }}
+              title={t(`categories.${key}`)}
+            >
+              <span className="text-lg">{config.emoji}</span>
+            </button>
+          );
+        })}
+      </div>
 
       {/* Map */}
       <div 
@@ -1254,7 +1342,7 @@ export default function ExplorerMap() {
           {flyToCenter && <FlyTo center={flyToCenter} />}
           {fitBoundsTo && <FitBounds bounds={fitBoundsTo} />}
           <UserLocationMarker onLocationUpdate={setUserLocation} />
-          {userLocation && (
+           {userLocation && (
             <Marker position={userLocation} icon={userLocationIcon}>
               <Popup>
                 <div className="text-sm font-medium">Tu ubicación</div>
@@ -1262,8 +1350,8 @@ export default function ExplorerMap() {
             </Marker>
           )}
 
-           {filteredPois.map((poi) => (
-            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi.category)}>
+          {showMarkers && filteredPois.map((poi) => (
+            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
               <Popup maxWidth={isMobile ? 280 : 380} className={isMobile ? 'mobile-popup' : ''}>
                 <div style={{ 
                   minWidth: isMobile ? 'calc(100vw - 40px)' : '320px', 

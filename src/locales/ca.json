@@ -34,7 +34,13 @@
     "shop": "Botigues",
     "park": "Parcs",
     "heritage": "Patrimoni",
-    "city": "Pobles i Ciutats"
+    "city": "Pobles i Ciutats",
+    "sports_centre": "Pavellons i Poliesportius",
+    "parking": "Parkings Gratuïts",
+    "cemetery": "Cementiris",
+    "caravansite": "Autocaravanes (Serveis)",
+    "caravan_park": "Autocaravanes (Sense serveis)",
+    "waterfall": "Gorgs i salts d'aigua"
   },
   "route": {
     "hint": "Fes clic a \"+\" als marcadors del mapa per afegir a la teva ruta",
