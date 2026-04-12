@@ -36,3 +36,6 @@ europe-pbf.tar
 # Android signing keys
 *.jks
 *.keystore
+
+# Release APK (tracked for distribution)
+!ExploraWander-release-signed.apk
