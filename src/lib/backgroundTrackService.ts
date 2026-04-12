@@ -1,6 +1,23 @@
 import { TrackPoint } from '@/lib/types';
+import { Capacitor } from '@capacitor/core';
+import { Device } from '@capacitor/device';
 
-const RECORDING_INTERVAL = 5000;
+const RECORDING_INTERVAL = 3000;
+
+async function requestIgnoreBatteryOptimization() {
+  if (!Capacitor.isNativePlatform()) return;
+  
+  try {
+    const { isAvailable } = await Device.isFeatureAvailable('BatteryOptimization');
+    if (isAvailable) {
+      await Device.releaseBatteryOptimization({
+        reason: 'Need continuous GPS tracking for track recording'
+      });
+    }
+  } catch (e) {
+    console.log('Battery optimization release not available:', e);
+  }
+}
 
 export class BackgroundTrackService {
   private isRecording = false;
@@ -15,9 +32,11 @@ export class BackgroundTrackService {
   async init() {
     if (this.initialized) return;
     try {
-      const { BackgroundGeolocation } = await import('@capacitor-community/background-geolocation');
-      this.bgGeolocationPlugin = BackgroundGeolocation;
-      console.log('BackgroundGeolocation plugin loaded');
+      if (Capacitor.isNativePlatform()) {
+        const { BackgroundGeolocation } = await import('@capacitor-community/background-geolocation');
+        this.bgGeolocationPlugin = BackgroundGeolocation;
+        console.log('BackgroundGeolocation plugin loaded');
+      }
     } catch (e) {
       console.log('Background geolocation plugin not available, using browser geolocation', e);
     }
@@ -32,35 +51,43 @@ export class BackgroundTrackService {
     this.isRecording = true;
 
     await this.init();
+    await requestIgnoreBatteryOptimization();
 
     if (this.bgGeolocationPlugin) {
-      this.startNative();
+      await this.startNative();
     } else {
       this.startBrowser();
     }
   }
 
-  private startNative() {
+  private async startNative() {
     const plugin = this.bgGeolocationPlugin;
+
+    try {
+      await plugin.requestPermission();
+    } catch (e) {
+      console.log('Permission request error:', e);
+    }
 
     plugin.configure({
       interval: RECORDING_INTERVAL / 1000,
-      fastestInterval: 5000,
-      activitiesInterval: 5000,
+      fastestInterval: 3000,
+      activitiesInterval: 3000,
       stopOnTerminate: false,
-      startOnBoot: true,
+      startOnBoot: false,
       debug: false,
-      startForeground: true,
+      startForegroundService: true,
       notificationTitle: 'ExploraWander',
       notificationText: 'Gravant track...',
-      locationProvider: 1,
-      desiredAccuracy: 0,
-      stationaryRadius: 0,
-      distanceFilter: 0,
-      wakeLock: true,
-      notificationIconColor: '#1a2332',
-      notificationIconLarge: '',
-      notificationIconSmall: '',
+      notificationChannelName: 'ExploraWander',
+      notificationChannelDescription: 'Gravació de track en segon pla',
+      notificationChannelId: 'explorawander_channel',
+      locationProvider: 2,
+      desiredAccuracy: 3,
+      stationaryRadius: 3,
+      distanceFilter: 3,
+      stopStillThreshold: 0,
+      enableTimestampInUnixSeconds: true,
     });
 
     plugin.on('location', (location: any) => {
@@ -70,13 +97,15 @@ export class BackgroundTrackService {
       }
       this.lastRecordedTime = now;
 
+      const timestamp = location.timestamp || location.time || now;
       const point: TrackPoint = {
         lat: location.latitude,
         lng: location.longitude,
         altitude: location.altitude ?? undefined,
-        timestamp: location.time ?? now,
+        timestamp: typeof timestamp === 'number' && timestamp > 1e12 ? timestamp : now,
       };
 
+      console.log('Track point recorded:', point);
       this.trackPoints.push(point);
       this.onPointCallback?.(point);
     });
@@ -86,7 +115,7 @@ export class BackgroundTrackService {
       this.onErrorCallback?.('Error de GPS');
     });
 
-    plugin.start();
+    await plugin.start();
   }
 
   private startBrowser() {
