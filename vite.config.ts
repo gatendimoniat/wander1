@@ -4,6 +4,7 @@ import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
+  base: '/explore-wander/',
   server: {
     host: true,
     port: 5173,
@@ -120,7 +121,8 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/api\//],
       },
       devOptions: {
-        enabled: false,
+        enabled: true,
+        type: 'module',
       },
     }),
   ],
@@ -129,5 +131,16 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
+  },
+  build: {
+    rollupOptions: {
+      external: [
+        '@capacitor-community/background-geolocation',
+        '@capacitor/core',
+      ],
+    },
+  },
+  optimizeDeps: {
+    exclude: ['@capacitor-community/background-geolocation'],
   },
 }));
