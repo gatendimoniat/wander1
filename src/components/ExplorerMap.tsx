@@ -3,19 +3,19 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map as MapIcon, Satellite, Crosshair, Share2, Download, Eye, EyeOff } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map as MapIcon, Satellite, Crosshair, Share2, Download, Eye, EyeOff, HardDrive } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/lib/supabase';
-import { MOCK_SAVED_ROUTES, MOCK_SAVED_TRACKS } from '@/lib/poiDatabase';
 import { CATEGORY_CONFIG } from '@/lib/types';
 import type { POI, POICategory, SavedRoute, RecordedTrack, TrackPoint, Bounds } from '@/lib/types';
-import { loadPOIsFromOverpass, clearCache } from '@/lib/overpassLoader';
-import { loadPOIsFromGpxFeed } from '@/lib/gpxLoader';
 import { getSavedRoutes, getSavedTracks, saveRoute, deleteRoute, saveTrack, deleteTrack } from '@/lib/storage';
+import { getPOIsInBounds, getPOICount, getDownloadedRegionsWithCounts } from '@/lib/poiManager';
+import { getDownloadedRegionIds, getDownloadStats } from '@/lib/downloadRegistry';
 import { exportRouteToGPX, exportRouteToJSON, exportTrackToGPX, exportTrackToJSON, exportAllToJSON, importTrackFromGPX, importRouteFromJSON, downloadFile } from '@/lib/exportImport';
+import { decodeFromShareable, encodeRouteToShareable, encodeTrackToShareable, getShareableUrl, getQRCodeUrl } from '@/lib/shareUtils';
+import { backgroundTrackService } from '@/lib/backgroundTrackService';
 import WikipediaInfo from './WikipediaInfo';
 import LanguageSelector from './LanguageSelector';
-import Auth from './Auth';
+import DownloadManager from './DownloadManager';
 import { toast } from 'sonner';
 
 type MapLayer = 'standard' | 'satellite' | 'topo' | 'cycle';
@@ -49,7 +49,6 @@ const MAP_LAYERS: Record<MapLayer, MapLayerConfig> = {
   },
 };
 
-// Fix leaflet marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -60,12 +59,9 @@ L.Icon.Default.mergeOptions({
 function createCategoryIcon(poi: POI) {
   const category = poi.category;
   const config = CATEGORY_CONFIG[category] || { color: '#888888', emoji: '📍' };
-  let color = config.color;
-  let emoji = config.emoji;
-  
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid white;">${emoji}</div>`,
+    html: `<div style="background:${config.color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid white;">${config.emoji}</div>`,
     iconSize: [32, 32],
     iconAnchor: [16, 16],
   });
@@ -173,7 +169,6 @@ export default function ExplorerMap() {
   const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
   const [allPois, setAllPois] = useState<POI[]>([]);
-  const [dbLoaded, setDbLoaded] = useState(false);
   const [activeCategories, setActiveCategories] = useState<POICategory[]>([]);
   const [showBestOnly, setShowBestOnly] = useState(false);
   const [showMarkers, setShowMarkers] = useState(true);
@@ -202,8 +197,7 @@ export default function ExplorerMap() {
       setSidebarOpen(true);
     }
   };
-  const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track'>('categories');
-  const [tileLayer, setTileLayer] = useState<MapLayer>('standard');
+  const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track' | 'downloads'>('categories');
   const [mapLayer, setMapLayer] = useState<MapLayer>('standard');
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const layerMenuRef = useRef<HTMLDivElement>(null);
@@ -214,6 +208,8 @@ export default function ExplorerMap() {
   const currentZoomRef = useRef<number>(13);
   const [currentZoom, setCurrentZoom] = useState(13);
   const lastLoadedBoundsRef = useRef<Bounds | null>(null);
+  const [downloadedRegions, setDownloadedRegions] = useState<string[]>([]);
+  const [totalPOICount, setTotalPOICount] = useState(0);
 
   const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371;
@@ -265,19 +261,20 @@ export default function ExplorerMap() {
       }
     };
     document.addEventListener('mousedown', handleLayerClickOutside);
-
-    // Initial auth check and listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      refreshData();
-    });
-
     refreshData();
+    loadDownloadedRegions();
 
     return () => {
       document.removeEventListener('mousedown', handleLayerClickOutside);
-      subscription.unsubscribe();
     };
   }, []);
+
+  const loadDownloadedRegions = async () => {
+    const regions = getDownloadedRegionIds();
+    setDownloadedRegions(regions);
+    const count = await getPOICount();
+    setTotalPOICount(count);
+  };
 
   const refreshData = async () => {
     try {
@@ -285,15 +282,15 @@ export default function ExplorerMap() {
         getSavedRoutes(),
         getSavedTracks()
       ]);
-      setSavedRoutes([...MOCK_SAVED_ROUTES, ...routes]);
-      setSavedTracks([...MOCK_SAVED_TRACKS, ...tracks]);
+      setSavedRoutes(routes);
+      setSavedTracks(tracks);
     } catch (error) {
       console.error('Failed to refresh data:', error);
     }
   };
 
   useEffect(() => {
-    setDbLoaded(true);
+    refreshData();
   }, []);
 
   useEffect(() => {
@@ -331,32 +328,21 @@ export default function ExplorerMap() {
   }, []);
 
   const [routePoints, setRoutePoints] = useState<POI[]>([]);
-  const [savedRoutes, setSavedRoutes] = useState<SavedRoute[]>(MOCK_SAVED_ROUTES);
+  const [savedRoutes, setSavedRoutes] = useState<SavedRoute[]>([]);
   const [routeName, setRouteName] = useState('');
 
   const [isRecording, setIsRecording] = useState(false);
   const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([]);
-  const [savedTracks, setSavedTracks] = useState<RecordedTrack[]>(MOCK_SAVED_TRACKS);
+  const [savedTracks, setSavedTracks] = useState<RecordedTrack[]>([]);
   const [trackName, setTrackName] = useState('');
   const watchIdRef = useRef<number | null>(null);
   const recordingTrackRef = useRef<TrackPoint[]>([]);
   const lastRecordedTimeRef = useRef<number>(0);
-  const RECORDING_INTERVAL = 10000;
 
   const boundsRef = useRef<Bounds | null>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [shareModal, setShareModal] = useState<{ type: 'route' | 'track'; name: string; url: string; qrUrl: string } | null>(null);
-  const forceReloadRef = useRef<number>(0);
-
-  const forceReloadPOIs = useCallback(() => {
-    forceReloadRef.current += 1;
-    const b = boundsRef.current;
-    if (b && showMarkers) {
-      lastLoadedBoundsRef.current = null;
-      loadPOIs(b, currentZoomRef.current);
-    }
-  }, [showMarkers]);
 
   useEffect(() => {
     if (routePoints.length >= 2) {
@@ -366,45 +352,27 @@ export default function ExplorerMap() {
     }
   }, [routePoints]);
 
-  const getPOILimit = (zoom: number): number => {
-    if (zoom <= 5) return 30;
-    if (zoom <= 7) return 60;
-    if (zoom <= 9) return 100;
-    if (zoom <= 11) return 200;
-    if (zoom <= 13) return 300;
-    return 500;
-  };
-
-  const loadPOIs = useCallback((bounds: Bounds, zoom: number = 10) => {
+  const loadPOIs = useCallback(async (bounds: Bounds, zoom: number = 10) => {
     if (!bounds) return;
     if (bounds.south >= bounds.north || bounds.west >= bounds.east) return;
-    
+    if (downloadedRegions.length === 0) {
+      setAllPois([]);
+      return;
+    }
+
     setLoading(true);
-    
-    Promise.all([
-      loadPOIsFromOverpass(bounds),
-      loadPOIsFromGpxFeed(bounds)
-    ]).then(([overpassPois, gpxPois]) => {
-      const allFetchedPois = [...overpassPois, ...gpxPois];
-      
-      if (allFetchedPois.length > 0) {
-        const uniqueMap = new Map();
-        allFetchedPois.forEach(poi => {
-          if (!uniqueMap.has(poi.id)) {
-            uniqueMap.set(poi.id, poi);
-          }
-        });
-        setAllPois(Array.from(uniqueMap.values()));
-      }
-      setLoading(false);
-    }).catch((err) => {
+
+    try {
+      const pois = await getPOIsInBounds(bounds, activeCategories, downloadedRegions);
+      setAllPois(pois);
+    } catch (err) {
       console.error('Error loading POIs:', err);
       if (allPois.length === 0) {
         toast.error('Error carregant llocs');
       }
-      setLoading(false);
-    });
-  }, [forceReloadRef.current]);
+    }
+    setLoading(false);
+  }, [downloadedRegions, activeCategories]);
 
   const filteredPois = useMemo(() => {
     if (allPois.length === 0) return [];
@@ -459,7 +427,7 @@ export default function ExplorerMap() {
     debounceRef.current = setTimeout(() => {
       lastLoadedBoundsRef.current = bounds;
       loadPOIs(bounds, zoom);
-    }, 1000);
+    }, 500);
   }, [loadPOIs]);
 
   const handleSearch = async () => {
@@ -635,7 +603,6 @@ export default function ExplorerMap() {
     setSidebarTab('track');
   };
 
-  // Track recording
   const startRecording = async () => {
     if (!navigator.geolocation) {
       alert(t('track.noGeolocation'));
@@ -775,9 +742,16 @@ export default function ExplorerMap() {
     input.click();
   };
 
+  const handleDownloadComplete = async () => {
+    await loadDownloadedRegions();
+    const b = boundsRef.current;
+    if (b && showMarkers) {
+      loadPOIs(b, currentZoomRef.current);
+    }
+  };
+
   return (
     <div className="h-screen w-screen flex overflow-hidden">
-      {/* Mobile backdrop overlay */}
       {isMobile && sidebarOpen && (
         <div 
           className="fixed inset-0 z-[1000] bg-black/40" 
@@ -785,7 +759,6 @@ export default function ExplorerMap() {
         />
       )}
       
-      {/* Sidebar */}
       <div className={`${
         isMobile 
           ? `fixed inset-x-0 bottom-0 z-[1001] transition-transform duration-300 ${sidebarOpen ? 'translate-y-0' : 'translate-y-full'}` 
@@ -796,13 +769,11 @@ export default function ExplorerMap() {
             ? 'w-full max-h-[70vh] rounded-t-2xl shadow-2xl' 
             : sidebarOpen ? 'w-80 h-screen' : 'w-0'
         }`}>
-          {/* Mobile drag handle */}
           {isMobile && (
             <div className="flex justify-center py-2 bg-sidebar-border/20 shrink-0">
               <div className="w-10 h-1 bg-sidebar-foreground/30 rounded-full" />
             </div>
           )}
-          {/* Header */}
           <div className={`border-b border-sidebar-border shrink-0 ${isMobile ? 'p-3' : 'p-4'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -821,7 +792,6 @@ export default function ExplorerMap() {
             {!isMobile && <p className="text-xs text-sidebar-foreground/60 mt-1">{t('app.subtitle')}</p>}
           </div>
 
-          {/* Search */}
           <div className={`border-b border-sidebar-border shrink-0 ${isMobile ? 'p-2' : 'p-3'}`}>
             <div className="flex gap-2">
               <input
@@ -873,7 +843,6 @@ export default function ExplorerMap() {
             )}
           </div>
 
-          {/* Language Selector & Controls */}
           <div className={`border-b border-sidebar-border shrink-0 flex items-center justify-between gap-2 ${isMobile ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
             <LanguageSelector />
             <div className="relative flex items-center gap-1.5" ref={layerMenuRef}>
@@ -895,7 +864,7 @@ export default function ExplorerMap() {
                       }}
                       className={`w-full text-left text-xs px-2 py-1.5 rounded flex items-center gap-2 transition min-h-[36px] ${mapLayer === key ? 'bg-green-500/20 text-green-400 font-medium' : 'hover:bg-sidebar-accent'}`}
                     >
-                      {key === 'satellite' ? <Satellite className="w-3 h-3" /> : key === 'topo' ? <Map className="w-3 h-3" /> : key === 'cycle' ? <Navigation className="w-3 h-3" /> : <Map className="w-3 h-3" />}
+                      {key === 'satellite' ? <Satellite className="w-3 h-3" /> : key === 'topo' ? <MapIcon className="w-3 h-3" /> : key === 'cycle' ? <Navigation className="w-3 h-3" /> : <MapIcon className="w-3 h-3" />}
                       {config.name}
                     </button>
                   ))}
@@ -917,10 +886,10 @@ export default function ExplorerMap() {
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="flex border-b border-sidebar-border shrink-0">
             {([
               { key: 'categories', icon: Layers, label: 'filters' },
+              { key: 'downloads', icon: Download, label: 'downloads' },
               { key: 'route', icon: Route, label: 'route' },
               { key: 'saved', icon: Save, label: 'saved' },
               { key: 'track', icon: Navigation, label: 'track' },
@@ -936,12 +905,27 @@ export default function ExplorerMap() {
             ))}
           </div>
 
-          {/* Scrollable content area */}
           <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-3 space-y-4">
-            {/* Auth Section always at the top of scrolling area */}
-            <Auth />
             {sidebarTab === 'categories' && (
               <div className="space-y-3">
+                {totalPOICount > 0 && (
+                  <div className="flex items-center gap-2 text-xs bg-sidebar-accent/50 rounded-lg px-2 py-1.5">
+                    <HardDrive className="w-3.5 h-3.5 text-green-400" />
+                    <span className="text-sidebar-foreground/60">
+                      {totalPOICount.toLocaleString()} POIs · {downloadedRegions.length} regiones
+                    </span>
+                  </div>
+                )}
+
+                {totalPOICount === 0 && (
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 text-center">
+                    <p className="text-xs text-yellow-400 mb-1">⚠️ Sin datos descargados</p>
+                    <p className="text-xs text-sidebar-foreground/50">
+                      Ve a la pestaña <button onClick={() => setSidebarTab('downloads')} className="text-sidebar-primary underline">Descargas</button> para descargar regiones
+                    </p>
+                  </div>
+                )}
+
                 <button
                   onClick={() => setShowBestOnly(!showBestOnly)}
                   className={`w-full flex items-center gap-2 p-2.5 rounded-xl text-sm font-medium transition shadow-sm ${showBestOnly ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-400 border-2 border-yellow-500/50' : 'bg-sidebar-accent text-sidebar-foreground border-2 border-transparent hover:border-yellow-500/30'}`}
@@ -984,6 +968,10 @@ export default function ExplorerMap() {
                   {filteredPois.length} {showBestOnly ? 'millors llocs' : t('categories.found')}
                 </p>
               </div>
+            )}
+
+            {sidebarTab === 'downloads' && (
+              <DownloadManager onDownloadComplete={handleDownloadComplete} />
             )}
 
             {sidebarTab === 'route' && (
@@ -1202,7 +1190,6 @@ export default function ExplorerMap() {
         </div>
       </div>
 
-      {/* Toggle Button - Desktop: side-positioned, Mobile: bottom-center floating */}
       {!isMobile && (
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -1225,7 +1212,6 @@ export default function ExplorerMap() {
         </button>
       )}
 
-      {/* User location button */}
       <button
         onClick={() => {
           if (userLocation) {
@@ -1239,9 +1225,7 @@ export default function ExplorerMap() {
           }
         }}
         className={`absolute z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
-          isMobile 
-            ? 'top-4 left-4' 
-            : 'top-4 left-4'
+          isMobile ? 'top-4 left-4' : 'top-4 left-4'
         } ${
           userLocation 
             ? 'bg-blue-500 text-white hover:bg-blue-600' 
@@ -1252,13 +1236,11 @@ export default function ExplorerMap() {
         <Crosshair className="w-5 h-5" />
       </button>
 
-      {/* Show/Hide markers button */}
       <button
         onClick={() => {
           const willShow = !showMarkers;
           setShowMarkers(willShow);
           if (willShow) {
-            clearCache();
             setAllPois([]);
             lastLoadedBoundsRef.current = null;
             const b = boundsRef.current;
@@ -1268,9 +1250,7 @@ export default function ExplorerMap() {
           }
         }}
         className={`absolute z-[1001] p-2.5 rounded-lg shadow-lg transition flex items-center justify-center ${
-          isMobile 
-            ? 'top-4 left-14' 
-            : 'top-4 left-14'
+          isMobile ? 'top-4 left-14' : 'top-4 left-14'
         } ${
           showMarkers 
             ? 'bg-green-500 text-white hover:bg-green-600' 
@@ -1281,7 +1261,6 @@ export default function ExplorerMap() {
         {showMarkers ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
       </button>
 
-      {/* Category buttons - Left side */}
       <div className="absolute z-[1001] left-2 bottom-2 flex flex-col gap-1">
         {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(0, 10).map(([key, config]) => {
           const isActive = activeCategories.includes(key);
@@ -1299,9 +1278,7 @@ export default function ExplorerMap() {
         })}
       </div>
 
-      {/* Category buttons - Right side */}
       <div className="absolute z-[1001] right-2 bottom-2 flex flex-col gap-1">
-        {/* Best places button */}
         <button
           onClick={() => setShowBestOnly(!showBestOnly)}
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${showBestOnly ? 'ring-4 ring-yellow-400 scale-110 bg-gradient-to-br from-yellow-400 to-amber-500' : 'opacity-60 hover:opacity-100 hover:scale-105 bg-gradient-to-br from-yellow-300 to-yellow-500'}`}
@@ -1325,7 +1302,6 @@ export default function ExplorerMap() {
         })}
       </div>
 
-      {/* Map */}
       <div 
         className="flex-1 relative"
         onTouchStart={isMobile ? handleTouchStart : undefined}
@@ -1333,11 +1309,11 @@ export default function ExplorerMap() {
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
         <MapContainer center={[41.3874, 2.1686]} zoom={13} className="h-full w-full" zoomControl={false}>
-          {Object.entries(MAP_LAYERS).map(([key, config]) => (
-            key === mapLayer && (
-              <TileLayer key={key} attribution={config.attribution} url={config.url} />
-            )
-          ))}
+          <TileLayer
+            key={mapLayer}
+            attribution={MAP_LAYERS[mapLayer].attribution}
+            url={MAP_LAYERS[mapLayer].url}
+          />
           <MapEvents onBoundsChange={handleBoundsChange} />
           {flyToCenter && <FlyTo center={flyToCenter} />}
           {fitBoundsTo && <FitBounds bounds={fitBoundsTo} />}
@@ -1363,7 +1339,6 @@ export default function ExplorerMap() {
                   overflow: 'hidden',
                   boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
                 }}>
-                  {/* Header Compact */}
                   <div style={{ 
                     display: 'flex',
                     alignItems: 'center',
@@ -1397,7 +1372,6 @@ export default function ExplorerMap() {
                         {t(`categories.${poi.category}`)}
                       </span>
                     </div>
-                    {/* Badge Patrimonio/UNESCO */}
                     {poi.tags && (poi.tags.unesco || poi.tags['heritage:operator'] === 'unesco' || poi.tags.heritage === 'unesco') && (
                       <div style={{ 
                         background: '#fef3c7',
@@ -1434,7 +1408,6 @@ export default function ExplorerMap() {
                       </div>
                     )}
 
-                    {/* Star Rating - Only real OSM data */}
                     {poi.rating && poi.rating >= 1 && poi.rating <= 5 && (
                       <div style={{ 
                         display: 'flex', 
@@ -1450,7 +1423,6 @@ export default function ExplorerMap() {
                       </div>
                     )}
 
-                    {/* Premium / Best Badge */}
                     {poi.isBest && (
                       <div style={{ 
                         background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
@@ -1471,7 +1443,6 @@ export default function ExplorerMap() {
                     )}
                   </div>
                   
-                  {/* Additional Details (Population, Address, etc) */}
                   <div style={{ padding: '12px 16px 6px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {poi.population && (
                       <div style={{ 
@@ -1492,9 +1463,7 @@ export default function ExplorerMap() {
                     )}
                   </div>
                   
-                  {/* Content */}
                   <div style={{ padding: '6px 10px' }}>
-                    {/* Info Row */}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
                       {poi.address && (
                         <div style={{ 
@@ -1553,7 +1522,6 @@ export default function ExplorerMap() {
                       )}
                     </div>
                     
-                    {/* Wikipedia Info */}
                     <WikipediaInfo 
                       poiName={poi.name} 
                       wikipediaTag={poi.tags?.wikipedia} 
@@ -1561,7 +1529,6 @@ export default function ExplorerMap() {
                       category={poi.category}
                     />
                     
-                    {/* Action Buttons */}
                     <div style={{ 
                       display: 'flex', 
                       gap: '6px', 
@@ -1619,7 +1586,6 @@ export default function ExplorerMap() {
             </Marker>
           ))}
 
-          {/* Route line - real roads */}
           {routePoints.length > 1 && (
             <>
               {routeLoading && (
@@ -1641,7 +1607,6 @@ export default function ExplorerMap() {
             </>
           )}
 
-          {/* Route waypoints markers */}
           {routePoints.map((p, i) => (
             <Marker key={`waypoint-${p.id}`} position={[p.lat, p.lng]}>
               <Popup>
@@ -1650,7 +1615,6 @@ export default function ExplorerMap() {
             </Marker>
           ))}
 
-          {/* Track line */}
           {trackPoints.length > 1 && (
             <Polyline
               positions={trackPoints.map((p) => [p.lat, p.lng] as L.LatLngTuple)}
@@ -1662,7 +1626,6 @@ export default function ExplorerMap() {
 
       </div>
 
-      {/* Share Modal */}
       {shareModal && (
         <div 
           className="fixed inset-0 z-[2000] bg-black/50 flex items-center justify-center p-4"

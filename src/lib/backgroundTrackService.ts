@@ -1,16 +1,45 @@
 import { TrackPoint } from '@/lib/types';
-import { Capacitor } from '@capacitor/core';
-import { Device } from '@capacitor/device';
 
 const RECORDING_INTERVAL = 3000;
 
+async function dynamicImport(moduleName: string): Promise<any> {
+  return new Function('name', 'return import(name)')(moduleName);
+}
+
+async function tryLoadCapacitor(): Promise<any> {
+  try {
+    return await dynamicImport('@capacitor/core');
+  } catch {
+    return null;
+  }
+}
+
+async function isNativePlatform(): Promise<boolean> {
+  const cap = await tryLoadCapacitor();
+  if (!cap) return false;
+  try {
+    return cap.Capacitor.isNativePlatform();
+  } catch {
+    return false;
+  }
+}
+
+async function tryLoadBackgroundGeolocation(): Promise<any> {
+  try {
+    return await dynamicImport('@capacitor-community/background-geolocation');
+  } catch {
+    return null;
+  }
+}
+
 async function requestIgnoreBatteryOptimization() {
-  if (!Capacitor.isNativePlatform()) return;
+  if (!await isNativePlatform()) return;
   
   try {
-    const { isAvailable } = await Device.isFeatureAvailable('BatteryOptimization');
+    const capDevice = await dynamicImport('@capacitor/device');
+    const { isAvailable } = await capDevice.Device.isFeatureAvailable('BatteryOptimization');
     if (isAvailable) {
-      await Device.releaseBatteryOptimization({
+      await capDevice.Device.releaseBatteryOptimization({
         reason: 'Need continuous GPS tracking for track recording'
       });
     }
@@ -28,17 +57,21 @@ export class BackgroundTrackService {
   private onPointCallback?: (point: TrackPoint) => void;
   private onErrorCallback?: (error: string) => void;
   private initialized = false;
+  private nativePlatform = false;
 
   async init() {
     if (this.initialized) return;
     try {
-      if (Capacitor.isNativePlatform()) {
-        const { BackgroundGeolocation } = await import('@capacitor-community/background-geolocation');
-        this.bgGeolocationPlugin = BackgroundGeolocation;
-        console.log('BackgroundGeolocation plugin loaded');
+      this.nativePlatform = await isNativePlatform();
+      if (this.nativePlatform) {
+        const bgGeo = await tryLoadBackgroundGeolocation();
+        if (bgGeo) {
+          this.bgGeolocationPlugin = bgGeo.BackgroundGeolocation;
+          console.log('BackgroundGeolocation plugin loaded');
+        }
       }
     } catch (e) {
-      console.log('Background geolocation plugin not available, using browser geolocation', e);
+      console.log('Background geolocation not available, using browser geolocation', e);
     }
     this.initialized = true;
   }

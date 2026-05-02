@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/api\//],
       },
       devOptions: {
-        enabled: true,
+        enabled: false,
         type: 'module',
       },
     }),
@@ -137,10 +137,11 @@ export default defineConfig(({ mode }) => ({
       external: [
         '@capacitor-community/background-geolocation',
         '@capacitor/core',
+        '@capacitor/device',
       ],
     },
   },
   optimizeDeps: {
-    exclude: ['@capacitor-community/background-geolocation'],
+    exclude: ['@capacitor-community/background-geolocation', '@capacitor/core', '@capacitor/device'],
   },
 }));
