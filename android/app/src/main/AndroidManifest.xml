@@ -34,7 +34,8 @@
 
         <service
             android:name="com.capacitorcommunity.backgroundgeolocation.stubs.HeadlessTask"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="location" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

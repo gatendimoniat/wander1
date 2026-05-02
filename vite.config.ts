@@ -4,7 +4,7 @@ import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/wander1/' : '/',
+  base: process.env.CAPACITOR ? '/' : (mode === 'production' ? '/wander1/' : '/'),
   server: {
     host: true,
     port: 5173,

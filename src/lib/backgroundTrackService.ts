@@ -115,12 +115,15 @@ export class BackgroundTrackService {
       notificationChannelName: 'ExploraWander',
       notificationChannelDescription: 'Gravació de track en segon pla',
       notificationChannelId: 'explorawander_channel',
-      locationProvider: 2,
+      locationProvider: 1, // ANDROID_FUSED_LOCATION_PROVIDER - mejor para background
       desiredAccuracy: 3,
-      stationaryRadius: 3,
-      distanceFilter: 3,
+      stationaryRadius: 0, // No detenerse si está quieto
+      distanceFilter: 0, // Grabar todas las posiciones
       stopStillThreshold: 0,
       enableTimestampInUnixSeconds: true,
+      wakeLock: true, // Mantener CPU activo con pantalla apagada
+      maxWaitTime: 15000, // Tiempo máximo de espera
+      numUpdates: -1, // Sin límite de actualizaciones
     });
 
     plugin.on('location', (location: any) => {

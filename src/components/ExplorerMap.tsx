@@ -213,7 +213,9 @@ export default function ExplorerMap() {
     const dx = touchMoveRef.current.x - touchStartRef.current.x;
     const dy = touchMoveRef.current.y - touchStartRef.current.y;
     if (!isMobile) return;
-    if (!sidebarOpen && dx > 80 && Math.abs(dx) > Math.abs(dy)) {
+    // Solo abrir sidebar si el toque empezó en el borde izquierdo (primeros 30px)
+    const startedFromEdge = touchStartRef.current.x < 30;
+    if (!sidebarOpen && startedFromEdge && dx > 80 && Math.abs(dx) > Math.abs(dy)) {
       setSidebarOpen(true);
     }
   };
@@ -1692,10 +1694,117 @@ export default function ExplorerMap() {
 
           {showMarkers && visibleCampingCarPOIs.map((poi) => (
             <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
-              <Popup maxWidth={280}>
-                <div style={{ padding: '8px' }}>
-                  <h3 style={{ fontWeight: 600, fontSize: '14px', margin: '0 0 4px 0' }}>{poi.name}</h3>
-                  <span style={{ fontSize: '12px', color: '#666' }}>{CATEGORY_CONFIG[poi.category]?.label}</span>
+              <Popup maxWidth={isMobile ? 280 : 380} className={isMobile ? 'mobile-popup' : ''}>
+                <div style={{ 
+                  minWidth: isMobile ? 'calc(100vw - 40px)' : '280px', 
+                  maxWidth: isMobile ? 'calc(100vw - 40px)' : '380px',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  background: 'white',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                }}>
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    background: `linear-gradient(135deg, ${CATEGORY_CONFIG[poi.category].color}15 0%, ${CATEGORY_CONFIG[poi.category].color}05 100%)`,
+                    borderBottom: `1px solid ${CATEGORY_CONFIG[poi.category].color}33`
+                  }}>
+                    <span style={{ 
+                      fontSize: '28px',
+                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                    }}>{CATEGORY_CONFIG[poi.category].emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ 
+                        fontWeight: 800, 
+                        fontSize: '14px', 
+                        margin: 0,
+                        color: '#0f172a',
+                        lineHeight: 1.2,
+                        letterSpacing: '-0.01em'
+                      }}>
+                        {poi.name}
+                      </h3>
+                      <span style={{
+                        fontSize: '10px',
+                        color: CATEGORY_CONFIG[poi.category].color,
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}>
+                        {t(`categories.${poi.category}`)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div style={{ padding: '6px 10px' }}>
+                    {poi.address && (
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '4px',
+                        fontSize: '10px',
+                        color: '#4b5563',
+                        marginBottom: '6px'
+                      }}>
+                        <span>📍</span>
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{poi.address}</span>
+                      </div>
+                    )}
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      gap: '6px', 
+                      marginTop: '8px',
+                      paddingTop: '6px',
+                      borderTop: '1px solid #e5e7eb'
+                    }}>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${poi.lat},${poi.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ 
+                          flex: 1, 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '3px', 
+                          background: '#16a34a', 
+                          color: 'white', 
+                          fontSize: '9px', 
+                          padding: '5px 4px', 
+                          borderRadius: '4px', 
+                          textDecoration: 'none', 
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Navigation2 style={{ width: '9px', height: '9px' }} /> 
+                        <span>Navegar</span>
+                      </a>
+                      <button
+                        onClick={() => { addToRoute(poi); setSidebarTab('route'); setSidebarOpen(true); }}
+                        style={{ 
+                          flex: 1, 
+                          background: '#059669', 
+                          color: 'white', 
+                          fontSize: '9px', 
+                          padding: '5px 4px', 
+                          borderRadius: '4px', 
+                          border: 'none', 
+                          cursor: 'pointer', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          gap: '3px', 
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Plus style={{ width: '9px', height: '9px' }} /> 
+                        <span>Ruta</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </Popup>
             </Marker>
