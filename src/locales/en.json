@@ -41,7 +41,15 @@
     "cemetery": "Cemeteries",
     "caravansite": "Caravan Sites (Services)",
     "caravan_park": "Caravan Parking (No Services)",
-    "waterfall": "Waterfalls & Gorges"
+    "waterfall": "Waterfalls & Gorges",
+    "cc_as": "Service Area",
+    "cc_asn": "Service + Night",
+    "cc_aa": "Motorway Service",
+    "cc_ac": "Camping CC",
+    "cc_acf": "Farm Camping",
+    "cc_acs": "Service on Camping",
+    "cc_apcc": "CC Parking",
+    "cc_apn": "Night Parking"
   },
   "route": {
     "hint": "Click on \"+\" in map markers to add to your route",
@@ -89,8 +97,9 @@
     "hours": "Hours",
     "reviews": "reviews",
     "description": "Description",
-    "population": "Population"
-  },
+    "population": "Population",
+    "inhabitants": "inhabitants"
+   },
   "filters": {
     "minRating": "Minimum rating",
     "reviewCount": "Nº of reviews",

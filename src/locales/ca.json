@@ -41,7 +41,15 @@
     "cemetery": "Cementiris",
     "caravansite": "Autocaravanes (Serveis)",
     "caravan_park": "Autocaravanes (Sense serveis)",
-    "waterfall": "Gorgs i salts d'aigua"
+    "waterfall": "Gorgs i salts d'aigua",
+    "cc_as": "Aire de service",
+    "cc_asn": "Aire service + nuit",
+    "cc_aa": "Aire autoroute",
+    "cc_ac": "Camping CC",
+    "cc_acf": "Camping ferme",
+    "cc_acs": "Aire sur camping",
+    "cc_apcc": "Parking CC",
+    "cc_apn": "Parking nuit"
   },
   "route": {
     "hint": "Fes clic a \"+\" als marcadors del mapa per afegir a la teva ruta",
@@ -105,8 +113,9 @@
     "hours": "Horari",
     "reviews": "valoracions",
     "description": "Descripció",
-    "population": "Població"
-  },
+    "population": "Població",
+    "inhabitants": "habitants"
+   },
   "filters": {
     "minRating": "Valoració mínima",
     "reviewCount": "Nº de valoracions",

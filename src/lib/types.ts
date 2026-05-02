@@ -47,7 +47,15 @@ export type POICategory =
   | 'cemetery'
   | 'caravansite'
   | 'caravan_park'
-  | 'waterfall';
+  | 'waterfall'
+  | 'cc_as'
+  | 'cc_asn'
+  | 'cc_aa'
+  | 'cc_ac'
+  | 'cc_acf'
+  | 'cc_acs'
+  | 'cc_apcc'
+  | 'cc_apn';
 
 export interface SavedRoute {
   id: string;
@@ -96,4 +104,12 @@ export const CATEGORY_CONFIG: Record<POICategory, { label: string; icon: string;
   caravansite: { label: 'Àrees d\'autocaravanes', icon: 'Car', color: '#F59E0B', emoji: '🚐' },
   caravan_park: { label: 'Càmpings', icon: 'Car', color: '#84CC16', emoji: '🏕️' },
   waterfall: { label: 'Gorgs i salts d\'aigua', icon: 'Droplets', color: '#06B6D4', emoji: '💧' },
+  cc_as: { label: 'Aire de service', icon: 'Car', color: '#E53935', emoji: '🔧' },
+  cc_asn: { label: 'Aire service + nuit', icon: 'Car', color: '#FF9800', emoji: '🛏️' },
+  cc_aa: { label: 'Aire autoroute', icon: 'Car', color: '#2196F3', emoji: '🛣️' },
+  cc_ac: { label: 'Camping CC', icon: 'Home', color: '#4CAF50', emoji: '⛺' },
+  cc_acf: { label: 'Camping ferme', icon: 'Home', color: '#8BC34A', emoji: '🏡' },
+  cc_acs: { label: 'Aire sur camping', icon: 'Car', color: '#009688', emoji: '🏕️' },
+  cc_apcc: { label: 'Parking CC', icon: 'Parking', color: '#3F51B5', emoji: '🅿️' },
+  cc_apn: { label: 'Parking nuit', icon: 'Moon', color: '#673AB7', emoji: '🌙' },
 };

@@ -41,7 +41,15 @@
     "cemetery": "Cementerios",
     "caravansite": "Autocaravanas (Servicios)",
     "caravan_park": "Autocaravanas (Sin servicios)",
-    "waterfall": "Gorgs y saltos de agua"
+    "waterfall": "Gorgs y saltos de agua",
+    "cc_as": "Aire de service",
+    "cc_asn": "Aire service + nuit",
+    "cc_aa": "Aire autoroute",
+    "cc_ac": "Camping CC",
+    "cc_acf": "Camping ferme",
+    "cc_acs": "Aire sur camping",
+    "cc_apcc": "Parking CC",
+    "cc_apn": "Parking nuit"
   },
   "route": {
     "hint": "Haz clic en \"+\" en los marcadores del mapa para añadir a tu ruta",
@@ -105,8 +113,9 @@
     "hours": "Horario",
     "reviews": "valoraciones",
     "description": "Descripción",
-    "population": "Población"
-  },
+    "population": "Población",
+    "inhabitants": "habitantes"
+   },
   "filters": {
     "minRating": "Valoración mínima",
     "reviewCount": "Nº de valoraciones",

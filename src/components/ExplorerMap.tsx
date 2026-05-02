@@ -56,6 +56,20 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
 });
 
+function FixMapSize() {
+  const map = useMap();
+  useEffect(() => {
+    const handler = () => {
+      map.invalidateSize();
+    };
+    map.whenReady(handler);
+    return () => {
+      map.off('ready', handler);
+    };
+  }, [map]);
+  return null;
+}
+
 function createCategoryIcon(poi: POI) {
   const category = poi.category;
   const config = CATEGORY_CONFIG[category] || { color: '#888888', emoji: '📍' };
@@ -169,9 +183,15 @@ export default function ExplorerMap() {
   const { t, i18n } = useTranslation();
   const isMobile = useIsMobile();
   const [allPois, setAllPois] = useState<POI[]>([]);
-  const [activeCategories, setActiveCategories] = useState<POICategory[]>([]);
+  const [campingCarPOIs, setCampingCarPOIs] = useState<POI[]>([]);
+  const [currentRegion, setCurrentRegion] = useState<string | null>(null);
+  const [activeCategories, setActiveCategories] = useState<POICategory[]>([
+    'cc_as', 'cc_asn', 'cc_aa', 'cc_ac', 'cc_acf', 'cc_acs', 'cc_apcc', 'cc_apn'
+  ]);
   const [showBestOnly, setShowBestOnly] = useState(false);
   const [showMarkers, setShowMarkers] = useState(true);
+  const [categoriesMinimized, setCategoriesMinimized] = useState(false);
+  const [filtersMinimized, setFiltersMinimized] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{ lat: number; lng: number; name: string; display: string }[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -263,11 +283,50 @@ export default function ExplorerMap() {
     document.addEventListener('mousedown', handleLayerClickOutside);
     refreshData();
     loadDownloadedRegions();
+    // Load initial region based on default map center
+    loadCampingCarData(41.3874, 2.1686);
 
     return () => {
       document.removeEventListener('mousedown', handleLayerClickOutside);
     };
   }, []);
+
+  const getRegion = (lat: number, lng: number): string | null => {
+    if (lat >= 55 && lng >= 5) return 'nordic';
+    if (lat < 45 && lng >= 15) return 'balkans';
+    if (lng < 0) return 'west';
+    if (lng < 5) return 'iberia';
+    if (lng < 10) return 'france';
+    if (lng < 15) return 'central';
+    if (lng < 20) return 'italy';
+    return 'east';
+  };
+
+  const loadCampingCarData = async (lat?: number, lng?: number) => {
+    const latToUse = lat ?? 41.3874;
+    const lngToUse = lng ?? 2.1686;
+    const region = getRegion(latToUse, lngToUse);
+    if (!region || region === currentRegion) return;
+    
+    try {
+      const response = await fetch(`/campingcar_${region}.json`);
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map((item: any) => ({
+          id: item.id, name: item.name, lat: item.lat, lng: item.lng,
+          category: ('cc_' + item.category.toLowerCase()) as POICategory,
+          importance: 200, rating: undefined, reviews: undefined,
+          address: undefined, phone: undefined, website: undefined,
+          openingHours: undefined, wikipedia: undefined, types: [], heritage: undefined,
+        }));
+        setCampingCarPOIs(mapped);
+        setCurrentRegion(region);
+        console.log(`Loaded ${mapped.length} camping-car POIs from ${region}`);
+      }
+    } catch (error) {
+      console.error('Error loading camping-car POIs:', error);
+    }
+  };
 
   const loadDownloadedRegions = async () => {
     const regions = getDownloadedRegionIds();
@@ -409,9 +468,30 @@ export default function ExplorerMap() {
     return filtered.slice(0, 500);
   }, [allPois, activeCategories, showBestOnly]);
 
+  const visibleCampingCarPOIs = useMemo(() => {
+    const bounds = boundsRef.current;
+    if (campingCarPOIs.length === 0) return [];
+    const zoom = currentZoomRef.current;
+    if (zoom < 10) return []; // Only show when zoomed in
+    
+    // If no bounds yet, use default based on map center
+    const b = bounds || { south: 41.3, north: 41.5, west: 2.0, east: 2.3 };
+    
+    return campingCarPOIs.filter(p => {
+      if (!activeCategories.includes(p.category)) return false;
+      return p.lat >= b.south && p.lat <= b.north &&
+             p.lng >= b.west && p.lng <= b.east;
+    }); // No limit - show all in visible area
+  }, [campingCarPOIs, activeCategories]);
+
   const handleBoundsChange = useCallback((bounds: Bounds, zoom: number = 10) => {
     currentZoomRef.current = zoom;
     setCurrentZoom(zoom);
+    
+    // Load camping car POIs for current region
+    const centerLat = (bounds.north + bounds.south) / 2;
+    const centerLng = (bounds.east + bounds.west) / 2;
+    loadCampingCarData(centerLat, centerLng);
     
     const b = lastLoadedBoundsRef.current;
     const boundsChanged = !b ||
@@ -1260,46 +1340,32 @@ export default function ExplorerMap() {
       >
         {showMarkers ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
       </button>
-
       <div className="absolute z-[1001] left-2 bottom-2 flex flex-col gap-1">
-        {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(0, 10).map(([key, config]) => {
-          const isActive = activeCategories.includes(key);
-          return (
-            <button
-              key={key}
-              onClick={() => toggleCategory(key)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
-              style={{ backgroundColor: config.color }}
-              title={t(`categories.${key}`)}
-            >
-              <span className="text-lg">{config.emoji}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="absolute z-[1001] right-2 bottom-2 flex flex-col gap-1">
         <button
-          onClick={() => setShowBestOnly(!showBestOnly)}
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${showBestOnly ? 'ring-4 ring-yellow-400 scale-110 bg-gradient-to-br from-yellow-400 to-amber-500' : 'opacity-60 hover:opacity-100 hover:scale-105 bg-gradient-to-br from-yellow-300 to-yellow-500'}`}
-          title={showBestOnly ? 'Mostrant millors llocs' : 'Tots els llocs'}
+          onClick={() => setCategoriesMinimized(!categoriesMinimized)}
+          className="w-10 h-10 rounded-full flex items-center justify-center shadow-lg bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent"
+          title={categoriesMinimized ? 'Mostrar categories' : 'Minimizar categories'}
         >
-          <span className="text-lg">🏆</span>
+          {categoriesMinimized ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
         </button>
-        {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(10).map(([key, config]) => {
-          const isActive = activeCategories.includes(key);
-          return (
-            <button
-              key={key}
-              onClick={() => toggleCategory(key)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
-              style={{ backgroundColor: config.color }}
-              title={t(`categories.${key}`)}
-            >
-              <span className="text-lg">{config.emoji}</span>
-            </button>
-          );
-        })}
+        {!categoriesMinimized && (
+          <div className="flex flex-col gap-1 max-h-[50vh] overflow-y-auto scrollbar-hide">
+            {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(0, 10).map(([key, config]) => {
+              const isActive = activeCategories.includes(key);
+              return (
+                <button
+                  key={key}
+                  onClick={() => toggleCategory(key)}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+                  style={{ backgroundColor: config.color }}
+                  title={t(`categories.${key}`)}
+                >
+                  <span className="text-lg">{config.emoji}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div 
@@ -1309,6 +1375,7 @@ export default function ExplorerMap() {
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
         <MapContainer center={[41.3874, 2.1686]} zoom={13} className="h-full w-full" zoomControl={false}>
+          <FixMapSize />
           <TileLayer
             key={mapLayer}
             attribution={MAP_LAYERS[mapLayer].attribution}
@@ -1622,11 +1689,22 @@ export default function ExplorerMap() {
               weight={3}
             />
           )}
-        </MapContainer>
 
+          {showMarkers && visibleCampingCarPOIs.map((poi) => (
+            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
+              <Popup maxWidth={280}>
+                <div style={{ padding: '8px' }}>
+                  <h3 style={{ fontWeight: 600, fontSize: '14px', margin: '0 0 4px 0' }}>{poi.name}</h3>
+                  <span style={{ fontSize: '12px', color: '#666' }}>{CATEGORY_CONFIG[poi.category]?.label}</span>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+        </MapContainer>
       </div>
 
-      {shareModal && (
+       {shareModal && (
         <div 
           className="fixed inset-0 z-[2000] bg-black/50 flex items-center justify-center p-4"
           onClick={() => setShareModal(null)}
@@ -1672,6 +1750,44 @@ export default function ExplorerMap() {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Right side filters - only when sidebar is closed */}
+      {!sidebarOpen && (
+        <>
+          <button
+            onClick={() => setFiltersMinimized(!filtersMinimized)}
+            className={`absolute z-[1001] right-2 bottom-2 w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${filtersMinimized ? 'bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+            title={filtersMinimized ? 'Mostrar filtros' : 'Minimizar filtros'}
+          >
+            {filtersMinimized ? <ChevronLeft className="w-5 h-5 rotate-90" /> : <ChevronRight className="w-5 h-5 rotate-90" />}
+          </button>
+          {!filtersMinimized && (
+            <div className="absolute z-[1001] right-2 bottom-12 top-12 flex flex-col gap-1 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide">
+              <button
+                onClick={() => setShowBestOnly(!showBestOnly)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${showBestOnly ? 'ring-4 ring-yellow-400 scale-110 bg-gradient-to-br from-yellow-400 to-amber-500' : 'opacity-60 hover:opacity-100 hover:scale-105 bg-gradient-to-br from-yellow-300 to-yellow-500'}`}
+                title={showBestOnly ? 'Mostrant millors llocs' : 'Tots els llocs'}
+              >
+                <span className="text-lg">🏆</span>
+              </button>
+              {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(10).map(([key, config]) => {
+                const isActive = activeCategories.includes(key);
+                return (
+                  <button
+                    key={key}
+                    onClick={() => toggleCategory(key)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+                    style={{ backgroundColor: config.color }}
+                    title={t(`categories.${key}`)}
+                  >
+                    <span className="text-lg">{config.emoji}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

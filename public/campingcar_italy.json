@@ -1,0 +1,3532 @@
+[
+  {
+    "id": "cci_AS_626",
+    "name": "AUTRICHE RUST 7071 Aire CCI 2368",
+    "category": "AS",
+    "lat": 47.80376,
+    "lng": 16.6793,
+    "emoji": "🔧",
+    "color": "#E53935",
+    "label": "Aire de service"
+  },
+  {
+    "id": "cci_ASN_1802",
+    "name": "AUTRICHE WIEN 1230 Aire CCI 24321",
+    "category": "ASN",
+    "lat": 48.13707,
+    "lng": 16.3165,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_1948",
+    "name": "POLOGNE PASLEK 14 400 Aire CCI 26916",
+    "category": "ASN",
+    "lat": 53.98035,
+    "lng": 19.6237,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2659",
+    "name": "SLOVENIE MARIBOR 2000 Aire CCI 21626",
+    "category": "ASN",
+    "lat": 46.55947,
+    "lng": 15.656,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2660",
+    "name": "AUTRICHE STOCKERAU 2000 Aire CCI 7859",
+    "category": "ASN",
+    "lat": 48.39386,
+    "lng": 16.2191,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2779",
+    "name": "AUTRICHE WILFERSDORF 2193 Aire CCI 7850",
+    "category": "ASN",
+    "lat": 48.58582,
+    "lng": 16.645,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2787",
+    "name": "AUTRICHE PILLICHSDORF 2211 Aire CCI 7858",
+    "category": "ASN",
+    "lat": 48.36167,
+    "lng": 16.5375,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2865",
+    "name": "SLOVENIE PTUJ 2250 Aire CCI 26577",
+    "category": "ASN",
+    "lat": 46.42256,
+    "lng": 15.8532,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_2915",
+    "name": "SLOVENIE CIRKULANE 2282 Aire CCI 26766",
+    "category": "ASN",
+    "lat": 46.37111,
+    "lng": 15.997,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3076",
+    "name": "AUTRICHE DEUTSCH JAHRNDORF 2423 Aire CCI 7845",
+    "category": "ASN",
+    "lat": 48.00786,
+    "lng": 17.1109,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3444",
+    "name": "AUTRICHE REICHENAU AN DER RAX 2651 Aire CCI 29144",
+    "category": "ASN",
+    "lat": 47.6914,
+    "lng": 15.8288,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3526",
+    "name": "AUTRICHE AGGSBACH MARKT 2712 Aire CCI 6892",
+    "category": "ASN",
+    "lat": 48.29819,
+    "lng": 15.4049,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3884",
+    "name": "POLOGNE HSK 30-376 Aire CCI 30513",
+    "category": "ASN",
+    "lat": 50.03418,
+    "lng": 19.8766,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3887",
+    "name": "SLOVENIE CELJE 3000 Aire CCI 26770",
+    "category": "ASN",
+    "lat": 46.24398,
+    "lng": 15.3019,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_3888",
+    "name": "SLOVENIE CELJE 3000 Aire CCI 21571",
+    "category": "ASN",
+    "lat": 46.23216,
+    "lng": 15.2589,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4150",
+    "name": "SLOVENIE SLOVENSKE KONJICE 3210 Aire CCI 4315",
+    "category": "ASN",
+    "lat": 46.34236,
+    "lng": 15.4152,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4160",
+    "name": "SLOVENIE ZRECE 3214 Aire CCI 17927",
+    "category": "ASN",
+    "lat": 46.45248,
+    "lng": 15.3308,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4161",
+    "name": "SLOVENIE ZRECE 3214 Aire CCI 15465",
+    "category": "ASN",
+    "lat": 46.37086,
+    "lng": 15.3877,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4215",
+    "name": "SLOVENIE LASKO 3270 Aire CCI 17926",
+    "category": "ASN",
+    "lat": 46.15778,
+    "lng": 15.2321,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4257",
+    "name": "SLOVENIE ZALEC 3310 Aire CCI 22886",
+    "category": "ASN",
+    "lat": 46.25426,
+    "lng": 15.1627,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4373",
+    "name": "AUTRICHE SANKT MARTIN AM YBBSFELDE 3376 Aire CCI 29129",
+    "category": "ASN",
+    "lat": 48.16465,
+    "lng": 15.0199,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4396",
+    "name": "AUTRICHE GEMEINDE MELK 3390 Aire CCI 34006",
+    "category": "ASN",
+    "lat": 48.23025,
+    "lng": 15.3305,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4428",
+    "name": "AUTRICHE KRITZENDORF 3420 Aire CCI 7860",
+    "category": "ASN",
+    "lat": 48.33583,
+    "lng": 16.2986,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4542",
+    "name": "AUTRICHE ARMSCHLAG 3525 Aire CCI 7966",
+    "category": "ASN",
+    "lat": 48.45187,
+    "lng": 15.217,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4609",
+    "name": "AUTRICHE ROSSATZBACH 3602 Aire CCI 7876",
+    "category": "ASN",
+    "lat": 48.38762,
+    "lng": 15.5172,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4796",
+    "name": "AUTRICHE EGGENBURG 3730 Aire CCI 7897",
+    "category": "ASN",
+    "lat": 48.64513,
+    "lng": 15.8174,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4809",
+    "name": "AUTRICHE PULKAU 3741 Aire CCI 7896",
+    "category": "ASN",
+    "lat": 48.7043,
+    "lng": 15.8664,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_4992",
+    "name": "AUTRICHE ZWETTL 3910 Aire CCI 7972",
+    "category": "ASN",
+    "lat": 48.66375,
+    "lng": 15.1539,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_5806",
+    "name": "CROATIE SLUNJ 47240 Aire CCI 31047",
+    "category": "ASN",
+    "lat": 45.11639,
+    "lng": 15.5903,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_6444",
+    "name": "TCHEQUIE SVOBODA NAD UPOU 54224 Aire CCI 26794",
+    "category": "ASN",
+    "lat": 50.63773,
+    "lng": 15.8129,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_6530",
+    "name": "TCHEQUIE CESKA SKALICE 55203 Aire CCI 26795",
+    "category": "ASN",
+    "lat": 50.36444,
+    "lng": 16.0594,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_6692",
+    "name": "TCHEQUIE SVITAVY 56802 Aire CCI 20897",
+    "category": "ASN",
+    "lat": 49.75166,
+    "lng": 16.4646,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_6797",
+    "name": "TCHEQUIE TOKY 58253 Aire CCI 9953",
+    "category": "ASN",
+    "lat": 49.49728,
+    "lng": 15.5872,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_6814",
+    "name": "TCHEQUIE POLNA 588 13 Aire CCI 35952",
+    "category": "ASN",
+    "lat": 49.48593,
+    "lng": 15.721,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_7432",
+    "name": "TCHEQUIE DOLNI DUNAJOVICE 691 85 Aire CCI 37139",
+    "category": "ASN",
+    "lat": 48.85686,
+    "lng": 16.5787,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_7671",
+    "name": "AUTRICHE HORITSCHON 7312 Aire CCI 20900",
+    "category": "ASN",
+    "lat": 47.59192,
+    "lng": 16.5349,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8077",
+    "name": "AUTRICHE GRAZ 8054 Aire CCI 6685",
+    "category": "ASN",
+    "lat": 47.02468,
+    "lng": 15.3973,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8085",
+    "name": "AUTRICHE JAGERBERG 8091 Aire CCI 7872",
+    "category": "ASN",
+    "lat": 46.85692,
+    "lng": 15.7429,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8086",
+    "name": "AUTRICHE JAGERBBERG 8091 Aire CCI 30637",
+    "category": "ASN",
+    "lat": 46.85155,
+    "lng": 15.7466,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8141",
+    "name": "AUTRICHE BIRKFELD 8190 Aire CCI 29142",
+    "category": "ASN",
+    "lat": 47.3602,
+    "lng": 15.7306,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8197",
+    "name": "SLOVENIE ZDOLE 8272 Aire CCI 25479",
+    "category": "ASN",
+    "lat": 46.0099,
+    "lng": 15.5416,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8202",
+    "name": "SLOVENIE PZA 8290 Aire CCI 30795",
+    "category": "ASN",
+    "lat": 46.00881,
+    "lng": 15.3149,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8245",
+    "name": "SLOVENIE ČRNOMELJ 8344 Aire CCI 33857",
+    "category": "ASN",
+    "lat": 45.45965,
+    "lng": 15.2578,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8249",
+    "name": "AUTRICHE UNTERLAMM 8352 Aire CCI 7886",
+    "category": "ASN",
+    "lat": 46.98152,
+    "lng": 16.0917,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8334",
+    "name": "AUTRICHE MURFELD 8471 Aire CCI 7868",
+    "category": "ASN",
+    "lat": 46.71617,
+    "lng": 15.6761,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8336",
+    "name": "AUTRICHE EICHFELD 8480 Aire CCI 7869",
+    "category": "ASN",
+    "lat": 46.73863,
+    "lng": 15.746,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8403",
+    "name": "AUTRICHE DEUTSCHLANDSBERG 8530 Aire CCI 7888",
+    "category": "ASN",
+    "lat": 46.81783,
+    "lng": 15.2225,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8470",
+    "name": "POLOGNE GRUDZIADZ 86 300 Aire CCI 30511",
+    "category": "ASN",
+    "lat": 53.48558,
+    "lng": 18.7447,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8544",
+    "name": "AUTRICHE KAPELLEN 8691 Aire CCI 36928",
+    "category": "ASN",
+    "lat": 47.64557,
+    "lng": 15.6313,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8868",
+    "name": "SLOVENIE LJUTOMER 9240 Aire CCI 25493",
+    "category": "ASN",
+    "lat": 46.55539,
+    "lng": 16.2196,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_8886",
+    "name": "SLOVAQUIE CILISTOV 93101 Aire CCI 26821",
+    "category": "ASN",
+    "lat": 48.01403,
+    "lng": 17.3084,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_ASN_9126",
+    "name": "HONGRIE KORMEND 9900 Aire CCI 30703",
+    "category": "ASN",
+    "lat": 47.0081,
+    "lng": 16.564,
+    "emoji": "🛏️",
+    "color": "#FF9800",
+    "label": "Aire service + nuit"
+  },
+  {
+    "id": "cci_AA_9267",
+    "name": "SLOVENIE CATE  Aire CCI 20852",
+    "category": "AA",
+    "lat": 45.89191,
+    "lng": 15.5968,
+    "emoji": "🛣️",
+    "color": "#2196F3",
+    "label": "Aire autoroute"
+  },
+  {
+    "id": "cci_AA_9418",
+    "name": "SLOVENIE SLOVENSKE KONJICE 3210 Aire CCI 3489",
+    "category": "AA",
+    "lat": 46.34548,
+    "lng": 15.4841,
+    "emoji": "🛣️",
+    "color": "#2196F3",
+    "label": "Aire autoroute"
+  },
+  {
+    "id": "cci_AC_9691",
+    "name": "POLOGNE JELENIA GORA  Aire CCI 29775",
+    "category": "AC",
+    "lat": 50.89648,
+    "lng": 15.7423,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9692",
+    "name": "POLOGNE LEGNICKIE POLE  Aire CCI 29777",
+    "category": "AC",
+    "lat": 51.14322,
+    "lng": 16.2404,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9722",
+    "name": "SLOVAQUIE VARIN 013 03 Aire CCI 8231",
+    "category": "AC",
+    "lat": 49.21002,
+    "lng": 18.8786,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9723",
+    "name": "SLOVAQUIE TERCHOVA 013 06 Aire CCI 8220",
+    "category": "AC",
+    "lat": 49.24791,
+    "lng": 18.9885,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9726",
+    "name": "SLOVAQUIE RAJECKE TEPLICE 01313 Aire CCI 8236",
+    "category": "AC",
+    "lat": 49.14205,
+    "lng": 18.7191,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9741",
+    "name": "SLOVAQUIE POVAZSKA  TEPLA 01705 Aire CCI 7210",
+    "category": "AC",
+    "lat": 49.14387,
+    "lng": 18.4972,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9759",
+    "name": "SLOVAQUIE DOLNY KUBIN 026 01 Aire CCI 8240",
+    "category": "AC",
+    "lat": 49.2053,
+    "lng": 19.2681,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9764",
+    "name": "SLOVAQUIE NAMESTOVO 029 01 Aire CCI 8233",
+    "category": "AC",
+    "lat": 49.38529,
+    "lng": 19.5287,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9771",
+    "name": "SLOVAQUIE DEMANOVSKA DOLINA 03101 Aire CCI 8238",
+    "category": "AC",
+    "lat": 49.03334,
+    "lng": 19.5752,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9784",
+    "name": "SLOVAQUIE LIPTOVSK 032 22 Aire CCI 7169",
+    "category": "AC",
+    "lat": 49.11056,
+    "lng": 19.5458,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9785",
+    "name": "SLOVAQUIE LIPTOVSKA  SIELNICA 032 23 Aire CCI 8225",
+    "category": "AC",
+    "lat": 49.1361,
+    "lng": 19.5121,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9794",
+    "name": "SLOVAQUIE LIPTOVSKY HRADOK 033 01 Aire CCI 8218",
+    "category": "AC",
+    "lat": 49.03799,
+    "lng": 19.7033,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9821",
+    "name": "SLOVAQUIE MARTIN 036 08 Aire CCI 8224",
+    "category": "AC",
+    "lat": 49.10763,
+    "lng": 18.8992,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_9828",
+    "name": "SLOVAQUIE TURANY 038 53 Aire CCI 8234",
+    "category": "AC",
+    "lat": 49.14038,
+    "lng": 19.0514,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10165",
+    "name": "CROATIE ZAGREB 10250 Aire CCI 12897",
+    "category": "AC",
+    "lat": 45.77374,
+    "lng": 15.8778,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10166",
+    "name": "HONGRIE BUDAPEST 1031 Aire CCI 2676",
+    "category": "AC",
+    "lat": 47.57434,
+    "lng": 19.0518,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10179",
+    "name": "HONGRIE BUDAPEST 1096 Aire CCI 2611",
+    "category": "AC",
+    "lat": 47.47591,
+    "lng": 19.0828,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10180",
+    "name": "HONGRIE BUDAPEST 1097 Aire CCI 30517",
+    "category": "AC",
+    "lat": 47.47576,
+    "lng": 19.0829,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10202",
+    "name": "HONGRIE BUDAPEST 1121 Aire CCI 12743",
+    "category": "AC",
+    "lat": 47.51609,
+    "lng": 18.9741,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10203",
+    "name": "HONGRIE BUDAPEST 1121 Aire CCI 24758",
+    "category": "AC",
+    "lat": 47.51367,
+    "lng": 18.9728,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10218",
+    "name": "AUTRICHE WIEN 1140 Aire CCI 6683",
+    "category": "AC",
+    "lat": 48.2137,
+    "lng": 16.2502,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10252",
+    "name": "AUTRICHE WIEN 1220 Aire CCI 2431",
+    "category": "AC",
+    "lat": 48.20863,
+    "lng": 16.4472,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10265",
+    "name": "AUTRICHE WIEN 1230 Aire CCI 2432",
+    "category": "AC",
+    "lat": 48.1503,
+    "lng": 16.3007,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10303",
+    "name": "SLOVAQUIE TOPOLNIKY 1269 Aire CCI 26827",
+    "category": "AC",
+    "lat": 47.97724,
+    "lng": 17.79,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10723",
+    "name": "HONGRIE SZENTENDRE 2000 Aire CCI 21043",
+    "category": "AC",
+    "lat": 47.68168,
+    "lng": 19.0826,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10724",
+    "name": "SLOVENIE MARIBOR 2000 Aire CCI 22222",
+    "category": "AC",
+    "lat": 46.53575,
+    "lng": 15.6041,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10784",
+    "name": "AUTRICHE OBERRETZBACH 2070 Aire CCI 31779",
+    "category": "AC",
+    "lat": 48.7889,
+    "lng": 15.9675,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10789",
+    "name": "AUTRICHE LANGAU BEI GERAS 2091 Aire CCI 7928",
+    "category": "AC",
+    "lat": 48.84321,
+    "lng": 15.7206,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10811",
+    "name": "SERBIE_MONTENEGRO SREMSKI KARLOVCI 21208 Aire CCI 28689",
+    "category": "AC",
+    "lat": 45.174,
+    "lng": 19.9298,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10847",
+    "name": "AUTRICHE POYSDORF 2170 Aire CCI 7927",
+    "category": "AC",
+    "lat": 48.66457,
+    "lng": 16.6115,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_10901",
+    "name": "SLOVENIE PTUJ 2251 Aire CCI 5276",
+    "category": "AC",
+    "lat": 46.42237,
+    "lng": 15.8542,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11144",
+    "name": "HONGRIE VELENCE 2481 Aire CCI 17065",
+    "category": "AC",
+    "lat": 47.23791,
+    "lng": 18.643,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11152",
+    "name": "HONGRIE ESZTERGOM 2500 Aire CCI 17060",
+    "category": "AC",
+    "lat": 47.79029,
+    "lng": 18.7316,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11169",
+    "name": "SERBIE_MONTENEGRO APATIN 25260 Aire CCI 14400",
+    "category": "AC",
+    "lat": 45.71717,
+    "lng": 18.9192,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11176",
+    "name": "AUTRICHE BERNDOF 2560 Aire CCI 29146",
+    "category": "AC",
+    "lat": 47.93416,
+    "lng": 16.1452,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11180",
+    "name": "AUTRICHE KAUMBERG 2572 Aire CCI 7931",
+    "category": "AC",
+    "lat": 48.01963,
+    "lng": 15.9433,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11332",
+    "name": "TCHEQUIE KUTNA  HORA 284 01 Aire CCI 6967",
+    "category": "AC",
+    "lat": 49.95424,
+    "lng": 15.2603,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11333",
+    "name": "TCHEQUIE KUTNA HORA 284 01 Aire CCI 20742",
+    "category": "AC",
+    "lat": 49.96447,
+    "lng": 15.3027,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11347",
+    "name": "HONGRIE KOMAROM 2900 Aire CCI 35275",
+    "category": "AC",
+    "lat": 47.74266,
+    "lng": 18.1336,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11457",
+    "name": "POLOGNE KRAKOW 30 427 Aire CCI 5482",
+    "category": "AC",
+    "lat": 50.01556,
+    "lng": 19.9251,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11495",
+    "name": "AUTRICHE NEULENGBACH 3040 Aire CCI 7923",
+    "category": "AC",
+    "lat": 48.22164,
+    "lng": 15.9133,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11542",
+    "name": "POLOGNE KRAKOW 31223 Aire CCI 10268",
+    "category": "AC",
+    "lat": 50.0959,
+    "lng": 19.9415,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11551",
+    "name": "CROATIE KOPACEVO 31337 Aire CCI 28380",
+    "category": "AC",
+    "lat": 45.59915,
+    "lng": 18.7848,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11569",
+    "name": "AUTRICHE TRAISEN 3160 Aire CCI 7926",
+    "category": "AC",
+    "lat": 48.04249,
+    "lng": 15.6031,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11576",
+    "name": "POLOGNE GAJ 32-031 Aire CCI 1728",
+    "category": "AC",
+    "lat": 49.96235,
+    "lng": 19.8929,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11577",
+    "name": "POLOGNE SULOSZAWA 32-045 Aire CCI 28282",
+    "category": "AC",
+    "lat": 50.2508,
+    "lng": 19.7871,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11594",
+    "name": "HONGRIE MATRAFURED SASTRO 3232 Aire CCI 29150",
+    "category": "AC",
+    "lat": 47.8446,
+    "lng": 19.9589,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11598",
+    "name": "HONGRIE PARAD 3240 Aire CCI 21701",
+    "category": "AC",
+    "lat": 47.91741,
+    "lng": 19.9941,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11606",
+    "name": "AUTRICHE PURGSTALL 3251 Aire CCI 7929",
+    "category": "AC",
+    "lat": 48.05681,
+    "lng": 15.1297,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11613",
+    "name": "POLOGNE KOLBEGO 32602 Aire CCI 28433",
+    "category": "AC",
+    "lat": 50.02367,
+    "lng": 19.1989,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11622",
+    "name": "AUTRICHE LUNZ AM SEE 3293 Aire CCI 9803",
+    "category": "AC",
+    "lat": 47.86181,
+    "lng": 15.0365,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11639",
+    "name": "SLOVENIE PREBOLD 3312 Aire CCI 4318",
+    "category": "AC",
+    "lat": 46.24012,
+    "lng": 15.0877,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11640",
+    "name": "SLOVENIE PREBOLD 3312 Aire CCI 13067",
+    "category": "AC",
+    "lat": 46.23432,
+    "lng": 15.0892,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11678",
+    "name": "AUTRICHE MELK 3390 Aire CCI 3279",
+    "category": "AC",
+    "lat": 48.23339,
+    "lng": 15.3287,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11680",
+    "name": "AUTRICHE SCHONBUHEL AN DER DONAU 3392 Aire CCI 7904",
+    "category": "AC",
+    "lat": 48.25397,
+    "lng": 15.371,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11700",
+    "name": "POLOGNE ZAKOPANE 34-500 Aire CCI 18169",
+    "category": "AC",
+    "lat": 49.32355,
+    "lng": 19.9856,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11701",
+    "name": "POLOGNE ZAKOPANE 34-500 Aire CCI 1729",
+    "category": "AC",
+    "lat": 49.28302,
+    "lng": 19.9694,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11702",
+    "name": "POLOGNE ZAKOPANE 34-500 Aire CCI 18852",
+    "category": "AC",
+    "lat": 49.32241,
+    "lng": 19.9861,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11722",
+    "name": "AUTRICHE KLOSTERNEUBURG 3420 Aire CCI 2430",
+    "category": "AC",
+    "lat": 48.31069,
+    "lng": 16.3273,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11729",
+    "name": "AUTRICHE TULLN AN DER DONAU 3430 Aire CCI 7921",
+    "category": "AC",
+    "lat": 48.3326,
+    "lng": 16.0719,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11781",
+    "name": "CROATIE VELIKA 34660 Aire CCI 29206",
+    "category": "AC",
+    "lat": 45.47564,
+    "lng": 17.6578,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11791",
+    "name": "AUTRICHE KREMS 3500 Aire CCI 6686",
+    "category": "AC",
+    "lat": 48.40391,
+    "lng": 15.5923,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11844",
+    "name": "AUTRICHE ROSSATZ ARNSDORF 3602 Aire CCI 7930",
+    "category": "AC",
+    "lat": 48.39004,
+    "lng": 15.5167,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11880",
+    "name": "AUTRICHE MARBACH AND DER DONAU 3671 Aire CCI 7922",
+    "category": "AC",
+    "lat": 48.21359,
+    "lng": 15.1407,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_11947",
+    "name": "TCHEQUIE JINDRISCHUV HRADEC 37701 Aire CCI 27855",
+    "category": "AC",
+    "lat": 49.14929,
+    "lng": 15.0652,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12023",
+    "name": "AUTRICHE REINGERS 3863 Aire CCI 7889",
+    "category": "AC",
+    "lat": 48.97167,
+    "lng": 15.1536,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12113",
+    "name": "POLOGNE KATOWICE 40-266 Aire CCI 18576",
+    "category": "AC",
+    "lat": 50.2463,
+    "lng": 19.0474,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12209",
+    "name": "POLOGNE DABROWA GORNICZA 42-525 Aire CCI 27382",
+    "category": "AC",
+    "lat": 50.34371,
+    "lng": 19.4457,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12238",
+    "name": "POLOGNE BIELSKO BIALA 43 316 Aire CCI 21441",
+    "category": "AC",
+    "lat": 49.7815,
+    "lng": 19.0234,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12240",
+    "name": "POLOGNE CIESZYN 43-400 Aire CCI 25006",
+    "category": "AC",
+    "lat": 49.73494,
+    "lng": 18.6304,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12501",
+    "name": "TCHEQUIE TANVALD 46841 Aire CCI 26807",
+    "category": "AC",
+    "lat": 50.74194,
+    "lng": 15.2827,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12526",
+    "name": "CROATIE DUGA RESA 47250 Aire CCI 22112",
+    "category": "AC",
+    "lat": 45.42014,
+    "lng": 15.4835,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12532",
+    "name": "CROATIE OGULIN 47300 Aire CCI 29621",
+    "category": "AC",
+    "lat": 45.22999,
+    "lng": 15.234,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12557",
+    "name": "POLOGNE JARNOLTOWEK 48-267 Aire CCI 28992",
+    "category": "AC",
+    "lat": 50.28763,
+    "lng": 17.4609,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12669",
+    "name": "TCHEQUIE HRADEC KRALOVE 500 09 Aire CCI 6968",
+    "category": "AC",
+    "lat": 50.20314,
+    "lng": 15.8949,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12720",
+    "name": "TCHEQUIE JINOLICE 507 13 Aire CCI 18979",
+    "category": "AC",
+    "lat": 50.47471,
+    "lng": 15.3129,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12730",
+    "name": "POLOGNE WROCLAW 51-612 Aire CCI 5470",
+    "category": "AC",
+    "lat": 51.1177,
+    "lng": 17.0908,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12735",
+    "name": "TCHEQUIE TURNOV 511 01 Aire CCI 27375",
+    "category": "AC",
+    "lat": 50.55977,
+    "lng": 15.1874,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12890",
+    "name": "TCHEQUIE TRUTNOV 541 01 Aire CCI 27384",
+    "category": "AC",
+    "lat": 50.5458,
+    "lng": 15.8649,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12895",
+    "name": "TCHEQUIE SVR 54203 Aire CCI 26798",
+    "category": "AC",
+    "lat": 50.67652,
+    "lng": 15.9694,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12910",
+    "name": "TCHEQUIE SVR 54371 Aire CCI 26797",
+    "category": "AC",
+    "lat": 50.53853,
+    "lng": 15.6552,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12939",
+    "name": "TCHEQUIE SVR 54971 Aire CCI 26799",
+    "category": "AC",
+    "lat": 50.59564,
+    "lng": 16.3977,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_12940",
+    "name": "TCHEQUIE BOZANOV 54974 Aire CCI 28991",
+    "category": "AC",
+    "lat": 50.52365,
+    "lng": 16.3521,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13023",
+    "name": "TCHEQUIE AMBERK 564 01 Aire CCI 29173",
+    "category": "AC",
+    "lat": 50.0861,
+    "lng": 16.4762,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13066",
+    "name": "POLOGNE KLODZKO 57-300 Aire CCI 5465",
+    "category": "AC",
+    "lat": 50.44468,
+    "lng": 16.6525,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13067",
+    "name": "POLOGNE DUSZNIKI ZDROJ 57-340 Aire CCI 18862",
+    "category": "AC",
+    "lat": 50.4091,
+    "lng": 16.3817,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13068",
+    "name": "POLOGNE RADKOW 57-420 Aire CCI 27379",
+    "category": "AC",
+    "lat": 50.49643,
+    "lng": 16.3894,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13071",
+    "name": "TCHEQUIE LITOMYSL 57001 Aire CCI 6970",
+    "category": "AC",
+    "lat": 49.86768,
+    "lng": 16.3232,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13112",
+    "name": "POLOGNE UCIECHOW 58-211 Aire CCI 31331",
+    "category": "AC",
+    "lat": 50.75583,
+    "lng": 16.6944,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13113",
+    "name": "POLOGNE SCIEGNY 58-534 Aire CCI 31330",
+    "category": "AC",
+    "lat": 50.79306,
+    "lng": 15.77,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13142",
+    "name": "POLOGNE BOLKOW 59-420 Aire CCI 19332",
+    "category": "AC",
+    "lat": 50.9325,
+    "lng": 16.1183,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13154",
+    "name": "TCHEQUIE BYSTRICE NAD PERNSTEJNEM 59301 Aire CCI 26805",
+    "category": "AC",
+    "lat": 49.54509,
+    "lng": 16.2925,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13185",
+    "name": "POLOGNE POZNAN 60036 Aire CCI 18493",
+    "category": "AC",
+    "lat": 52.40331,
+    "lng": 16.9845,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13238",
+    "name": "POLOGNE LIPNO 62 060 Aire CCI 26924",
+    "category": "AC",
+    "lat": 52.28353,
+    "lng": 16.7242,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13340",
+    "name": "TCHEQUIE BRNO OBORA 63500 Aire CCI 9951",
+    "category": "AC",
+    "lat": 49.25578,
+    "lng": 16.4757,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13341",
+    "name": "TCHEQUIE BRNO 63500 Aire CCI 27203",
+    "category": "AC",
+    "lat": 49.24514,
+    "lng": 16.5095,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13545",
+    "name": "TCHEQUIE VEVERSKA BITYSKA 66471 Aire CCI 29687",
+    "category": "AC",
+    "lat": 49.27576,
+    "lng": 16.4531,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13582",
+    "name": "TCHEQUIE KRAVSKO 67151 Aire CCI 6974",
+    "category": "AC",
+    "lat": 48.92593,
+    "lng": 15.9393,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13594",
+    "name": "TCHEQUIE EBI 674 01 Aire CCI 25800",
+    "category": "AC",
+    "lat": 49.21675,
+    "lng": 15.8589,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13597",
+    "name": "TCHEQUIE CERVENA LHOTA 675 07 Aire CCI 9952",
+    "category": "AC",
+    "lat": 49.27379,
+    "lng": 15.7787,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13601",
+    "name": "TCHEQUIE OPATOV 67528 Aire CCI 12053",
+    "category": "AC",
+    "lat": 49.20896,
+    "lng": 15.6561,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13610",
+    "name": "TCHEQUIE JEDOVNICE 67906 Aire CCI 26788",
+    "category": "AC",
+    "lat": 49.33339,
+    "lng": 16.7632,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13652",
+    "name": "TCHEQUIE VEHELHRAD 68706 Aire CCI 25743",
+    "category": "AC",
+    "lat": 49.11868,
+    "lng": 17.3802,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13653",
+    "name": "TCHEQUIE ATC 68708 Aire CCI 26803",
+    "category": "AC",
+    "lat": 49.07927,
+    "lng": 17.3169,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13663",
+    "name": "TCHEQUIE BRECLAV 69002 Aire CCI 21040",
+    "category": "AC",
+    "lat": 48.78558,
+    "lng": 16.8266,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13666",
+    "name": "TCHEQUIE PAVLOV 69201 Aire CCI 24888",
+    "category": "AC",
+    "lat": 48.8785,
+    "lng": 16.6769,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13687",
+    "name": "TCHEQUIE VESELI NAD MORAVOU 69801 Aire CCI 26783",
+    "category": "AC",
+    "lat": 48.9546,
+    "lng": 17.3726,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13708",
+    "name": "AUTRICHE RUST 7071 Aire CCI 21729",
+    "category": "AC",
+    "lat": 47.80114,
+    "lng": 16.6917,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13709",
+    "name": "AUTRICHE DONNERSKIRCHEN 7082 Aire CCI 7890",
+    "category": "AC",
+    "lat": 47.89202,
+    "lng": 16.6304,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13710",
+    "name": "AUTRICHE BREITENBRUNN 7091 Aire CCI 7951",
+    "category": "AC",
+    "lat": 47.91776,
+    "lng": 16.7652,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13746",
+    "name": "AUTRICHE PODERSDORF AM SEE 7141 Aire CCI 7952",
+    "category": "AC",
+    "lat": 47.85424,
+    "lng": 16.8267,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13757",
+    "name": "AUTRICHE ANDAU 7163 Aire CCI 7950",
+    "category": "AC",
+    "lat": 47.7741,
+    "lng": 17.013,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13764",
+    "name": "POLOGNE REWAL 72-344 Aire CCI 28967",
+    "category": "AC",
+    "lat": 54.07941,
+    "lng": 15.0042,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13796",
+    "name": "HONGRIE KOMLO SIKONDA 7300 Aire CCI 27201",
+    "category": "AC",
+    "lat": 46.1749,
+    "lng": 18.2228,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13920",
+    "name": "TCHEQUIE NOV 756 61 Aire CCI 12038",
+    "category": "AC",
+    "lat": 49.46674,
+    "lng": 18.164,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13926",
+    "name": "POLOGNE USTKA 76-270 Aire CCI 22959",
+    "category": "AC",
+    "lat": 54.57651,
+    "lng": 16.8806,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13933",
+    "name": "POLOGNE ROWY 76212 Aire CCI 7799",
+    "category": "AC",
+    "lat": 54.66528,
+    "lng": 17.0572,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13936",
+    "name": "HONGRIE PECS 7627 Aire CCI 24357",
+    "category": "AC",
+    "lat": 46.08557,
+    "lng": 18.2622,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13940",
+    "name": "TCHEQUIE DRZKOVA 76319 Aire CCI 18787",
+    "category": "AC",
+    "lat": 49.32267,
+    "lng": 17.7922,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13964",
+    "name": "HONGRIE ORFU 7677 Aire CCI 21691",
+    "category": "AC",
+    "lat": 46.14625,
+    "lng": 18.1378,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_13965",
+    "name": "HONGRIE ABALIGET 7678 Aire CCI 35272",
+    "category": "AC",
+    "lat": 46.13739,
+    "lng": 18.1185,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14000",
+    "name": "TCHEQUIE OLOMOUC 779 00 Aire CCI 29497",
+    "category": "AC",
+    "lat": 49.60852,
+    "lng": 17.2423,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14004",
+    "name": "POLOGNE ZLOCIENIEC 78-250 Aire CCI 31332",
+    "category": "AC",
+    "lat": 53.45692,
+    "lng": 15.9197,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14010",
+    "name": "POLOGNE KOLOBRZEG 78100 Aire CCI 19317",
+    "category": "AC",
+    "lat": 54.18139,
+    "lng": 15.5956,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14018",
+    "name": "TCHEQUIE HSTS 785 01 Aire CCI 14730",
+    "category": "AC",
+    "lat": 49.74771,
+    "lng": 17.3051,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14022",
+    "name": "TCHEQUIE RAPOTIN 788 14 Aire CCI 29174",
+    "category": "AC",
+    "lat": 50.0183,
+    "lng": 17.0268,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14027",
+    "name": "TCHEQUIE JESENIKY 79061 Aire CCI 27381",
+    "category": "AC",
+    "lat": 50.22493,
+    "lng": 17.1746,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14049",
+    "name": "TCHEQUIE DOLINA 793 26 Aire CCI 27380",
+    "category": "AC",
+    "lat": 50.12036,
+    "lng": 17.3569,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14077",
+    "name": "POLOGNE STOGI 80-656 Aire CCI 10543",
+    "category": "AC",
+    "lat": 54.36945,
+    "lng": 18.7306,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14078",
+    "name": "POLOGNE GDANSK 80-656 Aire CCI 27007",
+    "category": "AC",
+    "lat": 54.36974,
+    "lng": 18.7307,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14125",
+    "name": "POLOGNE SOPOT 81-713 Aire CCI 10238",
+    "category": "AC",
+    "lat": 54.46084,
+    "lng": 18.5546,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14166",
+    "name": "POLOGNE MALBORK 82-200 Aire CCI 7116",
+    "category": "AC",
+    "lat": 54.04527,
+    "lng": 19.0356,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14167",
+    "name": "POLOGNE MALBORK 82-200 Aire CCI 22958",
+    "category": "AC",
+    "lat": 54.04612,
+    "lng": 19.0248,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14168",
+    "name": "POLOGNE MALBORK 82-200 Aire CCI 10233",
+    "category": "AC",
+    "lat": 54.04493,
+    "lng": 19.0277,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14169",
+    "name": "POLOGNE ELBAG 82-300 Aire CCI 24977",
+    "category": "AC",
+    "lat": 54.15376,
+    "lng": 19.3938,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14180",
+    "name": "SLOVAQUIE BRATISLAVA 82104 Aire CCI 8221",
+    "category": "AC",
+    "lat": 48.18819,
+    "lng": 17.1854,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14186",
+    "name": "HONGRIE ALSOORS 8226 Aire CCI 21688",
+    "category": "AC",
+    "lat": 46.97605,
+    "lng": 17.9572,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14188",
+    "name": "HONGRIE BALATONFURED 8230 Aire CCI 28163",
+    "category": "AC",
+    "lat": 46.94602,
+    "lng": 17.8766,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14199",
+    "name": "SLOVENIE CATEZ OB SAVI 8251 Aire CCI 2712",
+    "category": "AC",
+    "lat": 45.89147,
+    "lng": 15.621,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14200",
+    "name": "HONGRIE REVFULOP 8253 Aire CCI 13561",
+    "category": "AC",
+    "lat": 46.82963,
+    "lng": 17.64,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14201",
+    "name": "HONGRIE BADACSONYTOMAJ 8258 Aire CCI 17064",
+    "category": "AC",
+    "lat": 46.80279,
+    "lng": 17.5192,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14211",
+    "name": "POLOGNE CZARNA WODA 83-262 Aire CCI 1319",
+    "category": "AC",
+    "lat": 53.8444,
+    "lng": 18.0905,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14212",
+    "name": "POLOGNE WDZYDZE TUCHOLSKIE 83-442 Aire CCI 30541",
+    "category": "AC",
+    "lat": 53.98841,
+    "lng": 17.9238,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14251",
+    "name": "AUTRICHE BAIRISCH KOLLDORF 8344 Aire CCI 9075",
+    "category": "AC",
+    "lat": 46.87563,
+    "lng": 15.9343,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14254",
+    "name": "SLOVENIE DOLENJSKE TOPLICE 8350 Aire CCI 27475",
+    "category": "AC",
+    "lat": 45.759,
+    "lng": 15.055,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14260",
+    "name": "HONGRIE KESZTHELY 8360 Aire CCI 34041",
+    "category": "AC",
+    "lat": 46.76715,
+    "lng": 17.2601,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14270",
+    "name": "HONGRIE HEVIZ 8380 Aire CCI 12021",
+    "category": "AC",
+    "lat": 46.78555,
+    "lng": 17.194,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14279",
+    "name": "POLOGNE WLADYSTAWOWO 84 120 Aire CCI 30542",
+    "category": "AC",
+    "lat": 54.80833,
+    "lng": 18.3759,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14280",
+    "name": "POLOGNE EBA 84-360 Aire CCI 27781",
+    "category": "AC",
+    "lat": 54.7616,
+    "lng": 17.5385,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14281",
+    "name": "POLOGNE EBA 84-360 Aire CCI 31328",
+    "category": "AC",
+    "lat": 54.76222,
+    "lng": 17.5664,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14437",
+    "name": "HONGRIE SIOFOK 8600 Aire CCI 17063",
+    "category": "AC",
+    "lat": 46.92755,
+    "lng": 18.1036,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14457",
+    "name": "AUTRICHE AFLENZ LAND 8624 Aire CCI 29141",
+    "category": "AC",
+    "lat": 47.5538,
+    "lng": 15.3127,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14469",
+    "name": "HONGRIE BALATONSZEMES 8636 Aire CCI 17062",
+    "category": "AC",
+    "lat": 46.81183,
+    "lng": 17.7721,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14470",
+    "name": "HONGRIE BALATONSZEMES 8636 Aire CCI 25491",
+    "category": "AC",
+    "lat": 46.80159,
+    "lng": 17.7503,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14497",
+    "name": "POLOGNE TORUN 87-100 Aire CCI 26610",
+    "category": "AC",
+    "lat": 53.00003,
+    "lng": 18.6066,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14498",
+    "name": "POLOGNE CIECHOCINEK 87-720 Aire CCI 24233",
+    "category": "AC",
+    "lat": 52.87999,
+    "lng": 18.7832,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14528",
+    "name": "HONGRIE ZALAKAROS 8749 Aire CCI 26625",
+    "category": "AC",
+    "lat": 46.55375,
+    "lng": 17.126,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14542",
+    "name": "HONGRIE NAGYKANIZSA 8800 Aire CCI 24527",
+    "category": "AC",
+    "lat": 46.45745,
+    "lng": 16.945,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14559",
+    "name": "POLOGNE PAKOSC 88170 Aire CCI 19327",
+    "category": "AC",
+    "lat": 52.83875,
+    "lng": 18.0811,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14656",
+    "name": "HONGRIE GYOR 9025 Aire CCI 27096",
+    "category": "AC",
+    "lat": 47.67833,
+    "lng": 17.6036,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14657",
+    "name": "SLOVAQUIE JUH 903 01 Aire CCI 8202",
+    "category": "AC",
+    "lat": 48.22148,
+    "lng": 17.4272,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14676",
+    "name": "SLOVAQUIE TRENCIN 911 01 Aire CCI 8214",
+    "category": "AC",
+    "lat": 48.90016,
+    "lng": 18.0412,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14709",
+    "name": "SLOVAQUIE BANKA 92101 Aire CCI 19306",
+    "category": "AC",
+    "lat": 48.57617,
+    "lng": 17.835,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14712",
+    "name": "SLOVENIE LENDAVA 9220 Aire CCI 22791",
+    "category": "AC",
+    "lat": 46.55168,
+    "lng": 16.4583,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14716",
+    "name": "SLOVENIE MORAVSKE TOPLICE 9226 Aire CCI 22792",
+    "category": "AC",
+    "lat": 46.68005,
+    "lng": 16.2206,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14719",
+    "name": "SLOVENIE VERZEJ 9241 Aire CCI 31273",
+    "category": "AC",
+    "lat": 46.57278,
+    "lng": 16.1722,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14727",
+    "name": "SLOVAQUIE DUNAJSKA STREDA 92901 Aire CCI 26818",
+    "category": "AC",
+    "lat": 47.98668,
+    "lng": 17.6111,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14775",
+    "name": "HONGRIE HEGYKO 9437 Aire CCI 21684",
+    "category": "AC",
+    "lat": 47.62084,
+    "lng": 16.785,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14816",
+    "name": "SLOVAQUIE ZVOLEN 960 01 Aire CCI 8200",
+    "category": "AC",
+    "lat": 48.56429,
+    "lng": 19.1339,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14824",
+    "name": "SLOVAQUIE PLIESOVCE 96263 Aire CCI 26829",
+    "category": "AC",
+    "lat": 48.45714,
+    "lng": 19.2417,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14831",
+    "name": "SLOVAQUIE REVISTSKE PODZAMCIE III 966 81 Aire CCI 29684",
+    "category": "AC",
+    "lat": 48.52085,
+    "lng": 18.7281,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14841",
+    "name": "SLOVAQUIE NITRIANSKE RUDNO 972 26 Aire CCI 8212",
+    "category": "AC",
+    "lat": 48.80455,
+    "lng": 18.4758,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14892",
+    "name": "SLOVAQUIE CEBOVCE 99125 Aire CCI 26822",
+    "category": "AC",
+    "lat": 48.2419,
+    "lng": 19.2505,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14918",
+    "name": "AUTRICHE BAD WALTERSDORF A-8271 Aire CCI 32172",
+    "category": "AC",
+    "lat": 47.1625,
+    "lng": 16.0231,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_AC_14997",
+    "name": "CROATIE RAKITJE HR-10437 Aire CCI 25973",
+    "category": "AC",
+    "lat": 45.80194,
+    "lng": 15.8281,
+    "emoji": "⛺",
+    "color": "#4CAF50",
+    "label": "Camping CC"
+  },
+  {
+    "id": "cci_ACF_15111",
+    "name": "CROATIE SUMECANI  Aire CCI 29205",
+    "category": "ACF",
+    "lat": 45.72308,
+    "lng": 16.5063,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15444",
+    "name": "CROATIE RATKOVICA 34315 Aire CCI 26964",
+    "category": "ACF",
+    "lat": 45.2313,
+    "lng": 17.7299,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15524",
+    "name": "CROATIE IGO 44000 Aire CCI 28381",
+    "category": "ACF",
+    "lat": 45.41757,
+    "lng": 16.6282,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15615",
+    "name": "TCHEQUIE SEREC 55203 Aire CCI 25990",
+    "category": "ACF",
+    "lat": 50.38596,
+    "lng": 16.0882,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15648",
+    "name": "POLOGNE KISKUPICE 62007 Aire CCI 28432",
+    "category": "ACF",
+    "lat": 52.44963,
+    "lng": 17.1642,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15675",
+    "name": "TCHEQUIE OAZA 66481 Aire CCI 6972",
+    "category": "ACF",
+    "lat": 49.21077,
+    "lng": 16.4088,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15840",
+    "name": "SLOVAQUIE CEROVO 962 52 Aire CCI 30516",
+    "category": "ACF",
+    "lat": 48.25222,
+    "lng": 19.2187,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACF_15844",
+    "name": "SLOVAQUIE SVR 97701 Aire CCI 8201",
+    "category": "ACF",
+    "lat": 48.79501,
+    "lng": 19.7287,
+    "emoji": "🏡",
+    "color": "#8BC34A",
+    "label": "Camping ferme"
+  },
+  {
+    "id": "cci_ACS_16327",
+    "name": "POLOGNE CZESTOCHOWA 42200 Aire CCI 18487",
+    "category": "ACS",
+    "lat": 50.8113,
+    "lng": 19.0923,
+    "emoji": "🏕️",
+    "color": "#009688",
+    "label": "Aire sur camping"
+  },
+  {
+    "id": "cci_ACS_16442",
+    "name": "TCHEQUIE JAVORICE 58856 Aire CCI 9404",
+    "category": "ACS",
+    "lat": 49.20833,
+    "lng": 15.385,
+    "emoji": "🏕️",
+    "color": "#009688",
+    "label": "Aire sur camping"
+  },
+  {
+    "id": "cci_APCC_16698",
+    "name": "POLOGNE KARPACZ  Aire CCI 9052",
+    "category": "APCC",
+    "lat": 50.78064,
+    "lng": 15.7241,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_16699",
+    "name": "AUTRICHE ILLIMITZ  Aire CCI 27270",
+    "category": "APCC",
+    "lat": 47.75788,
+    "lng": 16.7959,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17162",
+    "name": "POLOGNE OSWIECIM 32-600 Aire CCI 1730",
+    "category": "APCC",
+    "lat": 50.02783,
+    "lng": 19.1992,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17324",
+    "name": "POLOGNE CZĘSTOCHOWA 42-200 Aire CCI 35080",
+    "category": "APCC",
+    "lat": 50.81213,
+    "lng": 19.0933,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17557",
+    "name": "POLOGNE STRONIE SLASKIE 57-550 Aire CCI 5469",
+    "category": "APCC",
+    "lat": 50.24339,
+    "lng": 16.8519,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17689",
+    "name": "AUTRICHE GRO 7051 Aire CCI 20899",
+    "category": "APCC",
+    "lat": 47.83542,
+    "lng": 16.4681,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17853",
+    "name": "AUTRICHE STAINZ 8510 Aire CCI 7874",
+    "category": "APCC",
+    "lat": 46.89377,
+    "lng": 15.2682,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17862",
+    "name": "AUTRICHE POLFING BRUNN 8544 Aire CCI 7867",
+    "category": "APCC",
+    "lat": 46.72422,
+    "lng": 15.2927,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APCC_17979",
+    "name": "SLOVAQUIE BANSKA BELA 969 01 Aire CCI 29498",
+    "category": "APCC",
+    "lat": 48.46498,
+    "lng": 18.959,
+    "emoji": "🅿️",
+    "color": "#3F51B5",
+    "label": "Parking CC"
+  },
+  {
+    "id": "cci_APN_18087",
+    "name": "POLOGNE MALBORK  Aire CCI 28280",
+    "category": "APN",
+    "lat": 54.03738,
+    "lng": 19.0298,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18143",
+    "name": "SLOVAQUIE VRATNA 013 06 Aire CCI 21041",
+    "category": "APN",
+    "lat": 49.22941,
+    "lng": 19.0358,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18169",
+    "name": "SLOVAQUIE BUMBALKA 02356 Aire CCI 18784",
+    "category": "APN",
+    "lat": 49.39901,
+    "lng": 18.4103,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18192",
+    "name": "SLOVAQUIE LIPTOVSKY JAN 03203 Aire CCI 26824",
+    "category": "APN",
+    "lat": 49.03713,
+    "lng": 19.675,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18204",
+    "name": "SLOVAQUIE RUZOMBEROK 034 01 Aire CCI 14733",
+    "category": "APN",
+    "lat": 49.07011,
+    "lng": 19.273,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18206",
+    "name": "SLOVAQUIE IVACHNOVA 03483 Aire CCI 8230",
+    "category": "APN",
+    "lat": 49.09491,
+    "lng": 19.4146,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18617",
+    "name": "POLOGNE DRULITY 14-400 Aire CCI 35088",
+    "category": "APN",
+    "lat": 53.9773,
+    "lng": 19.6193,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18641",
+    "name": "POLOGNE FROMBORK 14530 Aire CCI 25821",
+    "category": "APN",
+    "lat": 54.3578,
+    "lng": 19.6776,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18948",
+    "name": "SLOVENIE MARIBOR 2000 Aire CCI 21193",
+    "category": "APN",
+    "lat": 46.53284,
+    "lng": 15.6028,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18949",
+    "name": "SLOVENIE MARIBOR 2000 Aire CCI 2642",
+    "category": "APN",
+    "lat": 46.53395,
+    "lng": 15.6024,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18950",
+    "name": "SLOVENIE MARBURG AN DER DRAU 2000 Aire CCI 33205",
+    "category": "APN",
+    "lat": 46.56862,
+    "lng": 15.6485,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18963",
+    "name": "HONGRIE VISEGRAD 2025 Aire CCI 12870",
+    "category": "APN",
+    "lat": 47.79373,
+    "lng": 18.991,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18983",
+    "name": "HONGRIE GODOLLO 2100 Aire CCI 30635",
+    "category": "APN",
+    "lat": 47.5941,
+    "lng": 19.3603,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_18991",
+    "name": "SERBIE_MONTENEGRO PETROVARADIN 21101 Aire CCI 34060",
+    "category": "APN",
+    "lat": 45.24998,
+    "lng": 19.8657,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19067",
+    "name": "SERBIE_MONTENEGRO IRIG 22 406 Aire CCI 31960",
+    "category": "APN",
+    "lat": 45.12139,
+    "lng": 19.9386,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19100",
+    "name": "SLOVENIE PTUJ 2251 Aire CCI 2639",
+    "category": "APN",
+    "lat": 46.41526,
+    "lng": 15.9138,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19143",
+    "name": "SLOVENIE SLOVENSKA  BISTRICA 2310 Aire CCI 5731",
+    "category": "APN",
+    "lat": 46.4965,
+    "lng": 15.5061,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19158",
+    "name": "SLOVENIE MARIBOR 2351 Aire CCI 27476",
+    "category": "APN",
+    "lat": 46.5656,
+    "lng": 15.6197,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19595",
+    "name": "ALLEMAGNE ZENTENDORF 2829 Aire CCI 11994",
+    "category": "APN",
+    "lat": 51.2949,
+    "lng": 15.0183,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19599",
+    "name": "TCHEQUIE KUTNA HORA 284 01 Aire CCI 30927",
+    "category": "APN",
+    "lat": 49.94737,
+    "lng": 15.2786,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19774",
+    "name": "POLOGNE KRAKOW 30427 Aire CCI 19072",
+    "category": "APN",
+    "lat": 50.0599,
+    "lng": 19.9627,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19830",
+    "name": "POLOGNE OSWIECIM 32-600 Aire CCI 23746",
+    "category": "APN",
+    "lat": 50.02836,
+    "lng": 19.2001,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19838",
+    "name": "POLOGNE OJCOW 32047 Aire CCI 25809",
+    "category": "APN",
+    "lat": 50.2149,
+    "lng": 19.8152,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19846",
+    "name": "SLOVENIE ZICE 3215 Aire CCI 12003",
+    "category": "APN",
+    "lat": 46.30965,
+    "lng": 15.395,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19850",
+    "name": "AUTRICHE GEMEINDE ANNABERG 3222 Aire CCI 34008",
+    "category": "APN",
+    "lat": 47.87709,
+    "lng": 15.3836,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19866",
+    "name": "SLOVENIE ROGATEC 3252 Aire CCI 11997",
+    "category": "APN",
+    "lat": 46.23267,
+    "lng": 15.7016,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19870",
+    "name": "SLOVENIE BISTRICA OB SOTLI 3256 Aire CCI 31954",
+    "category": "APN",
+    "lat": 46.05782,
+    "lng": 15.6627,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19892",
+    "name": "SLOVENIE PZA 3310 Aire CCI 30765",
+    "category": "APN",
+    "lat": 46.2408,
+    "lng": 15.154,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_19951",
+    "name": "POLOGNE CHOCHOLOW 34-513 Aire CCI 20300",
+    "category": "APN",
+    "lat": 49.3719,
+    "lng": 19.8146,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20003",
+    "name": "POLOGNE ZAKOPANE 34500 Aire CCI 30924",
+    "category": "APN",
+    "lat": 49.28709,
+    "lng": 19.9667,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20218",
+    "name": "TCHEQUIE SLAVONICE 378 81 Aire CCI 6975",
+    "category": "APN",
+    "lat": 48.99606,
+    "lng": 15.352,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20455",
+    "name": "POLOGNE CZESTOCHOWA 42200 Aire CCI 18710",
+    "category": "APN",
+    "lat": 50.81227,
+    "lng": 19.0947,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20694",
+    "name": "CROATIE OZALJ 47280 Aire CCI 24058",
+    "category": "APN",
+    "lat": 45.61287,
+    "lng": 15.4779,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20951",
+    "name": "POLOGNE KAMIENNA GORA 507306 Aire CCI 9051",
+    "category": "APN",
+    "lat": 50.73273,
+    "lng": 16.0665,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_20961",
+    "name": "POLOGNE VRATISLAVIE 51-609 Aire CCI 35079",
+    "category": "APN",
+    "lat": 51.12456,
+    "lng": 17.0857,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21138",
+    "name": "TCHEQUIE TEPLICE NAD METUJI 549 57 Aire CCI 21774",
+    "category": "APN",
+    "lat": 50.59453,
+    "lng": 16.1493,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21320",
+    "name": "POLOGNE DUSZNIKI ZDROJ 57-340 Aire CCI 9050",
+    "category": "APN",
+    "lat": 50.40046,
+    "lng": 16.3917,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21399",
+    "name": "POLOGNE JELENIA GORA 58-500 Aire CCI 35076",
+    "category": "APN",
+    "lat": 50.89331,
+    "lng": 15.7471,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21435",
+    "name": "TCHEQUIE TELC 58856 Aire CCI 6984",
+    "category": "APN",
+    "lat": 49.18765,
+    "lng": 15.4482,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21437",
+    "name": "POLOGNE JAWOR 59-400 Aire CCI 35077",
+    "category": "APN",
+    "lat": 51.05152,
+    "lng": 16.1876,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21497",
+    "name": "TCHEQUIE BRNO 60 300 Aire CCI 30926",
+    "category": "APN",
+    "lat": 49.18857,
+    "lng": 16.5866,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21498",
+    "name": "HONGRIE KECSKEMET 6000 Aire CCI 34037",
+    "category": "APN",
+    "lat": 46.89826,
+    "lng": 19.6706,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21524",
+    "name": "HONGRIE KISKUNFELEGYHAZA 6100 Aire CCI 25424",
+    "category": "APN",
+    "lat": 46.70611,
+    "lng": 19.8372,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21564",
+    "name": "HONGRIE SOLTVADKERT 6230 Aire CCI 36039",
+    "category": "APN",
+    "lat": 46.58174,
+    "lng": 19.395,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21748",
+    "name": "TCHEQUIE OSTROVACICE 66481 Aire CCI 27107",
+    "category": "APN",
+    "lat": 49.20658,
+    "lng": 16.4155,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21802",
+    "name": "TCHEQUIE LECHOVICE 671 63 Aire CCI 1731",
+    "category": "APN",
+    "lat": 48.87435,
+    "lng": 16.2188,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21831",
+    "name": "TCHEQUIE TREBIC 67401 Aire CCI 18789",
+    "category": "APN",
+    "lat": 49.21712,
+    "lng": 15.8705,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21893",
+    "name": "TCHEQUIE VILEMOVICE 679 06 Aire CCI 2506",
+    "category": "APN",
+    "lat": 49.37175,
+    "lng": 16.7305,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21909",
+    "name": "TCHEQUIE SLAVKOV U BRNA 684 01 Aire CCI 29714",
+    "category": "APN",
+    "lat": 49.1565,
+    "lng": 16.8755,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21910",
+    "name": "TCHEQUIE SLAVKOV U BRNA 684 01 Aire CCI 29689",
+    "category": "APN",
+    "lat": 49.15122,
+    "lng": 16.88,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21911",
+    "name": "TCHEQUIE SLAVKOV U BRNA 684-1 Aire CCI 14729",
+    "category": "APN",
+    "lat": 49.15184,
+    "lng": 16.8777,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21941",
+    "name": "TCHEQUIE VALTICE 691 42 Aire CCI 29682",
+    "category": "APN",
+    "lat": 48.74566,
+    "lng": 16.7545,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_21944",
+    "name": "TCHEQUIE LEDNICE 69144 Aire CCI 6973",
+    "category": "APN",
+    "lat": 48.80238,
+    "lng": 16.8011,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22000",
+    "name": "AUTRICHE GEMEINDE OSLIP 7064 Aire CCI 34045",
+    "category": "APN",
+    "lat": 47.84095,
+    "lng": 16.6255,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22003",
+    "name": "AUTRICHE MORBISH AM SEE 7072 Aire CCI 25880",
+    "category": "APN",
+    "lat": 47.74351,
+    "lng": 16.6581,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22060",
+    "name": "POLOGNE KARNICE 72-342 Aire CCI 1716",
+    "category": "APN",
+    "lat": 54.01005,
+    "lng": 15.1097,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22171",
+    "name": "TCHEQUIE FULNEK 742 45 Aire CCI 21771",
+    "category": "APN",
+    "lat": 49.71591,
+    "lng": 17.9182,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22198",
+    "name": "AUTRICHE HAMMERTEICH 7442 Aire CCI 34046",
+    "category": "APN",
+    "lat": 47.40601,
+    "lng": 16.4219,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22220",
+    "name": "TCHEQUIE HRANICE 750 02 Aire CCI 14731",
+    "category": "APN",
+    "lat": 49.54622,
+    "lng": 17.7365,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22239",
+    "name": "BOSNIE DOMALJEVAC 76 233 Aire CCI 2762",
+    "category": "APN",
+    "lat": 45.059,
+    "lng": 18.581,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22320",
+    "name": "HONGRIE BAR 7711 Aire CCI 23726",
+    "category": "APN",
+    "lat": 46.0522,
+    "lng": 18.7168,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22321",
+    "name": "TCHEQUIE OLOMOUC 772 00 Aire CCI 26882",
+    "category": "APN",
+    "lat": 49.58945,
+    "lng": 17.2561,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22337",
+    "name": "HONGRIE VILLANY 7773 Aire CCI 34038",
+    "category": "APN",
+    "lat": 45.8747,
+    "lng": 18.457,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22356",
+    "name": "HONGRIE SIKLOS 7800 Aire CCI 34039",
+    "category": "APN",
+    "lat": 45.8477,
+    "lng": 18.2962,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22364",
+    "name": "HONGRIE HARKANY 7815 Aire CCI 15200",
+    "category": "APN",
+    "lat": 45.85335,
+    "lng": 18.2405,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22375",
+    "name": "TCHEQUIE BOUZOV 783 25 Aire CCI 21772",
+    "category": "APN",
+    "lat": 49.70025,
+    "lng": 16.8904,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22378",
+    "name": "TCHEQUIE LITOVEL 78401 Aire CCI 26775",
+    "category": "APN",
+    "lat": 49.70356,
+    "lng": 17.0686,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22506",
+    "name": "POLOGNE GDANSK 80-822 Aire CCI 27545",
+    "category": "APN",
+    "lat": 54.3454,
+    "lng": 18.648,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22507",
+    "name": "SLOVENIE NOVO MESTO 8000 Aire CCI 25214",
+    "category": "APN",
+    "lat": 45.79582,
+    "lng": 15.1724,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22566",
+    "name": "HONGRIE VESZPREM 8200 Aire CCI 34861",
+    "category": "APN",
+    "lat": 47.09766,
+    "lng": 17.8835,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22578",
+    "name": "HONGRIE BALATONFURED 8230 Aire CCI 21194",
+    "category": "APN",
+    "lat": 46.95585,
+    "lng": 17.8896,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22579",
+    "name": "HONGRIE BALATONFURED 8230 Aire CCI 34042",
+    "category": "APN",
+    "lat": 46.95956,
+    "lng": 17.9095,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22583",
+    "name": "HONGRIE TIHANY 8237 Aire CCI 12868",
+    "category": "APN",
+    "lat": 46.90856,
+    "lng": 17.8881,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22602",
+    "name": "SLOVENIE KRSKO 8270 Aire CCI 25483",
+    "category": "APN",
+    "lat": 45.93068,
+    "lng": 15.5352,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22604",
+    "name": "SLOVENIE BRESTANICA 8280 Aire CCI 25482",
+    "category": "APN",
+    "lat": 46.0054,
+    "lng": 15.4975,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22605",
+    "name": "HONGRIE GYULAKESZI 8286 Aire CCI 27271",
+    "category": "APN",
+    "lat": 46.86507,
+    "lng": 17.4784,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22627",
+    "name": "SLOVENIE ENTJERNEJ 8310 Aire CCI 11999",
+    "category": "APN",
+    "lat": 45.81819,
+    "lng": 15.3505,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22629",
+    "name": "SLOVENIE KOSTANJEVICA NA KRKI 8311 Aire CCI 30768",
+    "category": "APN",
+    "lat": 45.84955,
+    "lng": 15.4189,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22677",
+    "name": "HONGRIE HEVIZ 8380 Aire CCI 15198",
+    "category": "APN",
+    "lat": 46.78556,
+    "lng": 17.1939,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22700",
+    "name": "SLOVAQUIE DEVIN 841 01 Aire CCI 30921",
+    "category": "APN",
+    "lat": 48.17565,
+    "lng": 16.9796,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22728",
+    "name": "HONGRIE HEREND 8440 Aire CCI 25461",
+    "category": "APN",
+    "lat": 47.13063,
+    "lng": 17.7521,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22763",
+    "name": "SLOVAQUIE BRATISLAVA 851 01 Aire CCI 29432",
+    "category": "APN",
+    "lat": 48.13621,
+    "lng": 17.1153,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22785",
+    "name": "AUTRICHE SCHWANBERG 8541 Aire CCI 7873",
+    "category": "APN",
+    "lat": 46.7635,
+    "lng": 15.2062,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22812",
+    "name": "AUTRICHE MARIAZELL 8630 Aire CCI 23662",
+    "category": "APN",
+    "lat": 47.77051,
+    "lng": 15.319,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22827",
+    "name": "HONGRIE BALATONBERENY 8649 Aire CCI 15199",
+    "category": "APN",
+    "lat": 46.71483,
+    "lng": 17.3226,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22849",
+    "name": "HONGRIE OREGLAK 8698 Aire CCI 34040",
+    "category": "APN",
+    "lat": 46.59682,
+    "lng": 17.6434,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22850",
+    "name": "POLOGNE TORUN 87-100 Aire CCI 10237",
+    "category": "APN",
+    "lat": 53.00786,
+    "lng": 18.6011,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22862",
+    "name": "HONGRIE VORS 8711 Aire CCI 12867",
+    "category": "APN",
+    "lat": 46.61559,
+    "lng": 17.1687,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22925",
+    "name": "POLOGNE BISKUPIN 88409 Aire CCI 25822",
+    "category": "APN",
+    "lat": 52.7842,
+    "lng": 17.7435,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22987",
+    "name": "SLOVAQUIE CASTA CERVENY KAMEN 900 89 Aire CCI 30922",
+    "category": "APN",
+    "lat": 48.39553,
+    "lng": 17.3328,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_22989",
+    "name": "HONGRIE GYOR 9000 Aire CCI 23503",
+    "category": "APN",
+    "lat": 47.67988,
+    "lng": 17.5815,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23003",
+    "name": "SLOVAQUIE MALACKY 901 01 Aire CCI 14732",
+    "category": "APN",
+    "lat": 48.43395,
+    "lng": 17.0202,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23028",
+    "name": "HONGRIE PANNONHALMA 9090 Aire CCI 23592",
+    "category": "APN",
+    "lat": 47.55536,
+    "lng": 17.7603,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23029",
+    "name": "HONGRIE PANNONHALMA 9090 Aire CCI 36040",
+    "category": "APN",
+    "lat": 47.54816,
+    "lng": 17.7567,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23030",
+    "name": "POLOGNE LODZ 91-422 Aire CCI 28610",
+    "category": "APN",
+    "lat": 51.77743,
+    "lng": 19.4608,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23093",
+    "name": "HONGRIE HEGYESHALOM 9222 Aire CCI 5443",
+    "category": "APN",
+    "lat": 47.91582,
+    "lng": 17.1547,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23161",
+    "name": "HONGRIE SOPRON 9400 Aire CCI 34010",
+    "category": "APN",
+    "lat": 47.67976,
+    "lng": 16.5997,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23187",
+    "name": "HONGRIE FERTŐD 9431 Aire CCI 34009",
+    "category": "APN",
+    "lat": 47.62549,
+    "lng": 16.8738,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23325",
+    "name": "SLOVAQUIE SKLENE TEPLICE 96603 Aire CCI 28643",
+    "category": "APN",
+    "lat": 48.52321,
+    "lng": 18.8647,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23327",
+    "name": "SLOVAQUIE STAV 969 72 Aire CCI 29167",
+    "category": "APN",
+    "lat": 48.42203,
+    "lng": 18.9416,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23331",
+    "name": "SLOVAQUIE BANSKA STIAVNICA 96901 Aire CCI 14735",
+    "category": "APN",
+    "lat": 48.45596,
+    "lng": 18.8943,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23355",
+    "name": "SLOVAQUIE BOJNICE 97201 Aire CCI 18785",
+    "category": "APN",
+    "lat": 48.77444,
+    "lng": 18.5778,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23381",
+    "name": "HONGRIE BUK 9740 Aire CCI 34043",
+    "category": "APN",
+    "lat": 47.37818,
+    "lng": 16.7877,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23444",
+    "name": "HONGRIE JAK 9798 Aire CCI 23589",
+    "category": "APN",
+    "lat": 47.1385,
+    "lng": 16.5823,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  },
+  {
+    "id": "cci_APN_23562",
+    "name": "POLOGNE KUDOWA-ZDROJ ??? Aire CCI 35078",
+    "category": "APN",
+    "lat": 50.46064,
+    "lng": 16.3093,
+    "emoji": "🌙",
+    "color": "#673AB7",
+    "label": "Parking nuit"
+  }
+]
