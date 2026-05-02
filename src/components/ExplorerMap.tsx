@@ -309,7 +309,7 @@ export default function ExplorerMap() {
     if (!region || region === currentRegion) return;
     
     try {
-      const response = await fetch(`/campingcar_${region}.json`);
+      const response = await fetch(`${import.meta.env.BASE_URL}campingcar_${region}.json`);
       if (response.ok) {
         const data = await response.json();
         const mapped = data.map((item: any) => ({
