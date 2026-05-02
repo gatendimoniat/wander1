@@ -4,7 +4,7 @@ import path from "path";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig(({ mode }) => ({
-  base: '/explore-wander/',
+  base: './',
   server: {
     host: true,
     port: 5173,
