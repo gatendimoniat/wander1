@@ -151,6 +151,7 @@ self.onmessage = async (event: MessageEvent) => {
 
     case 'query':
       try {
+        const queryStart = performance.now();
         const { bounds, categories, showBestOnly, zoom, maxResults: maxResultsOverride, queryId } = payload;
         if (!tree) {
           self.postMessage({ type: 'queryResult', payload: { pois: [], queryId } });
@@ -208,10 +209,11 @@ self.onmessage = async (event: MessageEvent) => {
 
          const result = candidates.slice(0, maxResults).map(c => c.poi);
 
-         // Log temporal para verificar filtros
-         console.log(`[Worker] zoom:${zoom} radio:${maxRadius}km resultado:${result.length}/${candidates.length} candidatos`);
+        // Log temporal para verificar filtros
+        const queryElapsed = Math.round(performance.now() - queryStart);
+        console.log(`[Worker] zoom:${zoom} radio:${maxRadius}km resultado:${result.length}/${candidates.length} candidatos (${queryElapsed}ms)`);
 
-         self.postMessage({ type: 'queryResult', payload: { pois: result, queryId } });
+        self.postMessage({ type: 'queryResult', payload: { pois: result, queryId } });
       } catch (error) {
         self.postMessage({ type: 'error', payload: { error: (error as Error).message, queryId: payload.queryId } });
       }

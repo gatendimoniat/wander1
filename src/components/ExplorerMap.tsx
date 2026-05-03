@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -78,17 +79,6 @@ function FixMapSize() {
   }, [map]);
 
   return null;
-}
-
-function createCategoryIcon(poi: POI) {
-  const category = poi.category;
-  const config = CATEGORY_CONFIG[category] || { color: '#888888', emoji: '📍' };
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="background:${config.color};width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.3);border:2px solid white;">${config.emoji}</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-  });
 }
 
 const userLocationIcon = L.divIcon({
@@ -495,23 +485,7 @@ export default function ExplorerMap() {
     }
     
     return filtered.slice(0, 500);
-  }, [allPois, activeCategories, showBestOnly]);
-
-  const visibleCampingCarPOIs = useMemo(() => {
-    const bounds = boundsRef.current;
-    if (campingCarPOIs.length === 0) return [];
-    const zoom = currentZoomRef.current;
-    if (zoom < 10) return []; // Only show when zoomed in
-    
-    // If no bounds yet, use default based on map center
-    const b = bounds || { south: 41.3, north: 41.5, west: 2.0, east: 2.3 };
-    
-    return campingCarPOIs.filter(p => {
-      if (!activeCategories.includes(p.category)) return false;
-      return p.lat >= b.south && p.lat <= b.north &&
-             p.lng >= b.west && p.lng <= b.east;
-    }); // No limit - show all in visible area
-  }, [campingCarPOIs, activeCategories]);
+     }, [allPois, activeCategories, showBestOnly]);
 
   const handleBoundsChange = useCallback((bounds: Bounds, zoom: number = 10) => {
     currentZoomRef.current = zoom;
@@ -1431,270 +1405,6 @@ export default function ExplorerMap() {
             visible={showMarkers}
           />
 
-          {showMarkers && filteredPois.map((poi) => (
-            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
-              <Popup maxWidth={isMobile ? 280 : 380} className={isMobile ? 'mobile-popup' : ''}>
-                <div style={{ 
-                  minWidth: isMobile ? 'calc(100vw - 40px)' : '320px', 
-                  maxWidth: isMobile ? 'calc(100vw - 40px)' : '380px',
-                  maxHeight: isMobile ? 'calc(100vh - 120px)' : '500px',
-                  width: isMobile ? 'calc(100vw - 40px)' : 'auto',
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                  background: 'white',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: `linear-gradient(135deg, ${CATEGORY_CONFIG[poi.category].color}15 0%, ${CATEGORY_CONFIG[poi.category].color}05 100%)`,
-                    borderBottom: `1px solid ${CATEGORY_CONFIG[poi.category].color}33`
-                  }}>
-                    <span style={{ 
-                      fontSize: '28px',
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                    }}>{CATEGORY_CONFIG[poi.category].emoji}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ 
-                        fontWeight: 800, 
-                        fontSize: '14px', 
-                        margin: 0,
-                        color: '#0f172a',
-                        lineHeight: 1.2,
-                        letterSpacing: '-0.01em'
-                      }}>
-                        {poi.name}
-                      </h3>
-                      <span style={{
-                        fontSize: '10px',
-                        color: CATEGORY_CONFIG[poi.category].color,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
-                      }}>
-                        {t(`categories.${poi.category}`)}
-                      </span>
-                    </div>
-                    {poi.tags && (poi.tags.unesco || poi.tags['heritage:operator'] === 'unesco' || poi.tags.heritage === 'unesco') && (
-                      <div style={{ 
-                        background: '#fef3c7',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        border: '1px solid #f59e0b',
-                        fontSize: '10px',
-                        fontWeight: 800,
-                        color: '#92400e',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        <span>🏛️</span>
-                        UNESCO
-                      </div>
-                    )}
-                    
-                    {poi.tags && poi.tags.heritage && !poi.tags.unesco && (
-                      <div style={{ 
-                        background: '#f1f5f9',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        border: '1px solid #64748b',
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        color: '#334155',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        <span>📜</span>
-                        PATRIMONI
-                      </div>
-                    )}
-
-                    {poi.rating && poi.rating >= 1 && poi.rating <= 5 && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '3px',
-                        background: '#fef3c7',
-                        padding: '5px 8px',
-                        borderRadius: '8px',
-                        boxShadow: 'inset 0 0 0 1px #f59e0b33'
-                      }}>
-                        <span style={{ fontSize: '13px', color: '#f59e0b' }}>★</span>
-                        <span style={{ fontSize: '12px', fontWeight: 800, color: '#92400e' }}>{poi.rating}</span>
-                      </div>
-                    )}
-
-                    {poi.isBest && (
-                      <div style={{ 
-                        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-                        padding: '6px 12px',
-                        borderRadius: '10px',
-                        fontSize: '12px',
-                        fontWeight: 900,
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        boxShadow: '0 4px 10px rgba(245, 158, 11, 0.3)',
-                        border: '1px solid rgba(255,255,255,0.3)'
-                      }}>
-                        <span>👑</span>
-                        TOP
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div style={{ padding: '12px 16px 6px 16px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1 }}>
-                    {poi.population && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '8px', 
-                        fontSize: '12px', 
-                        color: '#475569',
-                        background: '#f8fafc',
-                        padding: '6px 10px',
-                        borderRadius: '8px',
-                        border: '1px solid #e2e8f0'
-                      }}>
-                        <span style={{ fontSize: '14px' }}>👥</span>
-                        <span style={{ fontWeight: 600 }}>{t('popup.population')}:</span>
-                        <span>{new Intl.NumberFormat().format(parseInt(poi.population))} hab.</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div style={{ padding: '6px 10px' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
-                      {poi.address && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          fontSize: '10px',
-                          color: '#4b5563',
-                          flex: '1 1 auto'
-                        }}>
-                          <span>📍</span>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{poi.address}</span>
-                        </div>
-                      )}
-                      {poi.openingHours && (
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          fontSize: '10px',
-                          color: '#4b5563'
-                        }}>
-                          <span>🕐</span>
-                          <span>{poi.openingHours}</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '6px' }}>
-                      {poi.phone && /^[\d+\-() ]+$/.test(poi.phone) && (
-                        <a href={`tel:${poi.phone}`} style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          fontSize: '10px',
-                          color: '#059669',
-                          textDecoration: 'none'
-                        }}>
-                          <span>📞</span>
-                          <span>{poi.phone}</span>
-                        </a>
-                      )}
-                      {poi.website && poi.website.startsWith('http') && (
-                        <a href={poi.website} target="_blank" rel="noreferrer" style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: '4px',
-                          fontSize: '10px',
-                          color: '#7c3aed', 
-                          textDecoration: 'none',
-                          fontWeight: 600,
-                        }}>
-                          <span>🌐</span>
-                          <span>Web</span>
-                        </a>
-                      )}
-                    </div>
-                    
-                    <WikipediaInfo 
-                      poiName={poi.name} 
-                      wikipediaTag={poi.tags?.wikipedia} 
-                      wikidataTag={poi.tags?.wikidata}
-                      category={poi.category}
-                      style={{ maxHeight: isMobile ? 'calc(100vh - 300px)' : '300px', overflowY: 'auto' }}
-                    />
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '6px', 
-                      marginTop: '8px',
-                      paddingTop: '6px',
-                      borderTop: '1px solid #e5e7eb'
-                    }}>
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${poi.lat},${poi.lng}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ 
-                          flex: 1, 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          gap: '3px', 
-                          background: '#16a34a', 
-                          color: 'white', 
-                          fontSize: '9px', 
-                          padding: '5px 4px', 
-                          borderRadius: '4px', 
-                          textDecoration: 'none', 
-                          fontWeight: 600,
-                        }}
-                      >
-                        <Navigation2 style={{ width: '9px', height: '9px' }} /> 
-                        <span>Navegar</span>
-                      </a>
-                      <button
-                        onClick={() => { addToRoute(poi); setSidebarTab('route'); setSidebarOpen(true); }}
-                        style={{ 
-                          flex: 1, 
-                          background: '#059669', 
-                          color: 'white', 
-                          fontSize: '9px', 
-                          padding: '5px 4px', 
-                          borderRadius: '4px', 
-                          border: 'none', 
-                          cursor: 'pointer', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          gap: '3px', 
-                          fontWeight: 600,
-                        }}
-                      >
-                        <Plus style={{ width: '9px', height: '9px' }} /> 
-                        <span>Ruta</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-
           {routePoints.length > 1 && (
             <>
               {routeLoading && (
@@ -1732,157 +1442,161 @@ export default function ExplorerMap() {
             />
           )}
 
-          {showMarkers && visibleCampingCarPOIs.map((poi) => (
-            <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
-              <Popup maxWidth={isMobile ? 280 : 380} className={isMobile ? 'mobile-popup' : ''}>
-                <div style={{ 
-                  minWidth: isMobile ? 'calc(100vw - 40px)' : '280px', 
-                  maxWidth: isMobile ? 'calc(100vw - 40px)' : '380px',
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                  background: 'white',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px 16px',
-                    background: `linear-gradient(135deg, ${CATEGORY_CONFIG[poi.category].color}15 0%, ${CATEGORY_CONFIG[poi.category].color}05 100%)`,
-                    borderBottom: `1px solid ${CATEGORY_CONFIG[poi.category].color}33`
-                  }}>
-                    <span style={{ 
-                      fontSize: '28px',
-                      filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-                    }}>{CATEGORY_CONFIG[poi.category].emoji}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <h3 style={{ 
-                        fontWeight: 800, 
-                        fontSize: '14px', 
-                        margin: 0,
-                        color: '#0f172a',
-                        lineHeight: 1.2,
-                        letterSpacing: '-0.01em'
-                      }}>
-                        {poi.name}
-                      </h3>
-                      <span style={{
-                        fontSize: '10px',
-                        color: CATEGORY_CONFIG[poi.category].color,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em'
-                      }}>
-                        {t(`categories.${poi.category}`)}
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div style={{ padding: '6px 10px' }}>
-                    {poi.address && (
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '4px',
-                        fontSize: '10px',
-                        color: '#4b5563',
-                        marginBottom: '6px'
-                      }}>
-                        <span>📍</span>
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{poi.address}</span>
-                      </div>
-                    )}
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '6px', 
-                      marginTop: '8px',
-                      paddingTop: '6px',
-                      borderTop: '1px solid #e5e7eb'
-                    }}>
-                      <a
-                        href={`https://www.google.com/maps/dir/?api=1&destination=${poi.lat},${poi.lng}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ 
-                          flex: 1, 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          gap: '3px', 
-                          background: '#16a34a', 
-                          color: 'white', 
-                          fontSize: '9px', 
-                          padding: '5px 4px', 
-                          borderRadius: '4px', 
-                          textDecoration: 'none', 
-                          fontWeight: 600,
-                        }}
-                      >
-                        <Navigation2 style={{ width: '9px', height: '9px' }} /> 
-                        <span>Navegar</span>
-                      </a>
-                      <button
-                        onClick={() => { addToRoute(poi); setSidebarTab('route'); setSidebarOpen(true); }}
-                        style={{ 
-                          flex: 1, 
-                          background: '#059669', 
-                          color: 'white', 
-                          fontSize: '9px', 
-                          padding: '5px 4px', 
-                          borderRadius: '4px', 
-                          border: 'none', 
-                          cursor: 'pointer', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          gap: '3px', 
-                          fontWeight: 600,
-                        }}
-                      >
-                        <Plus style={{ width: '9px', height: '9px' }} /> 
-                        <span>Ruta</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          )          )}
+          {selectedPOI && selectedPOI.category && createPortal(
+             <div
+               style={{
+                 position: 'fixed',
+                 top: '50%',
+                 left: '50%',
+                 transform: 'translate(-50%, -50%)',
+                 zIndex: 2000,
+                 width: isMobile ? 'calc(100vw - 64px)' : '300px',
+                 height: isMobile ? 'calc(100vw - 64px)' : '300px',
+                 overflowY: 'auto',
+                 fontFamily: 'system-ui, -apple-system, sans-serif',
+                 background: 'white',
+                 borderRadius: '12px',
+                 boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
+               }}
+               onClick={(e) => e.stopPropagation()}
+             >
+               <div style={{
+                 display: 'flex',
+                 alignItems: 'center',
+                 gap: '12px',
+                 padding: '12px 16px',
+                 background: `linear-gradient(135deg, ${CATEGORY_CONFIG[selectedPOI.category].color}15 0%, ${CATEGORY_CONFIG[selectedPOI.category].color}05 100%)`,
+                 borderBottom: `1px solid ${CATEGORY_CONFIG[selectedPOI.category].color}33`
+               }}>
+                 <span style={{
+                   fontSize: '28px',
+                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                 }}>{CATEGORY_CONFIG[selectedPOI.category].emoji}</span>
+                 <div style={{ flex: 1, minWidth: 0 }}>
+                   <h3 style={{
+                     fontWeight: 800,
+                     fontSize: '14px',
+                     margin: 0,
+                     color: '#0f172a',
+                     lineHeight: 1.2,
+                     letterSpacing: '-0.01em'
+                   }}>
+                     {selectedPOI.name}
+                   </h3>
+                   <span style={{
+                     fontSize: '10px',
+                     color: CATEGORY_CONFIG[selectedPOI.category].color,
+                     fontWeight: 700,
+                     textTransform: 'uppercase',
+                     letterSpacing: '0.05em'
+                   }}>
+                     {t(`categories.${selectedPOI.category}`)}
+                   </span>
+                 </div>
+                 <button
+                   onClick={() => setSelectedPOI(null)}
+                   style={{
+                     background: 'none',
+                     border: 'none',
+                     fontSize: '16px',
+                     cursor: 'pointer',
+                     color: '#6b7280',
+                     padding: '4px',
+                   }}
+                   aria-label="Cerrar"
+                 >✕</button>
+               </div>
 
-          {selectedPOI && selectedPOI.category && (
-            <Popup
-              position={[selectedPOI.lat, selectedPOI.lng]}
-              onClose={() => {
-                setSelectedPOI(null);
-                (window as any).preventPoiClick = true;
-                setTimeout(() => { (window as any).preventPoiClick = false; }, 500);
-              }}
-              maxWidth={isMobile ? 280 : 380}
-              className={isMobile ? 'mobile-popup' : ''}
-              offset={[0, -40]}
-              autoPan={false}
-            >
-              <div className="poi-popup-container">
-                <div className="poi-popup-header">
-                  <span className="poi-popup-emoji">📍</span>
-                  <div className="poi-popup-info">
-                    <h3 className="poi-popup-title">{selectedPOI.name}</h3>
-                    <span className="poi-popup-category">{t(`categories.${selectedPOI.category}`)}</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setSelectedPOI(null);
-                      (window as any).preventPoiClick = true;
-                      setTimeout(() => { (window as any).preventPoiClick = false; }, 500);
-                    }}
-                    className="poi-popup-close"
-                    aria-label="Cerrar"
-                  >✕</button>
-                </div>
-              </div>
-            </Popup>
-          )}
+               <div style={{ padding: '10px 16px' }}>
+                 {selectedPOI.address && (
+                   <div style={{
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '4px',
+                     fontSize: '11px',
+                     color: '#4b5563',
+                     marginBottom: '8px'
+                   }}>
+                     <span>📍</span>
+                     <span>{selectedPOI.address}</span>
+                   </div>
+                 )}
+
+                 {(selectedPOI as any).population && (
+                   <div style={{
+                     display: 'flex',
+                     alignItems: 'center',
+                     gap: '4px',
+                     fontSize: '11px',
+                     color: '#4b5563',
+                     marginBottom: '8px'
+                   }}>
+                     <span>👥</span>
+                     <span>{(selectedPOI as any).population} habitants</span>
+                   </div>
+                 )}
+
+                 <WikipediaInfo
+                   poiName={selectedPOI.name}
+                   wikipediaTag={selectedPOI.wikipedia}
+                   category={selectedPOI.category}
+                 />
+
+                 <div style={{
+                   display: 'flex',
+                   gap: '8px',
+                   marginTop: '12px',
+                   paddingTop: '10px',
+                   borderTop: '1px solid #e5e7eb'
+                 }}>
+                   <a
+                     href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPOI.lat},${selectedPOI.lng}`}
+                     target="_blank"
+                     rel="noreferrer"
+                     style={{
+                       flex: 1,
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '6px',
+                       background: '#16a34a',
+                       color: 'white',
+                       fontSize: '11px',
+                       padding: '8px 12px',
+                       borderRadius: '6px',
+                       textDecoration: 'none',
+                       fontWeight: 600,
+                     }}
+                   >
+                     <Navigation2 style={{ width: '12px', height: '12px' }} />
+                     <span>Navegar</span>
+                   </a>
+                   <button
+                     onClick={() => { addToRoute(selectedPOI); setSidebarTab('route'); setSidebarOpen(true); }}
+                     style={{
+                       flex: 1,
+                       background: '#059669',
+                       color: 'white',
+                       fontSize: '11px',
+                       padding: '8px 12px',
+                       borderRadius: '6px',
+                       border: 'none',
+                       cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '6px',
+                       fontWeight: 600,
+                     }}
+                   >
+                     <Plus style={{ width: '12px', height: '12px' }} />
+                     <span>Ruta</span>
+                   </button>
+                 </div>
+               </div>
+             </div>,
+             document.body
+           )}
 
         </MapContainer>
       </div>

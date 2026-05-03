@@ -1,198 +1,195 @@
+import RBush from 'rbush';
 import type { POI, Bounds, POICategory } from './types';
 
-type WorkerMessage = {
-  type: string;
-  payload?: any;
-};
+interface RBushItem {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  poi: POI;
+}
 
-class POISpatialIndex {
-  private worker: Worker | null = null;
-  private pendingPromises: Map<string, { resolve: (value: any) => void; reject: (error: any) => void }> = new Map();
-  private messageId = 0;
-  private readyPromise: Promise<void> | null = null;
-  private readyResolver: (() => void) | null = null;
-  private readyCallbacks: Array<() => void> = [];
-  private isReady = false;
+let tree: RBush<RBushItem> | null = null;
+let allPOIs: POI[] = [];
+let isReady = false;
+const readyCallbacks: Array<() => void> = [];
 
-  constructor() {
-    if (typeof window !== 'undefined' && 'Worker' in window) {
-      try {
-        this.worker = new Worker(new URL('./poiWorker.ts', import.meta.url), { type: 'module' });
-        this.worker.onmessage = this.handleWorkerMessage.bind(this);
-        this.worker.onerror = (error) => console.error('[POI Index] Error en worker:', error);
-      } catch (error) {
-        console.error('[POI Index] No se pudo inicializar el worker:', error);
+// ─── Helpers IndexedDB ──────────────────────────────────────────────
+
+const DB_NAME = 'explorawander-pois';
+const DB_VERSION = 1;
+const STORE_NAME = 'pois';
+
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        store.createIndex('regionId', 'regionId', { unique: false });
       }
-    }
-  }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
-  private handleWorkerMessage(event: MessageEvent) {
-    const { type, payload } = event.data;
-    const queryId = payload?.queryId;
+async function loadAllPOIs(): Promise<POI[]> {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result as POI[]);
+    request.onerror = () => reject(request.error);
+  });
+}
 
-    if (queryId && this.pendingPromises.has(queryId)) {
-      const promise = this.pendingPromises.get(queryId)!;
-      switch (type) {
-        case 'rebuildComplete':
-          this.isReady = true;
-          promise.resolve(payload);
-          // Resolver también la promesa de ready pendiente
-          if (this.readyResolver) {
-            this.readyResolver();
-            this.readyResolver = undefined;
-          }
-          // Notificar a los callbacks de onReady
-          this.notifyReady();
-          break;
-        case 'addComplete':
-        case 'removeComplete':
-          promise.resolve(payload);
-          break;
-        case 'queryResult':
-          promise.resolve(payload.pois);
-          break;
-        case 'error':
-          promise.reject(new Error(payload.error));
-          // También resolver ready promise en caso de error
-          if (this.readyResolver) {
-            this.readyResolver();
-            this.readyResolver = undefined;
-          }
-          break;
-      }
-      this.pendingPromises.delete(queryId);
-    } else if (type === 'rebuildComplete') {
-      this.isReady = true;
-      // Resolver la promesa de ready pendiente
-      if (this.readyResolver) {
-        this.readyResolver();
-        this.readyResolver = undefined;
-      }
-      // Notificar a los callbacks de onReady
-      this.notifyReady();
-    } else if (type === 'log') {
-      console.log(`[POI Worker] ${payload.message}`);
-    }
-  }
+function buildTree(pois: POI[]) {
+  tree = new RBush<RBushItem>(16);
+  const items: RBushItem[] = pois.map(poi => ({
+    minX: poi.lng,
+    minY: poi.lat,
+    maxX: poi.lng,
+    maxY: poi.lat,
+    poi,
+  }));
+  tree.load(items);
+  allPOIs = pois;
+  console.log(`[POI Index] Árbol construido con ${pois.length} POIs`);
+}
 
+// ─── Funciones de consulta síncrona ─────────────────────────────────
+
+function radiusKmForZoom(zoom: number): number {
+  if (zoom >= 14) return 2;
+  if (zoom >= 12) return 8;
+  if (zoom >= 10) return 20;
+  return 40;
+}
+
+function maxPOIsForZoom(zoom: number): number {
+  if (zoom >= 15) return 300;
+  if (zoom >= 13) return 150;
+  if (zoom >= 11) return 80;
+  return 50;
+}
+
+function distKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+             Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+             Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ─── API pública ─────────────────────────────────────────────────────
+
+export default {
   isReadyForQueries(): boolean {
-    return this.isReady;
-  }
+    return isReady;
+  },
 
   onReady(cb: () => void): void {
-    if (this.isReady) { cb(); return; }
-    this.readyCallbacks.push(cb);
-  }
-
-  private notifyReady(): void {
-    this.isReady = true;
-    this.readyCallbacks.forEach(cb => cb());
-    this.readyCallbacks = [];
-  }
-
-  async waitUntilReady(timeoutMs: number = 10000): Promise<void> {
-    if (this.isReady) return Promise.resolve();
-    if (this.readyPromise) return this.readyPromise;
-    
-    this.readyPromise = new Promise((resolve, reject) => {
-      this.readyResolver = resolve;
-      
-      // If it becomes ready while we're setting up, resolve immediately
-      if (this.isReady) {
-        this.readyResolver();
-        this.readyResolver = undefined;
-        return;
-      }
-      
-      // Timeout to prevent hanging forever
-      setTimeout(() => {
-        if (!this.isReady) {
-          console.warn('[POI Index] Timeout esperando a que el índice esté listo');
-          this.readyResolver = undefined;
-          this.readyPromise = null;
-          resolve(); // Resolve anyway to continue
-        }
-      }, timeoutMs);
-    });
-    
-    return this.readyPromise;
-  }
+    if (isReady) { cb(); return; }
+    readyCallbacks.push(cb);
+  },
 
   async rebuildFromIndexedDB(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      if (!this.worker) {
-        reject(new Error('Worker no disponible'));
-        return;
-      }
-      const id = String(this.messageId++);
-      console.log('[POI Index] Enviando rebuild con queryId:', id);
-      this.pendingPromises.set(id, { 
-        resolve: (v: any) => {
-          console.log('[POI Index] Rebuild completado, count:', v.count);
-          resolve(v.count);
-        }, 
-        reject 
-      });
-      this.worker.postMessage({ type: 'rebuild', payload: { queryId: id } });
-    });
-  }
+    const pois = await loadAllPOIs();
+    buildTree(pois);
+    isReady = true;
+    readyCallbacks.forEach(cb => cb());
+    readyCallbacks.length = 0;
+    return pois.length;
+  },
 
   async addPOIs(pois: POI[], regionId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.worker) {
-        reject(new Error('Worker no disponible'));
-        return;
-      }
-      const id = String(this.messageId++);
-      this.pendingPromises.set(id, { resolve, reject });
-      this.worker.postMessage({ type: 'addPOIs', payload: { pois, regionId, queryId: id } });
-    });
-  }
+    const poisWithRegion = pois.map(p => ({ ...p, regionId }));
+    allPOIs = [...allPOIs, ...poisWithRegion];
+    if (tree) {
+      const newItems: RBushItem[] = poisWithRegion.map(poi => ({
+        minX: poi.lng, minY: poi.lat, maxX: poi.lng, maxY: poi.lat, poi,
+      }));
+      tree.load(newItems);
+    } else {
+      buildTree(allPOIs);
+    }
+  },
 
   async removePOIsByRegion(regionId: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.worker) {
-        reject(new Error('Worker no disponible'));
-        return;
-      }
-      const id = String(this.messageId++);
-      this.pendingPromises.set(id, { resolve, reject });
-      this.worker.postMessage({ type: 'removeRegion', payload: { regionId, queryId: id } });
-    });
-  }
+    allPOIs = allPOIs.filter(poi => poi.regionId !== regionId);
+    buildTree(allPOIs);
+  },
 
-  async query(bounds: Bounds, options: {
+  query(bounds: Bounds, options: {
     categories?: POICategory[];
     showBestOnly?: boolean;
     zoom: number;
     maxResults?: number;
-  }): Promise<POI[]> {
-    return new Promise((resolve, reject) => {
-      if (!this.worker) {
-        reject(new Error('Worker no disponible'));
-        return;
-      }
-      const id = String(this.messageId++);
-      this.pendingPromises.set(id, { resolve, reject });
-      this.worker.postMessage({
-        type: 'query',
-        payload: {
-          bounds,
-          categories: options.categories,
-          showBestOnly: options.showBestOnly,
-          zoom: options.zoom,
-          maxResults: options.maxResults || 400,
-          queryId: id,
-        },
-      });
+  }): POI[] {
+    if (!tree) return [];
+
+    const { south, west, north, east } = bounds;
+    const zoom = options.zoom;
+
+    // 1. Consulta R-Tree por bbox
+    const raw = tree.search({ minX: west, minY: south, maxX: east, maxY: north });
+
+    // 2. Filtrar por categoría, importancia y radio
+    const maxRadius = radiusKmForZoom(zoom);
+    const centerLat = (south + north) / 2;
+    const centerLng = (west + east) / 2;
+
+    const importanceThreshold = zoom >= 15 ? 0
+      : zoom >= 13 ? 0.3
+      : zoom >= 11 ? 0.5
+      : zoom >= 9 ? 0.7
+      : 0.85;
+
+    const candidates: Array<{ poi: POI; dist: number }> = [];
+
+    for (const item of raw) {
+      const poi = item.poi;
+
+      if (options.categories && options.categories.length > 0 && !options.categories.includes(poi.category as POICategory)) continue;
+      if (options.showBestOnly && !poi.isBest) continue;
+      if ((poi.importance ?? 1) < importanceThreshold) continue;
+
+      const dist = distKm(centerLat, centerLng, poi.lat, poi.lng);
+      if (dist > maxRadius) continue;
+
+      candidates.push({ poi, dist });
+    }
+
+    // 3. Ordenar por importancia DESC, luego distancia ASC
+    candidates.sort((a, b) => {
+      const impDiff = (b.poi.importance ?? 1) - (a.poi.importance ?? 1);
+      return impDiff !== 0 ? impDiff : a.dist - b.dist;
+    });
+
+    const maxResults = options.maxResults || maxPOIsForZoom(zoom);
+    return candidates.slice(0, maxResults).map(c => c.poi);
+  },
+
+  waitUntilReady(timeoutMs: number = 10000): Promise<void> {
+    if (isReady) return Promise.resolve();
+    return new Promise((resolve) => {
+      const cb = () => {
+        readyCallbacks.splice(readyCallbacks.indexOf(cb), 1);
+        resolve();
+      };
+      readyCallbacks.push(cb);
+      setTimeout(() => {
+        const idx = readyCallbacks.indexOf(cb);
+        if (idx !== -1) {
+          readyCallbacks.splice(idx, 1);
+          resolve();
+        }
+      }, timeoutMs);
     });
   }
-
-  terminate() {
-    this.worker?.terminate();
-    this.worker = null;
-  }
-}
-
-const poiSpatialIndex = new POISpatialIndex();
-export default poiSpatialIndex;
+};
