@@ -2,8 +2,9 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { CATEGORY_CONFIG } from '@/lib/types';
-import type { POI, POICategory } from '@/lib/types';
+import type { POI, POICategory, Bounds } from '@/lib/types';
 import poiSpatialIndex from '@/lib/poiSpatialIndex';
+import { getPOIsInBounds as getPOIsFromDB } from '@/lib/poiManager';
 
 // ─── Cache de iconos ─────────────────────────────────────
 
@@ -13,6 +14,14 @@ interface CachedIcon {
 }
 
 const iconCache = new Map<string, CachedIcon>();
+
+// ─── Grid espacial para hit-test O(1) ────────────────────
+
+const CELL_PX = 48;
+
+interface GridCell {
+  pois: Array<{ poi: POI; x: number; y: number }>;
+}
 
 function buildIcon(category: POICategory, sizePx: number): CachedIcon {
   const key = `${category}:${sizePx}`;
@@ -59,6 +68,38 @@ function iconSizePx(zoom: number): number {
   return 26;  // Más grande para zoom bajo
 }
 
+// ─── Construir grid espacial para hit-test rápido ─────────
+
+function buildHitGrid(
+  pois: POI[],
+  map: L.Map,
+  canvasW: number,
+  canvasH: number,
+  paneOffset: L.Point,
+  hitGridRef: React.MutableRefObject<Map<string, GridCell>>,
+  gridColsRef: React.MutableRefObject<number>,
+  gridRowsRef: React.MutableRefObject<number>
+) {
+  const grid = new Map<string, GridCell>();
+  const cols = Math.ceil(canvasW / CELL_PX);
+  const rows = Math.ceil(canvasH / CELL_PX);
+  gridColsRef.current = cols;
+  gridRowsRef.current = rows;
+
+  for (const poi of pois) {
+    const lp = map.latLngToLayerPoint(L.latLng(poi.lat, poi.lng));
+    const x = lp.x - paneOffset.x;
+    const y = lp.y - paneOffset.y;
+    const col = Math.floor(x / CELL_PX);
+    const row = Math.floor(y / CELL_PX);
+    const key = `${col}:${row}`;
+    if (!grid.has(key)) grid.set(key, { pois: [] });
+    grid.get(key)!.pois.push({ poi, x, y });
+  }
+
+  hitGridRef.current = grid;
+}
+
 // ─── Props ──────────────────────────────────────────────
 
 interface Props {
@@ -88,83 +129,60 @@ export function CanvasPOILayer({
   // Usar variable global para que ExplorerMap pueda sincronizar
   const getPreventClick = () => (window as any).preventPoiClick || false;
 
-  // ── Función para verificar si un clic está sobre un POI ─────────
-
-  const findPOIAtPoint = useCallback(async (clientX: number, clientY: number): Promise<POI | null> => {
-    const canvas = canvasRef.current;
-    if (!canvas || poisRef.current.length === 0) return null;
-
-    const rect = canvas.getBoundingClientRect();
-    const clickX = clientX - rect.left;
-    const clickY = clientY - rect.top;
-    const zoom = map.getZoom();
-    const hitRadius = iconSizePx(zoom) / 2 + 4;
-    
-    // Convertir clic a coordenadas geográficas
-    const paneOffset = map.containerPointToLayerPoint([0, 0]);
-    const mapPoint = L.point(clickX + paneOffset.x, clickY + paneOffset.y);
-    const latLng = map.layerPointToLatLng(mapPoint);
-    
-    // Usar el índice espacial para búsqueda rápida
-    try {
-      const bounds = {
-        south: latLng.lat - 0.01,
-        north: latLng.lat + 0.01,
-        west: latLng.lng - 0.01,
-        east: latLng.lng + 0.01,
-      };
-      
-      const pois = await poiSpatialIndex.query(bounds, {
-        zoom,
-        maxResults: 20,
-      });
-      
-      // Verificar cuál está más cerca del clic
-      const nearby = pois
-        .map(poi => {
-          const lp = map.latLngToLayerPoint(L.latLng(poi.lat, poi.lng));
-          const x = lp.x - paneOffset.x;
-          const y = lp.y - paneOffset.y;
-          return { poi, dist: Math.hypot(x - clickX, y - clickY) };
-        })
-        .filter(({ dist }) => dist < hitRadius)
-        .sort((a, b) => a.dist - b.dist);
-      
-      return nearby.length > 0 ? nearby[0].poi : null;
-    } catch (err) {
-      console.error('Error en findPOIAtPoint:', err);
-      return null;
-    }
-  }, [map]);
+  // ── Grid espacial para hit-test rápido ─────────────────
+  const hitGridRef = useRef<Map<string, GridCell>>(new Map());
+  const gridColsRef = useRef(0);
+  const gridRowsRef = useRef(0);
 
   // ── drawPOIs ──────────────────────────────────────────────
 
   const drawPOIs = useCallback(async () => {
     if (!visible || !canvasRef.current) return;
 
-    if (!readyRef.current) {
-      // Si no está listo, reintentar en 500ms
-      console.log('[CanvasPOILayer] Esperando a que el índice esté listo...');
-      setTimeout(() => { if (visible) drawPOIs(); }, 500);
+    // Verificar que el mapa tenga dimensiones válidas
+    const mapSize = map.getSize();
+    if (mapSize.x === 0 || mapSize.y === 0) {
+      console.warn('[Canvas] Mapa sin dimensiones válidas, reintentando en 200ms...');
+      setTimeout(() => { if (visible) drawPOIs(); }, 200);
       return;
     }
 
     const leafletBounds = map.getBounds();
-    const bounds = {
-      south: leafletBounds.getSouth(),
-      west: leafletBounds.getWest(),
-      north: leafletBounds.getNorth(),
-      east: leafletBounds.getEast(),
+
+    // Si el mapa no tiene altura aún, reintentar
+    if (Math.abs(leafletBounds.getNorth() - leafletBounds.getSouth()) < 0.0001) {
+      console.warn('[Canvas] bbox inválido (south==north), reintentando en 200ms...');
+      setTimeout(() => { if (visible) drawPOIs(); }, 200);
+      return;
+    }
+
+    // Fix defensivo: garantizar south < north y west < east
+    const s = leafletBounds.getSouth();
+    const n = leafletBounds.getNorth();
+    const w = leafletBounds.getWest();
+    const e = leafletBounds.getEast();
+    const bounds: Bounds = {
+      south: Math.min(s, n),
+      north: Math.max(s, n),
+      west:  Math.min(w, e),
+      east:  Math.max(w, e),
     };
     const zoom = map.getZoom();
 
     try {
-      const pois = await poiSpatialIndex.query(bounds, {
-        categories: activeCategories,
-        showBestOnly,
-        zoom,
-        maxResults,
-      });
+      let pois: POI[] = [];
+
+      // Intentar usar el índice espacial si está listo, sino cargar desde IndexedDB
+      if (readyRef.current) {
+        pois = await poiSpatialIndex.query(bounds, {
+          categories: activeCategories,
+          showBestOnly,
+          zoom,
+        });
+      } else {
+        console.log('[CanvasPOILayer] Índice no listo, cargando desde IndexedDB...');
+        pois = await getPOIsFromDB(bounds, activeCategories, []);
+      }
 
       const filteredCamping = campingCarPOIs.filter(p =>
         p.lat >= bounds.south && p.lat <= bounds.north &&
@@ -179,7 +197,6 @@ export function CanvasPOILayer({
       if (!canvas) return;
       const ctx = canvas.getContext('2d')!;
 
-      const mapSize = map.getSize();
       if (canvas.width !== mapSize.x || canvas.height !== mapSize.y) {
         canvas.width = mapSize.x;
         canvas.height = mapSize.y;
@@ -198,6 +215,9 @@ export function CanvasPOILayer({
         const icon = buildIcon(poi.category as POICategory, sizePx);
         ctx.drawImage(icon.canvas, x - half, y - half, sizePx, sizePx);
       }
+
+      // Construir grid espacial para hit-test instantáneo
+      buildHitGrid(allPois, map, canvas.width, canvas.height, paneOffset, hitGridRef, gridColsRef, gridRowsRef);
     } catch (err) {
       console.error('Error dibujando POIs:', err);
     }
@@ -245,6 +265,9 @@ export function CanvasPOILayer({
       drawPOIs();
     });
 
+    // Dibujar inmediatamente sin esperar al índice espacial
+    setTimeout(() => drawPOIs(), 100);
+
     return () => {
       L.DomUtil.remove(canvas);
       canvasRef.current = null;
@@ -260,7 +283,7 @@ export function CanvasPOILayer({
   }, [readyRef.current, visible]);
 
   // ── Ocultar/mostrar canvas según visible ────────────────
-  
+   
   useEffect(() => {
     if (!canvasRef.current) return;
     canvasRef.current.style.display = visible ? 'block' : 'none';
@@ -269,13 +292,44 @@ export function CanvasPOILayer({
     }
   }, [visible]);
 
-  // ── Exponer findPOIAtPoint mediante una propiedad del canvas ──
+  // ── Hit-test con grid espacial (O(1) en lugar de O(n)) ───
 
-  useEffect(() => {
-    if (canvasRef.current) {
-      (canvasRef.current as any).findPOIAtPoint = findPOIAtPoint;
+  const handleCanvasClick = useCallback((e: L.LeafletMouseEvent) => {
+    if (getPreventClick()) return;
+    if (!onPoiClick) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const zoom = map.getZoom();
+    const hitR = iconSizePx(zoom) / 2 + 6;
+
+    const px = e.originalEvent.clientX - rect.left;
+    const py = e.originalEvent.clientY - rect.top;
+
+    const col = Math.floor(px / CELL_PX);
+    const row = Math.floor(py / CELL_PX);
+    const grid = hitGridRef.current;
+
+    let best: { poi: POI; dist: number } | null = null;
+
+    // Solo revisar celda tocada + 8 vecinas
+    for (let dc = -1; dc <= 1; dc++) {
+      for (let dr = -1; dr <= 1; dr++) {
+        const cell = grid.get(`${col + dc}:${row + dr}`);
+        if (!cell) continue;
+        for (const { poi, x, y } of cell.pois) {
+          const dist = Math.hypot(x - px, y - py);
+          if (dist < hitR && (!best || dist < best.dist)) {
+            best = { poi, dist };
+          }
+        }
+      }
     }
-  }, [findPOIAtPoint]);
+
+    if (best) onPoiClick(best.poi);
+  }, [map, onPoiClick]);
 
   // ── Debounce ──────────────────────────────────────────────
 
@@ -287,18 +341,7 @@ export function CanvasPOILayer({
   useMapEvents({
     moveend: debouncedDraw,
     zoomend: debouncedDraw,
-    click: (e) => {
-      // NO procesar clics si se acaba de cerrar el popup
-      if (getPreventClick()) return;
-      
-      // Detectar si se hizo clic en un POI
-      if (onPoiClick) {
-        const poi = findPOIAtPoint(e.originalEvent.clientX, e.originalEvent.clientY);
-        if (poi) {
-          onPoiClick(poi);
-        }
-      }
-    },
+    click: handleCanvasClick,
   });
 
   useEffect(() => {

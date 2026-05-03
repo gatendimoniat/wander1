@@ -69,6 +69,14 @@ function FixMapSize() {
       map.off('ready', handler);
     };
   }, [map]);
+
+  // Forzar recálculo después de montar
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+  }, [map]);
+
   return null;
 }
 
@@ -235,7 +243,7 @@ export default function ExplorerMap() {
   const [downloadedRegions, setDownloadedRegions] = useState<string[]>([]);
   const [totalPOICount, setTotalPOICount] = useState(0);
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
-  const [poisLoading, setPoisLoading] = useState(true); // Índice espacial cargando
+  const [poisLoading, setPoisLoading] = useState(false); // Índice espacial cargando
 
   // Limpiar selectedPOI cuando se mueva el mapa (el usuario quiere ver otra zona)
   // Esto se hace dentro del MapContainer mediante MapEvents component
@@ -306,11 +314,6 @@ export default function ExplorerMap() {
     loadCampingCarData(41.3874, 2.1686);
     // Initialize spatial index from IndexedDB (runs in Web Worker)
     poiSpatialIndex.rebuildFromIndexedDB().catch(err => console.error('Error inicializando índice:', err));
-    
-    // Cuando el índice esté listo, dejar de mostrar "Cargando..."
-    poiSpatialIndex.onReady(() => {
-      setPoisLoading(false);
-    });
 
     return () => {
       document.removeEventListener('mousedown', handleLayerClickOutside);
@@ -1394,13 +1397,13 @@ export default function ExplorerMap() {
         )}
       </div>
 
-      <div 
-        className="flex-1 relative"
+      <div
+        className="flex-1 relative min-h-0"
         onTouchStart={isMobile ? handleTouchStart : undefined}
         onTouchMove={isMobile ? handleTouchMove : undefined}
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
-        <MapContainer center={[41.3874, 2.1686]} zoom={13} className="h-full w-full" zoomControl={false}>
+        <MapContainer center={[41.3874, 2.1686]} zoom={13} className="absolute inset-0" zoomControl={false}>
           <FixMapSize />
           <TileLayer
             key={mapLayer}
@@ -1434,12 +1437,15 @@ export default function ExplorerMap() {
                 <div style={{ 
                   minWidth: isMobile ? 'calc(100vw - 40px)' : '320px', 
                   maxWidth: isMobile ? 'calc(100vw - 40px)' : '380px',
+                  maxHeight: isMobile ? 'calc(100vh - 120px)' : '500px',
                   width: isMobile ? 'calc(100vw - 40px)' : 'auto',
                   fontFamily: 'system-ui, -apple-system, sans-serif',
                   background: 'white',
                   borderRadius: '16px',
                   overflow: 'hidden',
-                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
+                  display: 'flex',
+                  flexDirection: 'column'
                 }}>
                   <div style={{ 
                     display: 'flex',
@@ -1545,7 +1551,7 @@ export default function ExplorerMap() {
                     )}
                   </div>
                   
-                  <div style={{ padding: '12px 16px 6px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ padding: '12px 16px 6px 16px', display: 'flex', flexDirection: 'column', gap: '8px', overflowY: 'auto', flex: 1 }}>
                     {poi.population && (
                       <div style={{ 
                         display: 'flex', 
@@ -1629,6 +1635,7 @@ export default function ExplorerMap() {
                       wikipediaTag={poi.tags?.wikipedia} 
                       wikidataTag={poi.tags?.wikidata}
                       category={poi.category}
+                      style={{ maxHeight: isMobile ? 'calc(100vh - 300px)' : '300px', overflowY: 'auto' }}
                     />
                     
                     <div style={{ 

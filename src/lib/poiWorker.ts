@@ -20,6 +20,32 @@ interface RBushItem {
   poi: POI;
 }
 
+// ─── Helper: distancia Haversine en km ──────────────────────────────────────
+function distKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 +
+             Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+             Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ─── POIs máximos por zoom ──────────────────────────────────────────────────
+function maxPOIsForZoom(zoom: number): number {
+  if (zoom >= 14) return 300;
+  if (zoom >= 12) return 150;
+  return 50;
+}
+
+// ─── Radio en km por zoom ───────────────────────────────────────────────────
+function radiusKmForZoom(zoom: number): number {
+  if (zoom >= 14) return 2;
+  if (zoom >= 12) return 8;
+  if (zoom >= 10) return 20;
+  return 40;
+}
+
 // ─── Estado del Worker ───────────────────────────────────────────────────────
 let tree: RBush<RBushItem> | null = null;
 let allPOIs: POI[] = [];
@@ -125,37 +151,67 @@ self.onmessage = async (event: MessageEvent) => {
 
     case 'query':
       try {
-        const { bounds, categories, showBestOnly, zoom, maxResults, queryId } = payload;
+        const { bounds, categories, showBestOnly, zoom, maxResults: maxResultsOverride, queryId } = payload;
         if (!tree) {
           self.postMessage({ type: 'queryResult', payload: { pois: [], queryId } });
           return;
         }
 
         const { south, west, north, east } = bounds;
-        const results = tree.search({ minX: west, minY: south, maxX: east, maxY: north });
-        let filtered = results.map(item => item.poi);
 
-        if (categories && categories.length > 0) {
-          filtered = filtered.filter((poi: POI) => categories.includes(poi.category));
-        }
+        // Validar y corregir bounds inválidos (south==north o west==east)
+        let s = south, w = west, n = north, e = east;
+        if (Math.abs(n - s) < 0.001) { s -= 0.01; n += 0.01; }
+        if (Math.abs(e - w) < 0.001) { w -= 0.01; e += 0.01; }
 
-        if (showBestOnly) {
-          filtered = filtered.filter((poi: POI) => poi.isBest);
-        }
+        // Centro del viewport
+        const centerLat = (s + n) / 2;
+        const centerLng = (w + e) / 2;
+        const maxRadius = radiusKmForZoom(zoom);
+        const maxResults = maxPOIsForZoom(zoom);
 
+        // Log temporal para debug (usar variables corregidas)
+        console.log(`[Worker] bounds: S${s.toFixed(4)} W${w.toFixed(4)} N${n.toFixed(4)} E${e.toFixed(4)}`);
+        console.log(`[Worker] center: ${centerLat.toFixed(4)},${centerLng.toFixed(4)} radio:${maxRadius}km`);
+
+        // 1. Consulta R-Tree por bbox (usar bounds corregidos)
+        const raw = tree.search({ minX: w, minY: s, maxX: e, maxY: n });
+
+        // 2. Filtrar por categoría, importancia y radio
         const importanceThreshold = zoom >= 15 ? 0
           : zoom >= 13 ? 0.3
           : zoom >= 11 ? 0.5
           : zoom >= 9 ? 0.7
           : 0.85;
-        filtered = filtered.filter((poi: POI) => (poi.importance ?? 1) >= importanceThreshold);
 
-        if (filtered.length > maxResults) {
-          filtered.sort((a: POI, b: POI) => (b.importance ?? 1) - (a.importance ?? 1));
-          filtered = filtered.slice(0, maxResults);
+        const candidates: Array<{ poi: POI; dist: number }> = [];
+
+        for (const item of raw) {
+          const poi = item.poi;
+
+          if (categories && categories.length > 0 && !categories.includes(poi.category)) continue;
+          if (showBestOnly && !poi.isBest) continue;
+          if ((poi.importance ?? 1) < importanceThreshold) continue;
+
+          // Filtro por radio
+          const dist = distKm(centerLat, centerLng, poi.lat, poi.lng);
+          if (dist > maxRadius) continue;
+
+          candidates.push({ poi, dist });
         }
 
-        self.postMessage({ type: 'queryResult', payload: { pois: filtered, queryId } });
+        // 3. Ordenar por importancia DESC, luego distancia ASC
+        candidates.sort((a, b) => {
+          const impDiff = (b.poi.importance ?? 1) - (a.poi.importance ?? 1);
+          return impDiff !== 0 ? impDiff : a.dist - b.dist;
+        });
+
+         const result = candidates.slice(0, maxResults).map(c => c.poi);
+
+         // Log temporal para verificar filtros
+         console.log(`[Worker] zoom:${zoom} radio:${maxRadius}km resultado:${result.length}/${candidates.length} candidatos`);
+
+         self.postMessage({ type: 'queryResult', payload: { pois: result, queryId } });
       } catch (error) {
         self.postMessage({ type: 'error', payload: { error: (error as Error).message, queryId: payload.queryId } });
       }
