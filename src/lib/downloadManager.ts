@@ -235,7 +235,7 @@ export interface DownloadProgress {
 export async function downloadRegionPOIs(
   region: RegionConfig,
   onProgress?: (progress: DownloadProgress) => void
-): Promise<{ success: boolean; poiCount: number }> {
+): Promise<{ success: boolean; poiCount: number; pois: POI[] }> {
   if (isRegionDownloaded(region.id)) {
     return { success: false, poiCount: 0 };
   }
@@ -278,7 +278,9 @@ export async function downloadRegionPOIs(
 
   onProgress?.({ status: 'saving', message: `Guardando ${pois.length} POIs...`, progress: 80, poiCount: pois.length });
 
+  console.log(`[Download] Antes de savePOIs: ${pois.length} POIs para región ${region.id}`);
   await savePOIs(pois, region.id);
+  console.log(`[Download] Después de savePOIs: completado`);
 
   addDownload({
     regionId: region.id,
@@ -290,7 +292,7 @@ export async function downloadRegionPOIs(
 
   onProgress?.({ status: 'complete', message: `${pois.length} POIs descargados para ${region.name}`, progress: 100, poiCount: pois.length });
 
-  return { success: true, poiCount: pois.length };
+  return { success: true, poiCount: pois.length, pois };
 }
 
 export async function downloadMultipleRegions(

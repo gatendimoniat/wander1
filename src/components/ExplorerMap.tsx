@@ -16,6 +16,8 @@ import { backgroundTrackService } from '@/lib/backgroundTrackService';
 import WikipediaInfo from './WikipediaInfo';
 import LanguageSelector from './LanguageSelector';
 import DownloadManager from './DownloadManager';
+import { CanvasPOILayer } from './CanvasPOILayer';
+import poiSpatialIndex from '@/lib/poiSpatialIndex';
 import { toast } from 'sonner';
 
 type MapLayer = 'standard' | 'satellite' | 'topo' | 'cycle';
@@ -232,6 +234,21 @@ export default function ExplorerMap() {
   const lastLoadedBoundsRef = useRef<Bounds | null>(null);
   const [downloadedRegions, setDownloadedRegions] = useState<string[]>([]);
   const [totalPOICount, setTotalPOICount] = useState(0);
+  const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
+  const [poisLoading, setPoisLoading] = useState(true); // Índice espacial cargando
+
+  // Limpiar selectedPOI cuando se mueva el mapa (el usuario quiere ver otra zona)
+  // Esto se hace dentro del MapContainer mediante MapEvents component
+  function MapEventsHandler() {
+    useMapEvents({
+      movestart: () => {
+        if (selectedPOI) {
+          setSelectedPOI(null);
+        }
+      },
+    });
+    return null;
+  }
 
   const haversine = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371;
@@ -287,6 +304,13 @@ export default function ExplorerMap() {
     loadDownloadedRegions();
     // Load initial region based on default map center
     loadCampingCarData(41.3874, 2.1686);
+    // Initialize spatial index from IndexedDB (runs in Web Worker)
+    poiSpatialIndex.rebuildFromIndexedDB().catch(err => console.error('Error inicializando índice:', err));
+    
+    // Cuando el índice esté listo, dejar de mostrar "Cargando..."
+    poiSpatialIndex.onReady(() => {
+      setPoisLoading(false);
+    });
 
     return () => {
       document.removeEventListener('mousedown', handleLayerClickOutside);
@@ -304,7 +328,7 @@ export default function ExplorerMap() {
     return 'east';
   };
 
-  const loadCampingCarData = async (lat?: number, lng?: number) => {
+  const loadCampingCarData = useCallback(async (lat?: number, lng?: number) => {
     const latToUse = lat ?? 41.3874;
     const lngToUse = lng ?? 2.1686;
     const region = getRegion(latToUse, lngToUse);
@@ -328,7 +352,7 @@ export default function ExplorerMap() {
     } catch (error) {
       console.error('Error loading camping-car POIs:', error);
     }
-  };
+  }, [currentRegion]);
 
   const loadDownloadedRegions = async () => {
     const regions = getDownloadedRegionIds();
@@ -1384,16 +1408,25 @@ export default function ExplorerMap() {
             url={MAP_LAYERS[mapLayer].url}
           />
           <MapEvents onBoundsChange={handleBoundsChange} />
+          <MapEventsHandler />
           {flyToCenter && <FlyTo center={flyToCenter} />}
           {fitBoundsTo && <FitBounds bounds={fitBoundsTo} />}
           <UserLocationMarker onLocationUpdate={setUserLocation} />
-           {userLocation && (
-            <Marker position={userLocation} icon={userLocationIcon}>
-              <Popup>
-                <div className="text-sm font-medium">Tu ubicación</div>
-              </Popup>
-            </Marker>
-          )}
+            {userLocation && (
+              <Marker position={userLocation} icon={userLocationIcon}>
+                <Popup>
+                  <div className="text-sm font-medium">Tu ubicación</div>
+                </Popup>
+              </Marker>
+            )}
+
+          <CanvasPOILayer
+            activeCategories={activeCategories}
+            showBestOnly={showBestOnly}
+            campingCarPOIs={campingCarPOIs}
+            onPoiClick={setSelectedPOI}
+            visible={showMarkers}
+          />
 
           {showMarkers && filteredPois.map((poi) => (
             <Marker key={poi.id} position={[poi.lat, poi.lng]} icon={createCategoryIcon(poi)}>
@@ -1808,7 +1841,41 @@ export default function ExplorerMap() {
                 </div>
               </Popup>
             </Marker>
-          ))}
+          )          )}
+
+          {selectedPOI && selectedPOI.category && (
+            <Popup
+              position={[selectedPOI.lat, selectedPOI.lng]}
+              onClose={() => {
+                setSelectedPOI(null);
+                (window as any).preventPoiClick = true;
+                setTimeout(() => { (window as any).preventPoiClick = false; }, 500);
+              }}
+              maxWidth={isMobile ? 280 : 380}
+              className={isMobile ? 'mobile-popup' : ''}
+              offset={[0, -40]}
+              autoPan={false}
+            >
+              <div className="poi-popup-container">
+                <div className="poi-popup-header">
+                  <span className="poi-popup-emoji">📍</span>
+                  <div className="poi-popup-info">
+                    <h3 className="poi-popup-title">{selectedPOI.name}</h3>
+                    <span className="poi-popup-category">{t(`categories.${selectedPOI.category}`)}</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedPOI(null);
+                      (window as any).preventPoiClick = true;
+                      setTimeout(() => { (window as any).preventPoiClick = false; }, 500);
+                    }}
+                    className="poi-popup-close"
+                    aria-label="Cerrar"
+                  >✕</button>
+                </div>
+              </div>
+            </Popup>
+          )}
 
         </MapContainer>
       </div>

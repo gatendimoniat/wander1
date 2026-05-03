@@ -6,6 +6,7 @@ import { ALL_REGIONS, SPAIN_REGIONS, PORTUGAL_REGIONS, FRANCE_REGIONS, RegionCon
 import { getDownloads, isRegionDownloaded, getDownloadStats, removeRegionDownloads, clearAllDownloads } from '@/lib/downloadRegistry';
 import { deletePOIsByRegion, clearAllPOIs } from '@/lib/poiManager';
 import { downloadRegionPOIs, DownloadProgress } from '@/lib/downloadManager';
+import poiSpatialIndex from '@/lib/poiSpatialIndex';
 
 interface DownloadManagerProps {
   onDownloadComplete?: () => void;
@@ -49,6 +50,10 @@ export default function DownloadManager({ onDownloadComplete }: DownloadManagerP
       if (result.success) {
         toast.success(`${result.poiCount} POIs descargados para ${region.name}`);
         refreshStats();
+        // Add POIs to spatial index
+        if (result.pois && result.pois.length > 0) {
+          await poiSpatialIndex.addPOIs(result.pois, region.id);
+        }
         onDownloadComplete?.();
       } else {
         toast.error(`Error descargando ${region.name}`);
@@ -63,11 +68,13 @@ export default function DownloadManager({ onDownloadComplete }: DownloadManagerP
 
   const handleDelete = async (regionId: string, regionName: string) => {
     if (!confirm(`Eliminar todos los POIs de ${regionName}?`)) return;
-
+    
     try {
       const count = await deletePOIsByRegion(regionId);
       removeRegionDownloads(regionId);
       refreshStats();
+      // Remove from spatial index
+      await poiSpatialIndex.removePOIsByRegion(regionId);
       toast.success(`${count} POIs eliminados de ${regionName}`);
       onDownloadComplete?.();
     } catch (error) {
@@ -77,11 +84,13 @@ export default function DownloadManager({ onDownloadComplete }: DownloadManagerP
 
   const handleDeleteAll = async () => {
     if (!confirm('Eliminar TODOS los POIs descargados? Esta acción no se puede deshacer.')) return;
-
+    
     try {
       const count = await clearAllPOIs();
       clearAllDownloads();
       refreshStats();
+      // Rebuild spatial index from scratch (will be empty)
+      await poiSpatialIndex.rebuildFromIndexedDB();
       toast.success(`${count} POIs eliminados`);
       onDownloadComplete?.();
     } catch (error) {
