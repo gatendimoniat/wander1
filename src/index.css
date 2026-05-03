@@ -100,3 +100,18 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.poi-tooltip-canvas {
+  background: rgba(15, 23, 42, 0.9);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 8px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.poi-tooltip-canvas::before {
+  border-top-color: rgba(15, 23, 42, 0.9);
+}
