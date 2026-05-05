@@ -907,31 +907,33 @@ export default function ExplorerMap() {
     toast.success('Track esborrat');
   };
 
-  const handleExportRoute = (route: SavedRoute, format: 'json' | 'gpx' = 'json') => {
+  const handleExportRoute = async (route: SavedRoute, format: 'json' | 'gpx' = 'json') => {
     const filename = route.name.replace(/\s+/g, '_').toLowerCase();
+    let path = '';
     if (format === 'gpx') {
-      downloadFile(exportRouteToGPX(route), `${filename}.gpx`, 'application/gpx+xml');
+      path = await downloadFile(exportRouteToGPX(route), `${filename}.gpx`, 'application/gpx+xml');
     } else {
-      downloadFile(exportRouteToJSON(route), `${filename}.json`, 'application/json');
+      path = await downloadFile(exportRouteToJSON(route), `${filename}.json`, 'application/json');
     }
-    toast.success('Ruta exportada');
+    toast.success(path ? `Ruta exportada a ${path}` : 'Ruta exportada');
   };
 
-  const handleExportTrack = (track: RecordedTrack, format: 'json' | 'gpx' = 'json') => {
+  const handleExportTrack = async (track: RecordedTrack, format: 'json' | 'gpx' = 'json') => {
     const filename = track.name.replace(/\s+/g, '_').toLowerCase();
+    let path = '';
     if (format === 'gpx') {
-      downloadFile(exportTrackToGPX(track), `${filename}.gpx`, 'application/gpx+xml');
+      path = await downloadFile(exportTrackToGPX(track), `${filename}.gpx`, 'application/gpx+xml');
     } else {
-      downloadFile(exportTrackToJSON(track), `${filename}.json`, 'application/json');
+      path = await downloadFile(exportTrackToJSON(track), `${filename}.json`, 'application/json');
     }
-    toast.success('Track exportat');
+    toast.success(path ? `Track exportat a ${path}` : 'Track exportat');
   };
 
   const handleExportAll = async () => {
     const routes = await getSavedRoutes();
     const tracks = await getSavedTracks();
-    downloadFile(exportAllToJSON(routes, tracks), 'exploramap_backup.json', 'application/json');
-    toast.success('Còpia de seguretat exportada');
+    const path = await downloadFile(exportAllToJSON(routes, tracks), 'exploramap_backup.json', 'application/json');
+    toast.success(path ? `Còpia de seguretat exportada a ${path}` : 'Còpia de seguretat exportada');
   };
 
   const handleImportFile = () => {
@@ -1071,8 +1073,8 @@ export default function ExplorerMap() {
   const handleExportAllFavorites = async () => {
     const favorites = await getSavedFavorites();
     const dataStr = JSON.stringify(favorites, null, 2);
-    downloadFile(dataStr, 'exploramap_favorites_backup.json', 'application/json');
-    toast.success('Còpia de favorits exportada');
+    const path = await downloadFile(dataStr, 'exploramap_favorites_backup.json', 'application/json');
+    toast.success(path ? `Còpia de favorits exportada a ${path}` : 'Còpia de favorits exportada');
   };
 
   const handleClearWaypointsFromMap = () => {
