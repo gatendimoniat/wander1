@@ -11,6 +11,7 @@
     "downloads": "Descargas",
     "route": "Ruta",
     "saved": "Guardado",
+    "favorites": "Favoritos",
     "track": "Track"
   },
   "categories": {
@@ -74,6 +75,19 @@
     "moderate": "Moderada",
     "hard": "Difícil",
     "expert": "Experta"
+  },
+  "favorites": {
+    "hint": "Gestiona tus lugares favoritos",
+    "save": "Guardar favoritos",
+    "namePlaceholder": "Nombre de los favoritos...",
+    "empty": "No hay favoritos guardados",
+    "waypointsCount": "waypoints",
+    "saveCurrent": "Guardar waypoints actuales",
+    "loadToMap": "Poner en mapa",
+    "confirmLoad": "Ya hay waypoints en el mapa. ¿Quieres limpiarlos y cargar estos favoritos?",
+    "confirmLoadTitle": "Confirmar carga",
+    "exportAll": "Exportar todo",
+    "import": "Importar"
   },
   "track": {
     "hint": "Graba un track GPS de tu recorrido",

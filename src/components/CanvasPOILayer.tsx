@@ -10,6 +10,7 @@ interface Props {
   showBestOnly?: boolean;
   visible?: boolean;
   campingCarPOIs?: POI[];
+  customRedPOIs?: POI[];
   onPoiClick?: (poi: POI) => void;
 }
 
@@ -25,6 +26,7 @@ export function CanvasPOILayer({
   showBestOnly = false,
   visible = true,
   campingCarPOIs = [],
+  customRedPOIs = [],
   onPoiClick,
 }: Props) {
   const map = useMap();
@@ -77,26 +79,34 @@ export function CanvasPOILayer({
     const t0 = performance.now();
 
     let pois: POI[] = [];
-    try {
-      console.log('[T0.8] llamando query...');
-      pois = poiSpatialIndex.query(bounds, {
-        categories: activeCategories,
-        showBestOnly,
-        zoom,
-      });
-      console.log(`[T1] query: ${(performance.now()-t0).toFixed(0)}ms, ${pois.length} POIs`);
-    } catch (err) {
-      console.error('[CanvasPOI] Error en query:', err);
-      pois = [];
+    if (activeCategories.length > 0 || showBestOnly) {
+      try {
+        console.log('[T0.8] llamando query...');
+        pois = poiSpatialIndex.query(bounds, {
+          categories: activeCategories,
+          showBestOnly,
+          zoom,
+        });
+        console.log(`[T1] query: ${(performance.now()-t0).toFixed(0)}ms, ${pois.length} POIs`);
+      } catch (err) {
+        console.error('[CanvasPOI] Error en query:', err);
+        pois = [];
+      }
     }
 
-    const extraPOIs = campingCarPOIs.filter(p =>
+    const extraPOIs = activeCategories.length > 0 ? campingCarPOIs.filter(p =>
       p.lat >= bounds.south && p.lat <= bounds.north &&
       p.lng >= bounds.west  && p.lng <= bounds.east &&
-      (activeCategories.length === 0 || activeCategories.includes(p.category as POICategory))
-    );
+      activeCategories.includes(p.category as POICategory)
+    ) : [];
 
-    const allPOIs  = [...pois, ...extraPOIs];
+    const customPOIs = activeCategories.length > 0 ? (customRedPOIs || []).filter(p =>
+      p.lat >= bounds.south && p.lat <= bounds.north &&
+      p.lng >= bounds.west  && p.lng <= bounds.east &&
+      activeCategories.includes(p.category as POICategory)
+    ) : [];
+
+    const allPOIs  = [...pois, ...extraPOIs, ...customPOIs];
     const radius   = circleRadius(zoom);
     const lg       = layerGroup.current;
     const prev     = markers.current;

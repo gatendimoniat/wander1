@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline } from 'react-leaflet';
+import * as waypointManager from '@/lib/waypointManager';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useTranslation } from 'react-i18next';
-import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map as MapIcon, Satellite, Crosshair, Share2, Download, Eye, EyeOff, HardDrive } from 'lucide-react';
+import { Search, Navigation, Route, Disc, Save, Trash2, List, X, ChevronLeft, ChevronRight, MapPin, Plus, Square, Layers, ExternalLink, Navigation2, Map as MapIcon, Satellite, Crosshair, Share2, Download, Eye, EyeOff, HardDrive, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CATEGORY_CONFIG } from '@/lib/types';
 import type { POI, POICategory, SavedRoute, RecordedTrack, TrackPoint, Bounds } from '@/lib/types';
-import { getSavedRoutes, getSavedTracks, saveRoute, deleteRoute, saveTrack, deleteTrack } from '@/lib/storage';
+import { getSavedRoutes, getSavedTracks, saveRoute, deleteRoute, saveTrack, deleteTrack, getSavedFavorites, saveFavorites, deleteFavorites } from '@/lib/storage';
 import { getPOIsInBounds, getPOICount, getDownloadedRegionsWithCounts } from '@/lib/poiManager';
 import { getDownloadedRegionIds, getDownloadStats } from '@/lib/downloadRegistry';
 import { exportRouteToGPX, exportRouteToJSON, exportTrackToGPX, exportTrackToJSON, exportAllToJSON, importTrackFromGPX, importRouteFromJSON, downloadFile } from '@/lib/exportImport';
@@ -125,6 +126,104 @@ function MapEvents({ onBoundsChange }: { onBoundsChange: (bounds: Bounds, zoom: 
   return null;
 }
 
+function LongPressHandler({ onLongPress }: { onLongPress: (latlng: [number, number]) => void }) {
+  const map = useMap();
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout | null = null;
+    let startPos: { x: number; y: number } | null = null;
+    const LONG_PRESS_DURATION = 600;
+    const MOVE_THRESHOLD = 15;
+
+    const getLatLngFromPoint = (x: number, y: number) => {
+      const containerRect = map.getContainer().getBoundingClientRect();
+      const point = L.point(x - containerRect.left, y - containerRect.top);
+      return map.containerPointToLatLng(point);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      const touch = e.touches[0];
+      startPos = { x: touch.clientX, y: touch.clientY };
+
+      timeout = setTimeout(() => {
+        if (!startPos) return;
+        const latlng = getLatLngFromPoint(startPos.x, startPos.y);
+        onLongPress([latlng.lat, latlng.lng]);
+        startPos = null;
+      }, LONG_PRESS_DURATION);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!startPos || !timeout) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - startPos.x;
+      const dy = touch.clientY - startPos.y;
+      if (Math.sqrt(dx * dx + dy * dy) > MOVE_THRESHOLD) {
+        clearTimeout(timeout);
+        timeout = null;
+        startPos = null;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (timeout) { clearTimeout(timeout); timeout = null; }
+      startPos = null;
+    };
+
+    let mouseDownPos: { x: number; y: number } | null = null;
+    
+    const handleMouseDown = (e: MouseEvent) => {
+      mouseDownPos = { x: e.clientX, y: e.clientY };
+      timeout = setTimeout(() => {
+        if (!mouseDownPos) return;
+        const latlng = getLatLngFromPoint(mouseDownPos.x, mouseDownPos.y);
+        onLongPress([latlng.lat, latlng.lng]);
+        mouseDownPos = null;
+      }, LONG_PRESS_DURATION);
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!mouseDownPos || !timeout) return;
+      const dx = e.clientX - mouseDownPos.x;
+      const dy = e.clientY - mouseDownPos.y;
+      if (Math.sqrt(dx * dx + dy * dy) > MOVE_THRESHOLD) {
+        clearTimeout(timeout);
+        timeout = null;
+        mouseDownPos = null;
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (timeout) { clearTimeout(timeout); timeout = null; }
+      mouseDownPos = null;
+    };
+
+    const container = map.getContainer();
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+    container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    
+    container.addEventListener('mousedown', handleMouseDown);
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+      container.removeEventListener('touchcancel', handleTouchEnd);
+      container.removeEventListener('mousedown', handleMouseDown);
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [map, onLongPress]);
+
+  return null;
+}
+
 function FlyTo({ center }: { center: [number, number] }) {
   const map = useMap();
   useEffect(() => {
@@ -184,12 +283,11 @@ export default function ExplorerMap() {
   const isMobile = useIsMobile();
   const [allPois, setAllPois] = useState<POI[]>([]);
   const [campingCarPOIs, setCampingCarPOIs] = useState<POI[]>([]);
+  const [customRedPOIs, setCustomRedPOIs] = useState<POI[]>([]);
   const [currentRegion, setCurrentRegion] = useState<string | null>(null);
-  const [activeCategories, setActiveCategories] = useState<POICategory[]>([
-    'cc_as', 'cc_asn', 'cc_aa', 'cc_ac', 'cc_acf', 'cc_acs', 'cc_apcc', 'cc_apn'
-  ]);
+  const [activeCategories, setActiveCategories] = useState<POICategory[]>([]);
   const [showBestOnly, setShowBestOnly] = useState(false);
-  const [showMarkers, setShowMarkers] = useState(true);
+  const [showMarkers, setShowMarkers] = useState(false);
   const [categoriesMinimized, setCategoriesMinimized] = useState(false);
   const [filtersMinimized, setFiltersMinimized] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -197,6 +295,8 @@ export default function ExplorerMap() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [flyToCenter, setFlyToCenter] = useState<[number, number] | null>(null);
   const [loading, setLoading] = useState(false);
+  const [waypoints, setWaypoints] = useState<waypointManager.Waypoint[]>(() => waypointManager.getWaypoints());
+  const [showWaypoints, setShowWaypoints] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
   const touchStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const touchMoveRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -219,7 +319,7 @@ export default function ExplorerMap() {
       setSidebarOpen(true);
     }
   };
-  const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'track' | 'downloads'>('categories');
+  const [sidebarTab, setSidebarTab] = useState<'categories' | 'route' | 'saved' | 'favorites' | 'track' | 'downloads'>('categories');
   const [mapLayer, setMapLayer] = useState<MapLayer>('standard');
   const [layerMenuOpen, setLayerMenuOpen] = useState(false);
   const layerMenuRef = useRef<HTMLDivElement>(null);
@@ -238,13 +338,15 @@ export default function ExplorerMap() {
   // Limpiar selectedPOI cuando se mueva el mapa (el usuario quiere ver otra zona)
   // Esto se hace dentro del MapContainer mediante MapEvents component
   function MapEventsHandler() {
-    useMapEvents({
-      movestart: () => {
-        if (selectedPOI) {
-          setSelectedPOI(null);
-        }
-      },
-    });
+    const map = useMap();
+    
+     useMapEvents({
+       movestart: () => {
+         if (selectedPOI) {
+           setSelectedPOI(null);
+         }
+       },
+     });
     return null;
   }
 
@@ -346,7 +448,43 @@ export default function ExplorerMap() {
       console.error('Error loading camping-car POIs:', error);
     }
   }, [currentRegion]);
-
+  
+  const loadCustomRedPOIs = useCallback(async () => {
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}custom_red.json`);
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.features.map((feature: any) => ({
+          id: feature.properties.id,
+          name: feature.properties.name,
+          lat: feature.geometry.coordinates[1],
+          lng: feature.geometry.coordinates[0],
+          category: feature.properties.category as POICategory,
+          importance: 200,
+          rating: undefined,
+          reviews: undefined,
+          address: undefined,
+          phone: undefined,
+          website: undefined,
+          openingHours: undefined,
+          wikipedia: feature.properties.wikipedia,
+          wheelchair: undefined,
+          fee: undefined,
+          isBest: undefined,
+          population: undefined,
+          types: [],
+          heritage: undefined,
+          description: feature.properties.description,
+          imageUrl: feature.properties.imageUrl,
+        }));
+        setCustomRedPOIs(mapped);
+        console.log(`Loaded ${mapped.length} red POIs`);
+      }
+    } catch (error) {
+      console.error('Error loading custom red POIs:', error);
+    }
+  }, []);
+  
   const loadDownloadedRegions = async () => {
     const regions = getDownloadedRegionIds();
     setDownloadedRegions(regions);
@@ -356,12 +494,14 @@ export default function ExplorerMap() {
 
   const refreshData = async () => {
     try {
-      const [routes, tracks] = await Promise.all([
+      const [routes, tracks, favorites] = await Promise.all([
         getSavedRoutes(),
-        getSavedTracks()
+        getSavedTracks(),
+        getSavedFavorites()
       ]);
       setSavedRoutes(routes);
       setSavedTracks(tracks);
+      setSavedFavorites(favorites);
     } catch (error) {
       console.error('Failed to refresh data:', error);
     }
@@ -369,7 +509,8 @@ export default function ExplorerMap() {
 
   useEffect(() => {
     refreshData();
-  }, []);
+    loadCustomRedPOIs();
+  }, [loadCustomRedPOIs]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -413,6 +554,9 @@ export default function ExplorerMap() {
   const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([]);
   const [savedTracks, setSavedTracks] = useState<RecordedTrack[]>([]);
   const [trackName, setTrackName] = useState('');
+  const [savedFavorites, setSavedFavorites] = useState<SavedFavorites[]>([]);
+  const [favoritesName, setFavoritesName] = useState('');
+  const favoritesInputRef = useRef<HTMLInputElement>(null);
   const watchIdRef = useRef<number | null>(null);
   const recordingTrackRef = useRef<TrackPoint[]>([]);
   const lastRecordedTimeRef = useRef<number>(0);
@@ -454,13 +598,18 @@ export default function ExplorerMap() {
 
   const filteredPois = useMemo(() => {
     if (allPois.length === 0) return [];
+    if (activeCategories.length === 0 && !showBestOnly) return [];
     
     let filtered: POI[] = [...allPois].sort((a, b) => (b.importance || 0) - (a.importance || 0));
 
-    const isCategoryFiltering = activeCategories.length > 0;
     const zoom = currentZoomRef.current;
     
-    if (!isCategoryFiltering) {
+    if (activeCategories.length > 0) {
+      filtered = filtered.filter(poi => activeCategories.includes(poi.category));
+      if (zoom < 12) {
+        filtered = filtered.filter(poi => (poi.importance || 0) > 20);
+      }
+    } else {
       if (zoom < 10) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 150);
       } 
@@ -470,11 +619,6 @@ export default function ExplorerMap() {
       else if (zoom < 14) {
         filtered = filtered.filter(poi => (poi.importance || 0) > 30);
       }
-    } else {
-      if (zoom < 12) {
-        filtered = filtered.filter(poi => (poi.importance || 0) > 20);
-      }
-      filtered = filtered.filter(poi => activeCategories.includes(poi.category));
     }
 
     const maxPois = zoom >= 15 ? 500 : zoom >= 13 ? 300 : zoom >= 11 ? 150 : 80;
@@ -563,6 +707,17 @@ export default function ExplorerMap() {
 
   const removeFromRoute = (id: string) => {
     setRoutePoints((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleLongPress = (latlng: [number, number]) => {
+    const newWaypoint = waypointManager.addWaypoint({
+      name: `Waypoint ${waypoints.length + 1}`,
+      lat: latlng[0],
+      lng: latlng[1],
+      description: '',
+    });
+    setWaypoints(waypointManager.getWaypoints());
+    console.log('Waypoint creado:', newWaypoint.name);
   };
 
   const handleSaveRoute = async () => {
@@ -833,6 +988,138 @@ export default function ExplorerMap() {
     }
   };
 
+  const generateUUID = () => {
+    if (crypto && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  };
+
+  const handleSaveFavorites = async () => {
+    const currentWaypoints = waypointManager.getWaypoints();
+    console.log('SAVE FAVORITES - current waypoints:', currentWaypoints.length, 'name:', favoritesName);
+    
+    if (currentWaypoints.length === 0) {
+      toast.error('No hay waypoints en el mapa');
+      return;
+    }
+    const name = favoritesName.trim();
+    if (!name) {
+      toast.error('Pon un nombre a los favoritos');
+      return;
+    }
+    try {
+      const newFavorites: SavedFavorites = {
+        id: generateUUID(),
+        name: name,
+        waypoints: currentWaypoints.map(w => ({
+          id: w.id || `wp_${Date.now()}_${Math.random()}`,
+          name: w.name || 'Sin nombre',
+          lat: w.lat,
+          lng: w.lng,
+          description: w.description || '',
+        })),
+        createdAt: new Date().toISOString(),
+      };
+      console.log('Saving favorites:', JSON.stringify(newFavorites).substring(0, 200));
+      await saveFavorites(newFavorites);
+      console.log('Saved OK, refreshing...');
+      const updated = await getSavedFavorites();
+      console.log('Saved favorites count:', updated.length);
+      setSavedFavorites(updated);
+      setFavoritesName('');
+      setWaypoints(waypointManager.getWaypoints());
+      toast.success('Favoritos guardados!', {
+        description: `${name} - ${currentWaypoints.length} waypoints`,
+      });
+      console.log('COMPLETE!');
+    } catch (err) {
+      console.error('Error saving favorites:', err);
+      toast.error('Error al guardar: ' + String(err));
+    }
+  };
+
+  const handleDeleteFavorites = async (id: string) => {
+    await deleteFavorites(id);
+    await refreshData();
+    toast.success('Favoritos esborrats');
+  };
+
+  const handleLoadFavoritesToMap = async (fav: SavedFavorites) => {
+    if (waypoints.length > 0) {
+      const confirmed = window.confirm(t('favorites.confirmLoad') || 'Ya hay waypoints en el mapa. ¿Quieres limpiarlos y cargar estos favoritos?');
+      if (!confirmed) return;
+    }
+    waypointManager.clearAllWaypoints();
+    fav.waypoints.forEach(w => {
+      waypointManager.addWaypoint({
+        name: w.name,
+        lat: w.lat,
+        lng: w.lng,
+        description: w.description || '',
+      });
+    });
+    setWaypoints(waypointManager.getWaypoints());
+    setSidebarTab('favorites');
+    toast.success('Favoritos cargados en el mapa');
+  };
+
+  const handleExportAllFavorites = async () => {
+    const favorites = await getSavedFavorites();
+    const dataStr = JSON.stringify(favorites, null, 2);
+    downloadFile(dataStr, 'exploramap_favorites_backup.json', 'application/json');
+    toast.success('Còpia de favorits exportada');
+  };
+
+  const handleClearWaypointsFromMap = () => {
+    if (waypoints.length === 0) {
+      toast.info('No hay waypoints en el mapa');
+      return;
+    }
+    waypointManager.clearAllWaypoints();
+    setWaypoints([]);
+    toast.success('Waypoints eliminados del mapa');
+  };
+
+  const handleImportFavorites = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const text = e.target?.result as string;
+        try {
+          const data = JSON.parse(text);
+          const favorites = Array.isArray(data) ? data : [data];
+          for (const fav of favorites) {
+            if (fav.waypoints && Array.isArray(fav.waypoints)) {
+              await saveFavorites({
+                id: fav.id || crypto.randomUUID(),
+                name: fav.name || 'Imported Favorites',
+                waypoints: fav.waypoints,
+                createdAt: fav.createdAt || new Date().toISOString(),
+              });
+            }
+          }
+          await refreshData();
+          toast.success('Favoritos importats');
+        } catch (err) {
+          toast.error('Error en importar fitxer');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
   return (
     <div className="h-screen w-screen flex overflow-hidden">
       {isMobile && sidebarOpen && (
@@ -975,6 +1262,7 @@ export default function ExplorerMap() {
               { key: 'downloads', icon: Download, label: 'downloads' },
               { key: 'route', icon: Route, label: 'route' },
               { key: 'saved', icon: Save, label: 'saved' },
+              { key: 'favorites', icon: Star, label: 'favorites' },
               { key: 'track', icon: Navigation, label: 'track' },
             ] as const).map(({ key, icon: Icon, label }) => (
               <button
@@ -1210,6 +1498,100 @@ export default function ExplorerMap() {
               </div>
             )}
 
+            {sidebarTab === 'favorites' && (
+              <div className="flex flex-col space-y-3 h-full overflow-hidden">
+                <p className="text-xs text-sidebar-foreground/50 shrink-0">{t('favorites.hint')}</p>
+                
+                <div className="flex gap-2 shrink-0 flex-wrap">
+                  <button
+                    onClick={handleImportFavorites}
+                    className="flex-1 min-w-[80px] bg-sidebar-accent text-sidebar-foreground text-xs py-2 px-3 rounded-lg hover:bg-sidebar-accent/80 transition flex items-center justify-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" style={{ transform: 'rotate(180deg)' }} />
+                    {t('favorites.import')}
+                  </button>
+                  <button
+                    onClick={handleExportAllFavorites}
+                    className="flex-1 min-w-[80px] bg-sidebar-accent text-sidebar-foreground text-xs py-2 px-3 rounded-lg hover:bg-sidebar-accent/80 transition flex items-center justify-center gap-1.5"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    {t('favorites.exportAll')}
+                  </button>
+                  <button
+                    onClick={handleClearWaypointsFromMap}
+                    className="flex-1 min-w-[80px] bg-red-500/20 text-red-400 text-xs py-2 px-3 rounded-lg hover:bg-red-500/30 transition flex items-center justify-center gap-1.5"
+                    title="Limpiar todos los waypoints del mapa"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Limpiar
+                  </button>
+                </div>
+
+                <div className="shrink-0 bg-yellow-500/10 p-3 rounded-lg border border-yellow-500/30">
+                  <p className="text-xs text-sidebar-foreground/70 font-medium mb-2">{t('favorites.saveCurrent')} ({waypoints.length} waypoints)</p>
+                  <input
+                    ref={(el) => { (window as any).__favInput = el; }}
+                    className="w-full bg-sidebar-accent text-sidebar-foreground text-sm rounded-lg px-3 py-2 placeholder:text-sidebar-foreground/40 outline-none mb-2"
+                    placeholder={t('favorites.namePlaceholder')}
+                    value={favoritesName}
+                    onChange={(e) => setFavoritesName(e.target.value)}
+                  />
+                  <div
+                    onClick={() => {
+                      console.log('DIV CLICK - wp:', waypoints.length, 'name:', favoritesName);
+                      handleSaveFavorites();
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      console.log('DIV TOUCH END - wp:', waypoints.length, 'name:', favoritesName);
+                      handleSaveFavorites();
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="w-full bg-yellow-500 text-white py-3 rounded-lg text-sm font-medium hover:bg-yellow-600 active:bg-yellow-700 transition flex items-center justify-center gap-2 cursor-pointer touch-manipulation select-none"
+                    style={{ minHeight: '44px', WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <Star className="w-4 h-4" />
+                    {t('favorites.save')} ({waypoints.length} {t('favorites.waypointsCount')})
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto scrollbar-hide space-y-2 pr-1 min-h-0">
+                  {savedFavorites.map((fav) => (
+                    <div key={fav.id} className="bg-sidebar-accent p-3 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium truncate flex-1 mr-2">{fav.name}</span>
+                        <div className="flex gap-1">
+                          <button onClick={() => handleLoadFavoritesToMap(fav)} className="text-green-500 hover:opacity-70 p-1" title={t('favorites.loadToMap')}>
+                            <MapIcon className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => handleDeleteFavorites(fav.id)} className="text-destructive hover:opacity-70 p-1">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-sidebar-foreground/50">{fav.waypoints.length} {t('favorites.waypointsCount')} · {new Date(fav.createdAt).toLocaleDateString(i18n.language)}</p>
+                      <div className="mt-2 space-y-1">
+                        {fav.waypoints.slice(0, 3).map((w, i) => (
+                          <p key={w.id} className="text-xs text-sidebar-foreground/60 truncate">{i + 1}. {w.name}</p>
+                        ))}
+                        {fav.waypoints.length > 3 && (
+                          <p className="text-xs text-sidebar-foreground/40">+ {fav.waypoints.length - 3} més...</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {savedFavorites.length === 0 && waypoints.length === 0 && (
+                    <div className="text-center py-8 text-sidebar-foreground/30">
+                      <Star className="w-8 h-8 mx-auto mb-2" />
+                      <p className="text-xs">{t('favorites.empty')}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {sidebarTab === 'track' && (
               <div className="space-y-3">
                 <p className="text-xs text-sidebar-foreground/50">{t('track.hint')}</p>
@@ -1386,6 +1768,7 @@ export default function ExplorerMap() {
           />
           <MapEvents onBoundsChange={handleBoundsChange} />
           <MapEventsHandler />
+          <LongPressHandler onLongPress={handleLongPress} />
           {flyToCenter && <FlyTo center={flyToCenter} />}
           {fitBoundsTo && <FitBounds bounds={fitBoundsTo} />}
           <UserLocationMarker onLocationUpdate={setUserLocation} />
@@ -1401,6 +1784,7 @@ export default function ExplorerMap() {
             activeCategories={activeCategories}
             showBestOnly={showBestOnly}
             campingCarPOIs={campingCarPOIs}
+            customRedPOIs={customRedPOIs}
             onPoiClick={setSelectedPOI}
             visible={showMarkers}
           />
@@ -1430,6 +1814,92 @@ export default function ExplorerMap() {
             <Marker key={`waypoint-${p.id}`} position={[p.lat, p.lng]}>
               <Popup>
                 <div className="text-xs font-medium">{i + 1}. {p.name}</div>
+              </Popup>
+            </Marker>
+          ))}
+          
+          {showWaypoints && waypoints.map(w => (
+            <Marker
+              key={w.id}
+              position={[w.lat, w.lng]}
+              icon={L.divIcon({
+                className: 'waypoint-marker',
+                html: `<div style="font-size: 24px; text-align: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer;">⭐</div>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+              })}
+            >
+              <Popup>
+                <div style={{ minWidth: '200px' }}>
+                  <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 700 }}>{w.name}</h3>
+                  {w.description && (
+                    <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#666', fontStyle: 'italic' }}>{w.description}</p>
+                  )}
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${w.lat},${w.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        background: '#3b82f6',
+                        color: 'white',
+                        fontSize: '11px',
+                        padding: '4px 8px',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        fontWeight: 600,
+                      }}
+                    >
+                      📍 Navegar
+                    </a>
+                    <button
+                      onClick={() => {
+                        addToRoute({ id: w.id, name: w.name, lat: w.lat, lng: w.lng, category: 'custom_red' as any });
+                        setSidebarTab('route');
+                        setSidebarOpen(true);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '4px 8px',
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      ➕ Ruta
+                    </button>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                    <button
+                      onClick={() => {
+                        waypointManager.deleteWaypoint(w.id);
+                        setWaypoints(waypointManager.getWaypoints());
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '4px 8px',
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                      }}
+                    >
+                      🗑️ Eliminar
+                    </button>
+                  </div>
+                </div>
               </Popup>
             </Marker>
           ))}
@@ -1536,43 +2006,99 @@ export default function ExplorerMap() {
                    </div>
                  )}
 
-                 <WikipediaInfo
-                   poiName={selectedPOI.name}
-                   wikipediaTag={selectedPOI.wikipedia}
-                   category={selectedPOI.category}
-                 />
+                   <WikipediaInfo
+                      poiName={selectedPOI.name}
+                      wikipediaTag={selectedPOI.wikipedia}
+                      description={selectedPOI.description}
+                      category={selectedPOI.category}
+                    />
 
-                 <div style={{
-                   display: 'flex',
-                   gap: '8px',
-                   marginTop: '12px',
-                   paddingTop: '10px',
-                   borderTop: '1px solid #e5e7eb'
-                 }}>
-                   <a
-                     href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPOI.lat},${selectedPOI.lng}`}
-                     target="_blank"
-                     rel="noreferrer"
-                     style={{
-                       flex: 1,
-                       display: 'flex',
-                       alignItems: 'center',
-                       justifyContent: 'center',
-                       gap: '6px',
-                       background: '#16a34a',
-                       color: 'white',
-                       fontSize: '11px',
-                       padding: '8px 12px',
-                       borderRadius: '6px',
-                       textDecoration: 'none',
-                       fontWeight: 600,
-                     }}
-                   >
-                     <Navigation2 style={{ width: '12px', height: '12px' }} />
-                     <span>Navegar</span>
-                   </a>
-                   <button
-                     onClick={() => { addToRoute(selectedPOI); setSidebarTab('route'); setSidebarOpen(true); }}
+                  {selectedPOI.description && !selectedPOI.wikipedia && (
+                    <div style={{
+                      marginTop: '10px',
+                      padding: '10px',
+                      background: '#f9fafb',
+                      borderRadius: '8px',
+                      border: '1px solid #e5e7eb'
+                    }}>
+                      <p style={{ 
+                        fontSize: '11px', 
+                        color: '#4b5563', 
+                        lineHeight: '1.5', 
+                        margin: '0',
+                        fontStyle: 'italic'
+                      }}>
+                        {selectedPOI.description}
+                      </p>
+                    </div>
+                  )}
+
+                   <div style={{
+                    display: 'flex',
+                    gap: '8px',
+                    marginTop: '12px',
+                    paddingTop: '10px',
+                    borderTop: '1px solid #e5e7eb'
+                  }}>
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPOI.lat},${selectedPOI.lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        background: '#16a34a',
+                        color: 'white',
+                        fontSize: '11px',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        textDecoration: 'none',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Navigation2 style={{ width: '12px', height: '12px' }} />
+                      <span>Navegar</span>
+                    </a>
+                    <button
+                      onClick={() => {
+                        const result = waypointManager.toggleFavorite({
+                          id: selectedPOI.id,
+                          name: selectedPOI.name,
+                          lat: selectedPOI.lat,
+                          lng: selectedPOI.lng,
+                          description: selectedPOI.description,
+                        });
+                        setWaypoints(waypointManager.getWaypoints());
+                        if (result.action === 'removed') {
+                          console.log('Favorito eliminado');
+                        } else {
+                          console.log('Favorito añadido');
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        background: waypointManager.getWaypointByPoiId(selectedPOI.id) ? '#fbbf24' : '#e5e7eb',
+                        color: waypointManager.getWaypointByPoiId(selectedPOI.id) ? 'white' : '#374151',
+                        fontSize: '11px',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Star style={{ width: '12px', height: '12px' }} />
+                      <span>{waypointManager.getWaypointByPoiId(selectedPOI.id) ? 'Favorito' : 'Favorito'}</span>
+                    </button>
+                    <button
+                      onClick={() => { addToRoute(selectedPOI); setSidebarTab('route'); setSidebarOpen(true); }}
                      style={{
                        flex: 1,
                        background: '#059669',
@@ -1594,9 +2120,11 @@ export default function ExplorerMap() {
                    </button>
                  </div>
                </div>
-             </div>,
-             document.body
-           )}
+              </div>,
+              document.body
+            )}
+
+        {/* Waypoint Panel desactivado */}
 
         </MapContainer>
       </div>
@@ -1668,24 +2196,31 @@ export default function ExplorerMap() {
               >
                 <span className="text-lg">🏆</span>
               </button>
-              {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(10).map(([key, config]) => {
-                const isActive = activeCategories.includes(key);
-                return (
-                  <button
-                    key={key}
-                    onClick={() => toggleCategory(key)}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
-                    style={{ backgroundColor: config.color }}
-                    title={t(`categories.${key}`)}
-                  >
-                    <span className="text-lg">{config.emoji}</span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </>
-      )}
+               {(Object.entries(CATEGORY_CONFIG) as [POICategory, typeof CATEGORY_CONFIG[POICategory]][]).slice(10).map(([key, config]) => {
+                 const isActive = activeCategories.includes(key);
+                 return (
+                   <button
+                     key={key}
+                     onClick={() => toggleCategory(key)}
+                     className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${isActive ? 'ring-4 ring-white scale-110' : 'opacity-60 hover:opacity-100 hover:scale-105'}`}
+                     style={{ backgroundColor: config.color }}
+                     title={t(`categories.${key}`)}
+                   >
+                     <span className="text-lg">{config.emoji}</span>
+                   </button>
+                 );
+               })}
+               <button
+                onClick={() => setShowWaypoints(!showWaypoints)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-lg shrink-0 ${waypoints.length > 0 && showWaypoints ? 'ring-4 ring-yellow-400 scale-110 bg-gradient-to-br from-yellow-400 to-amber-500' : 'opacity-60 hover:opacity-100 hover:scale-105 bg-gradient-to-br from-yellow-300 to-yellow-500'}`}
+                title={showWaypoints ? 'Ocultar waypoints' : 'Mostrar waypoints'}
+               >
+                 <span className="text-lg">⭐</span>
+               </button>
+             </div>
+           )}
+         </>
+       )}
     </div>
   );
 }

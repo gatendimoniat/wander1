@@ -1,7 +1,35 @@
-import { SavedRoute, RecordedTrack } from './types';
+import { SavedRoute, RecordedTrack, SavedFavorites } from './types';
 
 const ROUTES_KEY = 'explorer-routes';
 const TRACKS_KEY = 'explorer-tracks';
+const FAVORITES_KEY = 'explorer-favorites';
+
+export async function getSavedFavorites(): Promise<SavedFavorites[]> {
+  try {
+    const data = localStorage.getItem(FAVORITES_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    console.warn('Failed to parse saved favorites, resetting');
+    localStorage.removeItem(FAVORITES_KEY);
+    return [];
+  }
+}
+
+export async function saveFavorites(fav: SavedFavorites): Promise<void> {
+  const favorites = await getSavedFavorites();
+  const existing = favorites.findIndex(f => f.id === fav.id);
+  if (existing >= 0) {
+    favorites[existing] = fav;
+  } else {
+    favorites.push(fav);
+  }
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+}
+
+export async function deleteFavorites(id: string): Promise<void> {
+  const favorites = (await getSavedFavorites()).filter(f => f.id !== id);
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+}
 
 export async function getSavedRoutes(): Promise<SavedRoute[]> {
   try {

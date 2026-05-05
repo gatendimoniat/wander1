@@ -11,6 +11,7 @@
     "downloads": "Descàrregues",
     "route": "Ruta",
     "saved": "Desat",
+    "favorites": "Favorits",
     "track": "Track"
   },
   "categories": {
@@ -74,6 +75,19 @@
     "moderate": "Moderada",
     "hard": "Difícil",
     "expert": "Expert"
+  },
+  "favorites": {
+    "hint": "Gestiona els teus llocs favorits",
+    "save": "Desar favorits",
+    "namePlaceholder": "Nom dels favorits...",
+    "empty": "No hi ha favorits desats",
+    "waypointsCount": "waypoints",
+    "saveCurrent": "Desar waypoints actuals",
+    "loadToMap": "Posa al mapa",
+    "confirmLoad": "Ja hi ha waypoints al mapa. Vols netejar-los i carregar aquests favorits?",
+    "confirmLoadTitle": "Confirmar càrrega",
+    "exportAll": "Exportar tot",
+    "import": "Importar"
   },
   "track": {
     "hint": "Grava un track GPS del teu recorregut",

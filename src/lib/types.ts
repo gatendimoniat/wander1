@@ -55,7 +55,8 @@ export type POICategory =
   | 'cc_acf'
   | 'cc_acs'
   | 'cc_apcc'
-  | 'cc_apn';
+  | 'cc_apn'
+  | 'custom_red';
 
 export interface SavedRoute {
   id: string;
@@ -82,6 +83,19 @@ export interface TrackPoint {
   lng: number;
   altitude?: number;
   timestamp: number;
+}
+
+export interface SavedFavorites {
+  id: string;
+  name: string;
+  waypoints: Array<{
+    id: string;
+    name: string;
+    lat: number;
+    lng: number;
+    description?: string;
+  }>;
+  createdAt: string;
 }
 
 export const CATEGORY_CONFIG: Record<POICategory, { label: string; icon: string; color: string; emoji: string }> = {
@@ -112,4 +126,5 @@ export const CATEGORY_CONFIG: Record<POICategory, { label: string; icon: string;
   cc_acs: { label: 'Aire sur camping', icon: 'Car', color: '#009688', emoji: '🏕️' },
   cc_apcc: { label: 'Parking CC', icon: 'Parking', color: '#3F51B5', emoji: '🅿️' },
   cc_apn: { label: 'Parking nuit', icon: 'Moon', color: '#673AB7', emoji: '🌙' },
+  custom_red: { label: 'Llocs Personalitzats', icon: 'Circle', color: '#FF0000', emoji: '🔴' },
 };

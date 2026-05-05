@@ -5,6 +5,7 @@ interface WikipediaInfoProps {
   poiName: string;
   wikipediaTag?: string;
   wikidataTag?: string;
+  description?: string;
   category?: string;
 }
 
@@ -67,10 +68,18 @@ async function fetchWikiTitle(lang: string, title: string): Promise<WikiSummary 
   return null;
 }
 
-export default function WikipediaInfo({ poiName, wikipediaTag, wikidataTag }: WikipediaInfoProps) {
+export default function WikipediaInfo({ poiName, wikipediaTag, wikidataTag, description, category }: WikipediaInfoProps) {
   const [summary, setSummary] = useState<WikiSummary | null>(null);
 
   useEffect(() => {
+    if (description) {
+      setSummary({
+        title: poiName,
+        extract: description,
+      });
+      return;
+    }
+
     let cancelled = false;
     
     const fetchWikipedia = async () => {
@@ -110,7 +119,7 @@ export default function WikipediaInfo({ poiName, wikipediaTag, wikidataTag }: Wi
       }
     };
 
-    if (!wikipediaTag && !wikidataTag) {
+    if (!wikipediaTag && !wikidataTag && !poiName) {
       return;
     }
     
@@ -119,7 +128,7 @@ export default function WikipediaInfo({ poiName, wikipediaTag, wikidataTag }: Wi
     return () => {
       cancelled = true;
     };
-  }, [poiName, wikipediaTag, wikidataTag]);
+  }, [poiName, wikipediaTag, wikidataTag, description]);
 
   if (!summary) {
     return null;
