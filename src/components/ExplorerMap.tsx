@@ -909,31 +909,59 @@ export default function ExplorerMap() {
 
   const handleExportRoute = async (route: SavedRoute, format: 'json' | 'gpx' = 'json') => {
     const filename = route.name.replace(/\s+/g, '_').toLowerCase();
-    let path = '';
-    if (format === 'gpx') {
-      path = await downloadFile(exportRouteToGPX(route), `${filename}.gpx`, 'application/gpx+xml');
-    } else {
-      path = await downloadFile(exportRouteToJSON(route), `${filename}.json`, 'application/json');
+    try {
+      let path = '';
+      if (format === 'gpx') {
+        path = await downloadFile(exportRouteToGPX(route), `${filename}.gpx`, 'application/gpx+xml');
+      } else {
+        path = await downloadFile(exportRouteToJSON(route), `${filename}.json`, 'application/json');
+      }
+      if (path) {
+        toast.success(`Ruta guardada`, { description: `Ubicación: ${path}` });
+      } else {
+        toast.success('Ruta exportada');
+      }
+    } catch (e: any) {
+      console.error('[EXPORT ROUTE ERROR]', e);
+      toast.error('Error al exportar ruta', { description: e.message || 'Error desconocido' });
     }
-    toast.success(path ? `Ruta exportada a ${path}` : 'Ruta exportada');
   };
 
   const handleExportTrack = async (track: RecordedTrack, format: 'json' | 'gpx' = 'json') => {
     const filename = track.name.replace(/\s+/g, '_').toLowerCase();
-    let path = '';
-    if (format === 'gpx') {
-      path = await downloadFile(exportTrackToGPX(track), `${filename}.gpx`, 'application/gpx+xml');
-    } else {
-      path = await downloadFile(exportTrackToJSON(track), `${filename}.json`, 'application/json');
+    try {
+      let path = '';
+      if (format === 'gpx') {
+        path = await downloadFile(exportTrackToGPX(track), `${filename}.gpx`, 'application/gpx+xml');
+      } else {
+        path = await downloadFile(exportTrackToJSON(track), `${filename}.json`, 'application/json');
+      }
+      if (path) {
+        toast.success(`Track guardado`, { description: `Ubicación: ${path}` });
+      } else {
+        toast.success('Track exportat');
+      }
+    } catch (e: any) {
+      console.error('[EXPORT TRACK ERROR]', e);
+      toast.error('Error al exportar track', { description: e.message || 'Error desconocido' });
     }
-    toast.success(path ? `Track exportat a ${path}` : 'Track exportat');
   };
 
   const handleExportAll = async () => {
-    const routes = await getSavedRoutes();
-    const tracks = await getSavedTracks();
-    const path = await downloadFile(exportAllToJSON(routes, tracks), 'exploramap_backup.json', 'application/json');
-    toast.success(path ? `Còpia de seguretat exportada a ${path}` : 'Còpia de seguretat exportada');
+    try {
+      const routes = await getSavedRoutes();
+      const tracks = await getSavedTracks();
+      console.log('[EXPORT ALL] Routes:', routes?.length, 'Tracks:', tracks?.length);
+      const path = await downloadFile(exportAllToJSON(routes, tracks), 'exploramap_backup.json', 'application/json');
+      if (path) {
+        toast.success(`Còpia de seguretat guardada`, { description: `Ubicación: ${path}` });
+      } else {
+        toast.success('Còpia de seguretat exportada');
+      }
+    } catch (e: any) {
+      console.error('[EXPORT ALL ERROR]', e);
+      toast.error('Error al exportar copia de seguridad', { description: e.message || 'Error desconocido' });
+    }
   };
 
   const handleImportFile = () => {
@@ -959,20 +987,48 @@ export default function ExplorerMap() {
             toast.error('Error en importar GPX');
           }
         } else {
-          const route = importRouteFromJSON(text);
-          if (route) {
-            await saveRoute(route);
-            await refreshData();
-            toast.success('Ruta importada');
-            return;
-          }
-          
-          const track = importTrackFromJSON(text);
-          if (track) {
-            await saveTrack(track);
-            await refreshData();
-            toast.success('Track importat');
-          } else {
+          try {
+            const data = JSON.parse(text);
+            
+            // Verificar si es un backup (formato exportar todo)
+            if (data.routes || data.tracks) {
+              let importedCount = 0;
+              if (data.routes && Array.isArray(data.routes)) {
+                for (const route of data.routes) {
+                  await saveRoute(route);
+                  importedCount++;
+                }
+              }
+              if (data.tracks && Array.isArray(data.tracks)) {
+                for (const track of data.tracks) {
+                  await saveTrack(track);
+                  importedCount++;
+                }
+              }
+              await refreshData();
+              toast.success(`${importedCount} elementos importados`);
+              return;
+            }
+            
+            // Intentar como ruta individual
+            const route = importRouteFromJSON(text);
+            if (route) {
+              await saveRoute(route);
+              await refreshData();
+              toast.success('Ruta importada');
+              return;
+            }
+            
+            // Intentar como track individual
+            const track = importTrackFromJSON(text);
+            if (track) {
+              await saveTrack(track);
+              await refreshData();
+              toast.success('Track importat');
+            } else {
+              toast.error('Error en importar fitxer');
+            }
+          } catch (err) {
             toast.error('Error en importar fitxer');
           }
         }
@@ -1024,6 +1080,7 @@ export default function ExplorerMap() {
           lat: w.lat,
           lng: w.lng,
           description: w.description || '',
+          color: w.color,
         })),
         createdAt: new Date().toISOString(),
       };
@@ -1052,7 +1109,7 @@ export default function ExplorerMap() {
   };
 
   const handleLoadFavoritesToMap = async (fav: SavedFavorites) => {
-    if (waypoints.length > 0) {
+    if (waypoints.length >0) {
       const confirmed = window.confirm(t('favorites.confirmLoad') || 'Ya hay waypoints en el mapa. ¿Quieres limpiarlos y cargar estos favoritos?');
       if (!confirmed) return;
     }
@@ -1063,6 +1120,7 @@ export default function ExplorerMap() {
         lat: w.lat,
         lng: w.lng,
         description: w.description || '',
+        color: w.color,
       });
     });
     setWaypoints(waypointManager.getWaypoints());
@@ -1071,10 +1129,22 @@ export default function ExplorerMap() {
   };
 
   const handleExportAllFavorites = async () => {
-    const favorites = await getSavedFavorites();
-    const dataStr = JSON.stringify(favorites, null, 2);
-    const path = await downloadFile(dataStr, 'exploramap_favorites_backup.json', 'application/json');
-    toast.success(path ? `Còpia de favorits exportada a ${path}` : 'Còpia de favorits exportada');
+    try {
+      const favorites = await getSavedFavorites();
+      console.log('[EXPORT FAVORITES] Count:', favorites?.length);
+      console.log('[EXPORT FAVORITES] Data:', favorites);
+      const dataStr = JSON.stringify(favorites, null, 2);
+      console.log('[EXPORT FAVORITES] JSON length:', dataStr?.length);
+      const path = await downloadFile(dataStr, 'exploramap_favorites_backup.json', 'application/json');
+      if (path) {
+        toast.success(`Còpia de favorits guardada`, { description: `Ubicación: ${path}` });
+      } else {
+        toast.success('Còpia de favorits exportada');
+      }
+    } catch (e: any) {
+      console.error('[EXPORT FAVORITES ERROR]', e);
+      toast.error('Error al exportar favoritos', { description: e.message || 'Error desconocido' });
+    }
   };
 
   const handleClearWaypointsFromMap = () => {
@@ -1106,7 +1176,14 @@ export default function ExplorerMap() {
               await saveFavorites({
                 id: fav.id || crypto.randomUUID(),
                 name: fav.name || 'Imported Favorites',
-                waypoints: fav.waypoints,
+                waypoints: fav.waypoints.map((w: any) => ({
+                  id: w.id || `wp_${Date.now()}_${Math.random()}`,
+                  name: w.name || 'Sin nombre',
+                  lat: w.lat,
+                  lng: w.lng,
+                  description: w.description || '',
+                  color: w.color,
+                })),
                 createdAt: fav.createdAt || new Date().toISOString(),
               });
             }
@@ -1820,91 +1897,121 @@ export default function ExplorerMap() {
             </Marker>
           ))}
           
-          {showWaypoints && waypoints.map(w => (
-            <Marker
-              key={w.id}
-              position={[w.lat, w.lng]}
-              icon={L.divIcon({
-                className: 'waypoint-marker',
-                html: `<div style="font-size: 24px; text-align: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); cursor: pointer;">⭐</div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15],
-              })}
-            >
-              <Popup>
-                <div style={{ minWidth: '200px' }}>
-                  <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 700 }}>{w.name}</h3>
-                  {w.description && (
-                    <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#666', fontStyle: 'italic' }}>{w.description}</p>
-                  )}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${w.lat},${w.lng}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '6px',
-                        background: '#3b82f6',
-                        color: 'white',
-                        fontSize: '11px',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        textDecoration: 'none',
-                        fontWeight: 600,
-                      }}
-                    >
-                      📍 Navegar
-                    </a>
-                    <button
-                      onClick={() => {
-                        addToRoute({ id: w.id, name: w.name, lat: w.lat, lng: w.lng, category: 'custom_red' as any });
-                        setSidebarTab('route');
-                        setSidebarOpen(true);
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: '4px 8px',
-                        background: '#10b981',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                      }}
-                    >
-                      ➕ Ruta
-                    </button>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                    <button
-                      onClick={() => {
-                        waypointManager.deleteWaypoint(w.id);
-                        setWaypoints(waypointManager.getWaypoints());
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: '4px 8px',
-                        background: '#ef4444',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                      }}
-                    >
-                      🗑️ Eliminar
-                    </button>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+           {showWaypoints && waypoints.map(w => {
+                const waypointColor = w.color || '#FFD700';
+                return (
+                <Marker
+                  key={`${w.id}-${waypointColor}`}
+                  position={[w.lat, w.lng]}
+                  icon={L.divIcon({
+                    className: 'waypoint-marker',
+                    html: `<div style="width:24px;height:24px;background:${waypointColor};border-radius:50%;border:2px solid white;box-shadow:0 2px 4px rgba(0,0,0,0.3);cursor:pointer;"></div>`,
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15],
+                  })}
+                >
+                  <Popup>
+                    <div style={{ minWidth: '200px' }}>
+                      <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 700 }}>{w.name}</h3>
+                      {w.description && (
+                        <p style={{ margin: '0 0 8px 0', fontSize: '11px', color: '#666', fontStyle: 'italic' }}>{w.description}</p>
+                      )}
+                      
+                      <div style={{ marginBottom: '8px' }}>
+                        <label style={{ fontSize: '11px', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Color:</label>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          {waypointManager.WAYPOINT_COLORS.map((color) => (
+                            <button
+                              key={color}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                waypointManager.updateWaypoint(w.id, { color });
+                                setWaypoints(waypointManager.getWaypoints());
+                              }}
+                              style={{
+                                width: '24px',
+                                height: '24px',
+                                borderRadius: '50%',
+                                background: color,
+                                border: waypointColor === color ? '3px solid #000' : '2px solid #ccc',
+                                cursor: 'pointer',
+                                boxShadow: waypointColor === color ? '0 0 0 2px white, 0 0 0 4px ' + color : 'none',
+                              }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                        <a
+                          href={`https://www.google.com/maps/dir/?api=1&destination=${w.lat},${w.lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            flex: 1,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            background: '#3b82f6',
+                            color: 'white',
+                            fontSize: '11px',
+                            padding: '4px 8px',
+                            borderRadius: '6px',
+                            textDecoration: 'none',
+                            fontWeight: 600,
+                          }}
+                        >
+                          📍 Navegar
+                        </a>
+                        <button
+                          onClick={() => {
+                            addToRoute({ id: w.id, name: w.name, lat: w.lat, lng: w.lng, category: 'custom_red' as any });
+                            setSidebarTab('route');
+                            setSidebarOpen(true);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '4px 8px',
+                            background: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                          }}
+                        >
+                          ➕ Ruta
+                        </button>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                        <button
+                          onClick={() => {
+                            waypointManager.deleteWaypoint(w.id);
+                            setWaypoints(waypointManager.getWaypoints());
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '4px 8px',
+                            background: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                          }}
+                        >
+                          🗑️ Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              )})}
 
           {trackPoints.length > 1 && (
             <Polyline

@@ -138,10 +138,12 @@ export default defineConfig(({ mode }) => ({
         '@capacitor-community/background-geolocation',
         '@capacitor/core',
         '@capacitor/device',
+        '@capacitor/filesystem',
+        '@capacitor/share',
       ],
     },
   },
   optimizeDeps: {
-    exclude: ['@capacitor-community/background-geolocation', '@capacitor/core', '@capacitor/device'],
+    exclude: ['@capacitor-community/background-geolocation', '@capacitor/core', '@capacitor/device', '@capacitor/filesystem', '@capacitor/share'],
   },
 }));

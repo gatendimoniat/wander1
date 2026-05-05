@@ -146,19 +146,61 @@ export function importTrackFromGPX(gpx: string): RecordedTrack | null {
 }
 
 export async function downloadFile(content: string, filename: string, type: string): Promise<string> {
+  console.log('[EXPORT] START - isMobile:', isMobile());
+  console.log('[EXPORT] Filename:', filename);
+  console.log('[EXPORT] Content length:', content?.length);
+
   if (isMobile()) {
     try {
-      const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+      const capacitor = (window as any).Capacitor;
+      if (!capacitor?.Plugins) {
+        throw new Error('Capacitor o sus plugins no están disponibles');
+      }
+
+      const Filesystem = capacitor.Plugins.Filesystem;
+      const Share = capacitor.Plugins.Share;
+
+      if (!Filesystem || !Share) {
+        throw new Error('Plugins Filesystem o Share no encontrados');
+      }
+
+      if (!content || content.length === 0) {
+        throw new Error('El contenido a exportar está vacío');
+      }
+
+      // Guardar en CACHE (accesible para compartir)
       await Filesystem.writeFile({
         path: filename,
         data: content,
-        directory: Directory.Downloads,
-        encoding: Encoding.UTF8,
+        directory: 'CACHE',
+        encoding: 'utf8',
       });
-      return 'Descargas (Downloads)';
-    } catch (e) {
-      console.error('Error saving file:', e);
-      return '';
+      console.log('[EXPORT] File written to CACHE:', filename);
+
+      // Obtener la URI del archivo para compartir
+      const fileUri = await Filesystem.getUri({
+        path: filename,
+        directory: 'CACHE',
+      });
+
+      console.log('[EXPORT] File URI:', fileUri?.uri);
+
+      if (!fileUri?.uri) {
+        throw new Error('No se pudo obtener la URI del archivo');
+      }
+
+      // Compartir - abre el selector nativo para que el usuario elija dónde guardar
+      await Share.share({
+        title: 'Exportar ' + filename,
+        text: 'Selecciona dónde guardar el archivo',
+        url: fileUri.uri,
+      });
+
+      console.log('[EXPORT] Share completed');
+      return `Archivo exportado: ${filename}`;
+    } catch (e: any) {
+      console.error('[EXPORT] ERROR:', e);
+      throw e;
     }
   } else {
     const blob = new Blob([content], { type });

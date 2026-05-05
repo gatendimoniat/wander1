@@ -94,6 +94,7 @@ export interface SavedFavorites {
     lat: number;
     lng: number;
     description?: string;
+    color?: WaypointColor;
   }>;
   createdAt: string;
 }

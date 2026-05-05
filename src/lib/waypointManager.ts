@@ -1,9 +1,20 @@
+export const WAYPOINT_COLORS = [
+  '#FFD700', // Amarillo
+  '#FF0000', // Rojo
+  '#00AA00', // Verde
+  '#0000FF', // Azul
+  '#FFA500', // Naranja
+] as const;
+
+export type WaypointColor = typeof WAYPOINT_COLORS[number];
+
 export interface Waypoint {
   id: string;
   name: string;
   lat: number;
   lng: number;
   description?: string;
+  color?: WaypointColor; // Color del waypoint
   createdAt: string;
   updatedAt: string;
   poiId?: string; // ID del POI original si viene de favorito
@@ -29,6 +40,7 @@ export function addWaypoint(waypoint: Omit<Waypoint, 'id' | 'createdAt' | 'updat
   const newWaypoint: Waypoint = {
     ...waypoint,
     id: `waypoint_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+    color: waypoint.color || WAYPOINT_COLORS[0], // Color por defecto: rojo
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -69,7 +81,7 @@ export function getWaypointByPoiId(poiId: string): Waypoint | null {
   return waypoints.find(w => w.poiId === poiId) || null;
 }
 
-export function toggleFavorite(poi: { id: string; name: string; lat: number; lng: number; description?: string }): { action: 'added' | 'removed'; waypoint?: Waypoint } {
+export function toggleFavorite(poi: { id: string; name: string; lat: number; lng: number; description?: string }, color?: WaypointColor): { action: 'added' | 'removed'; waypoint?: Waypoint } {
   const existing = getWaypointByPoiId(poi.id);
   if (existing) {
     deleteWaypoint(existing.id);
@@ -81,6 +93,7 @@ export function toggleFavorite(poi: { id: string; name: string; lat: number; lng
       lng: poi.lng,
       description: poi.description,
       poiId: poi.id,
+      color: color || WAYPOINT_COLORS[0],
     });
     return { action: 'added', waypoint };
   }
