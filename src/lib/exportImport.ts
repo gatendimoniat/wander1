@@ -1,8 +1,9 @@
 import { SavedRoute, RecordedTrack, POI, TrackPoint } from './types';
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
-const isMobile = typeof (window as any).Capacitor !== 'undefined' && 
-  ((window as any).Capacitor.isNativePlatform?.() || false);
+function isMobile(): boolean {
+  return typeof (window as any).Capacitor !== 'undefined' && 
+    ((window as any).Capacitor.isNativePlatform?.() || false);
+}
 
 export function exportRouteToJSON(route: SavedRoute): string {
   return JSON.stringify(route, null, 2);
@@ -145,14 +146,20 @@ export function importTrackFromGPX(gpx: string): RecordedTrack | null {
 }
 
 export async function downloadFile(content: string, filename: string, type: string): Promise<string> {
-  if (isMobile) {
-    await Filesystem.writeFile({
-      path: filename,
-      data: content,
-      directory: Directory.Downloads,
-      encoding: Encoding.UTF8,
-    });
-    return `Descargas (Downloads)`;
+  if (isMobile()) {
+    try {
+      const { Filesystem, Directory, Encoding } = await import('@capacitor/filesystem');
+      await Filesystem.writeFile({
+        path: filename,
+        data: content,
+        directory: Directory.Downloads,
+        encoding: Encoding.UTF8,
+      });
+      return 'Descargas (Downloads)';
+    } catch (e) {
+      console.error('Error saving file:', e);
+      return '';
+    }
   } else {
     const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
